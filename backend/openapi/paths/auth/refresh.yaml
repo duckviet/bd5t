@@ -1,0 +1,29 @@
+post:
+  summary: Refresh access token
+  operationId: refresh
+  tags:
+    - Auth
+  requestBody:
+    required: false
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/RefreshRequest'
+  responses:
+    '200':
+      description: Token refreshed successfully
+      headers:
+        Set-Cookie:
+          schema:
+            type: string
+            description: New access token cookie
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TokenResponse'
+    '401':
+      description: Invalid or expired refresh token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

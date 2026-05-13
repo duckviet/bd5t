@@ -1,0 +1,84 @@
+RegisterRequest:
+  type: object
+  required:
+    - email
+    - password
+    - studentId
+  properties:
+    email:
+      type: string
+      format: email
+      example: student@university.edu
+    password:
+      type: string
+      format: password
+      minLength: 8
+      example: "password123"
+    studentId:
+      type: string
+      example: "SV00123456"
+    displayName:
+      type: string
+      example: "John Doe"
+
+LoginRequest:
+  type: object
+  required:
+    - email
+    - password
+  properties:
+    email:
+      type: string
+      format: email
+    password:
+      type: string
+      format: password
+
+RefreshRequest:
+  type: object
+  properties:
+    refreshToken:
+      type: string
+      description: Optional refresh token (if not using cookie)
+
+AuthResponse:
+  type: object
+  properties:
+    user:
+      $ref: '#/components/schemas/UserProfile'
+    accessToken:
+      type: string
+      description: JWT access token
+    refreshToken:
+      type: string
+      description: JWT refresh token
+
+TokenResponse:
+  type: object
+  properties:
+    accessToken:
+      type: string
+
+UserProfile:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: "550e8400-e29b-41d4-a716-446655440000"
+    email:
+      type: string
+      format: email
+    studentId:
+      type: string
+    displayName:
+      type: string
+    avatarUrl:
+      type: string
+    role:
+      type: string
+      enum: [student, admin]
+      default: student
+    createdAt:
+      type: string
+      format: date-time

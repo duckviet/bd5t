@@ -1,0 +1,22 @@
+post:
+  summary: Logout user
+  operationId: logout
+  tags:
+    - Auth
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  responses:
+    '200':
+      description: Logout successful
+      headers:
+        Set-Cookie:
+          schema:
+            type: string
+            description: Clear authentication cookies
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

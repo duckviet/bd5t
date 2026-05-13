@@ -1,0 +1,29 @@
+post:
+  summary: Login user
+  operationId: login
+  tags:
+    - Auth
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/LoginRequest'
+  responses:
+    '200':
+      description: Login successful
+      headers:
+        Set-Cookie:
+          schema:
+            type: string
+            description: HTTP-only cookies for access and refresh tokens
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthResponse'
+    '401':
+      description: Invalid credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
