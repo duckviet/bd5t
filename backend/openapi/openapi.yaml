@@ -171,7 +171,18 @@ components:
           type: string
         displayName:
           type: string
+        fullName:
+          type: string
         avatarUrl:
+          type: string
+        unitId:
+          type: string
+          format: uuid
+          nullable: true
+        unitName:
+          type: string
+          nullable: true
+        className:
           type: string
         role:
           type: string
@@ -180,6 +191,20 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 255
+        avatarUrl:
+          type: string
+          format: uri
+        className:
+          type: string
+          maxLength: 255
 
     UnitItem:
       type: object
@@ -527,5 +552,123 @@ paths:
                     $ref: '#/components/schemas/ActivityDetail'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /profile:
+    get:
+      summary: Get current user profile
+      operationId: getProfile
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      summary: Update current user profile
+      operationId: updateProfile
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /media/upload:
+    post:
+      summary: Upload media file
+      operationId: uploadMedia
+      tags:
+        - Media
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                type:
+                  type: string
+                  enum: [avatar, thumbnail, evidence]
+                  description: Type of media upload
+              required:
+                - file
+                - type
+      responses:
+        '200':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerError'

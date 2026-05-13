@@ -10,7 +10,6 @@
 package dto
 
 type AuthResponse struct {
-
 	User UserProfile `json:"user,omitempty"`
 
 	AccessToken string `json:"accessToken,omitempty"`

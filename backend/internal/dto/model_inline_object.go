@@ -10,6 +10,5 @@
 package dto
 
 type InlineObject struct {
-
 	Error string `json:"error,omitempty"`
 }

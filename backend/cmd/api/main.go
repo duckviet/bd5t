@@ -15,6 +15,7 @@ import (
 	"github.com/duckviet/bd5t/backend/internal/database/postgres"
 	"github.com/duckviet/bd5t/backend/internal/handlers"
 	"github.com/duckviet/bd5t/backend/internal/handlers/middleware"
+	"github.com/duckviet/bd5t/backend/internal/media"
 	repoImpl "github.com/duckviet/bd5t/backend/internal/repository/impl"
 	svcImpl "github.com/duckviet/bd5t/backend/internal/service/impl"
 	"github.com/gin-gonic/gin"
@@ -89,6 +90,24 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	activityService := svcImpl.NewActivityService(activityRepo)
 	activitiesAPI := handlers.NewActivitiesAPI(activityService)
 
+	profileService := svcImpl.NewProfileService(userRepo, unitRepo)
+	profileAPI := handlers.NewProfileAPI(profileService)
+
+	r2Client, err := media.NewR2Client(
+		cfg.Media.R2Endpoint,
+		cfg.Media.R2AccessKeyID,
+		cfg.Media.R2SecretAccessKey,
+		cfg.Media.R2Bucket,
+		cfg.Media.CDNBaseURL,
+	)
+	if err != nil {
+		log.Fatalf("Failed to create R2 client: %v", err)
+	}
+
+	mediaService := media.NewMediaService(r2Client, cfg.Media)
+	fileStorageService := media.NewFileStorageService(r2Client, cfg.Media)
+	mediaAPI := handlers.NewMediaAPI(mediaService, fileStorageService)
+
 	healthAPI := handlers.NewHealthAPI()
 
 	authGroup := router.Group("/auth")
@@ -103,6 +122,11 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	router.GET("/units", unitsAPI.ListUnits)
 	router.GET("/activities", activitiesAPI.ListActivities)
 	router.GET("/activities/:slug", activitiesAPI.GetActivityDetail)
+
+	router.GET("/profile", middleware.AuthRequired(tokenMgr), profileAPI.GetProfile)
+	router.PATCH("/profile", middleware.AuthRequired(tokenMgr), profileAPI.UpdateProfile)
+
+	router.POST("/media/upload", middleware.AuthRequired(tokenMgr), mediaAPI.UploadMedia)
 
 	router.GET("/healthz", healthAPI.Healthz)
 	router.GET("/readyz", healthAPI.Readyz)

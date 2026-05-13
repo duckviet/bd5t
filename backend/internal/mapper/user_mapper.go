@@ -23,11 +23,31 @@ func UserToProfileDTO(user *domain.User) *dto.UserProfile {
 	}
 	if user.DisplayName != nil {
 		profile.DisplayName = *user.DisplayName
+		profile.FullName = *user.DisplayName
 	}
 	if user.AvatarURL != nil {
 		profile.AvatarUrl = *user.AvatarURL
 	}
+	if user.UnitID != nil {
+		profile.UnitId = user.UnitID
+	}
+	if user.ClassName != nil {
+		profile.ClassName = *user.ClassName
+	}
 	profile.CreatedAt = user.CreatedAt
+
+	return profile
+}
+
+func UserToProfileDTOWithUnit(user *domain.User, unitName string) *dto.UserProfile {
+	if user == nil {
+		return nil
+	}
+
+	profile := UserToProfileDTO(user)
+	if unitName != "" {
+		profile.UnitName = &unitName
+	}
 
 	return profile
 }
@@ -65,9 +85,16 @@ func DomainToUserProfile(user *domain.User) *dto.UserProfile {
 	}
 	if user.DisplayName != nil {
 		profile.DisplayName = *user.DisplayName
+		profile.FullName = *user.DisplayName
 	}
 	if user.AvatarURL != nil {
 		profile.AvatarUrl = *user.AvatarURL
+	}
+	if user.UnitID != nil {
+		profile.UnitId = user.UnitID
+	}
+	if user.ClassName != nil {
+		profile.ClassName = *user.ClassName
 	}
 	profile.CreatedAt = user.CreatedAt
 

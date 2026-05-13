@@ -1,0 +1,33 @@
+patch:
+  summary: Update current user profile
+  operationId: updateProfile
+  tags:
+    - Profile
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/UpdateProfileRequest'
+  responses:
+    '200':
+      description: Profile updated successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: '#/components/schemas/UserProfile'
+    '400':
+      $ref: '#/components/responses/BadRequest'
+    '401':
+      $ref: '#/components/responses/Unauthorized'
+    '500':
+      $ref: '#/components/responses/InternalServerError'

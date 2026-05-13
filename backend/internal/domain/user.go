@@ -11,6 +11,8 @@ type User struct {
 	StudentID    *string
 	DisplayName  *string
 	AvatarURL    *string
+	UnitID       *string
+	ClassName    *string
 	Role         string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time

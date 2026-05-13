@@ -43,6 +43,7 @@ type RateLimitConfig struct {
 	Login    int
 	Upload   int
 	Evidence int
+	Profile  int
 }
 
 type MediaConfig struct {

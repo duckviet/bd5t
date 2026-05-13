@@ -8,4 +8,5 @@ import (
 
 type UnitRepository interface {
 	List(ctx context.Context) ([]*domain.Unit, error)
+	GetByID(ctx context.Context, id string) (*domain.Unit, error)
 }

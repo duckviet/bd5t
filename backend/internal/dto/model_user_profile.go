@@ -14,7 +14,6 @@ import (
 )
 
 type UserProfile struct {
-
 	Id string `json:"id,omitempty"`
 
 	Email string `json:"email,omitempty"`
@@ -23,7 +22,15 @@ type UserProfile struct {
 
 	DisplayName string `json:"displayName,omitempty"`
 
+	FullName string `json:"fullName,omitempty"`
+
 	AvatarUrl string `json:"avatarUrl,omitempty"`
+
+	UnitId *string `json:"unitId,omitempty"`
+
+	UnitName *string `json:"unitName,omitempty"`
+
+	ClassName string `json:"className,omitempty"`
 
 	Role string `json:"role,omitempty"`
 

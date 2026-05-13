@@ -9,8 +9,10 @@
 
 package dto
 
-type GetActivityDetail200Response struct {
-	Success bool `json:"success,omitempty"`
+type UpdateProfileRequest struct {
+	FullName string `json:"fullName,omitempty"`
 
-	Data ActivityDetail `json:"data,omitempty"`
+	AvatarUrl string `json:"avatarUrl,omitempty"`
+
+	ClassName string `json:"className,omitempty"`
 }

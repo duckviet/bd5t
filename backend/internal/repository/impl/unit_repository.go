@@ -2,9 +2,11 @@ package impl
 
 import (
 	"context"
+	"errors"
 
 	"github.com/duckviet/bd5t/backend/internal/domain"
 	"github.com/duckviet/bd5t/backend/internal/repository/interfaces"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -48,4 +50,27 @@ func (r *UnitRepository) List(ctx context.Context) ([]*domain.Unit, error) {
 	}
 
 	return units, nil
+}
+
+func (r *UnitRepository) GetByID(ctx context.Context, id string) (*domain.Unit, error) {
+	query := `
+		SELECT id, name, code, description, created_at, updated_at
+		FROM units WHERE id = $1`
+
+	var unit domain.Unit
+	err := r.pool.QueryRow(ctx, query, id).Scan(
+		&unit.ID,
+		&unit.Name,
+		&unit.Code,
+		&unit.Description,
+		&unit.CreatedAt,
+		&unit.UpdatedAt,
+	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &unit, nil
 }

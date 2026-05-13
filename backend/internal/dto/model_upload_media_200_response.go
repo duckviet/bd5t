@@ -9,8 +9,8 @@
 
 package dto
 
-type GetActivityDetail200Response struct {
+type UploadMedia200Response struct {
 	Success bool `json:"success,omitempty"`
 
-	Data ActivityDetail `json:"data,omitempty"`
+	Data UploadMedia200ResponseData `json:"data,omitempty"`
 }

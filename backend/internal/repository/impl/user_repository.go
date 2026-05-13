@@ -22,11 +22,11 @@ var _ interfaces.UserRepository = (*UserRepository)(nil)
 
 func (r *UserRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
 	query := `
-		SELECT id, email, password_hash, student_id, display_name, avatar_url, role, created_at, updated_at
+		SELECT id, email, password_hash, student_id, display_name, avatar_url, unit_id, class_name, role, created_at, updated_at
 		FROM users WHERE id = $1`
 
 	var user domain.User
-	var studentID, displayName, avatarURL *string
+	var studentID, displayName, avatarURL, unitID, className *string
 
 	err := r.pool.QueryRow(ctx, query, id).Scan(
 		&user.ID,
@@ -35,6 +35,8 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*domain.User, 
 		&studentID,
 		&displayName,
 		&avatarURL,
+		&unitID,
+		&className,
 		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -49,16 +51,18 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*domain.User, 
 	user.StudentID = studentID
 	user.DisplayName = displayName
 	user.AvatarURL = avatarURL
+	user.UnitID = unitID
+	user.ClassName = className
 	return &user, nil
 }
 
 func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	query := `
-		SELECT id, email, password_hash, student_id, display_name, avatar_url, role, created_at, updated_at
+		SELECT id, email, password_hash, student_id, display_name, avatar_url, unit_id, class_name, role, created_at, updated_at
 		FROM users WHERE email = $1`
 
 	var user domain.User
-	var studentID, displayName, avatarURL *string
+	var studentID, displayName, avatarURL, unitID, className *string
 
 	err := r.pool.QueryRow(ctx, query, email).Scan(
 		&user.ID,
@@ -67,6 +71,8 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 		&studentID,
 		&displayName,
 		&avatarURL,
+		&unitID,
+		&className,
 		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -81,16 +87,18 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 	user.StudentID = studentID
 	user.DisplayName = displayName
 	user.AvatarURL = avatarURL
+	user.UnitID = unitID
+	user.ClassName = className
 	return &user, nil
 }
 
 func (r *UserRepository) GetByStudentID(ctx context.Context, studentID string) (*domain.User, error) {
 	query := `
-		SELECT id, email, password_hash, student_id, display_name, avatar_url, role, created_at, updated_at
+		SELECT id, email, password_hash, student_id, display_name, avatar_url, unit_id, class_name, role, created_at, updated_at
 		FROM users WHERE student_id = $1`
 
 	var user domain.User
-	var studentIDPtr, displayName, avatarURL *string
+	var studentIDPtr, displayName, avatarURL, unitID, className *string
 
 	err := r.pool.QueryRow(ctx, query, studentID).Scan(
 		&user.ID,
@@ -99,6 +107,8 @@ func (r *UserRepository) GetByStudentID(ctx context.Context, studentID string) (
 		&studentIDPtr,
 		&displayName,
 		&avatarURL,
+		&unitID,
+		&className,
 		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -113,6 +123,8 @@ func (r *UserRepository) GetByStudentID(ctx context.Context, studentID string) (
 	user.StudentID = studentIDPtr
 	user.DisplayName = displayName
 	user.AvatarURL = avatarURL
+	user.UnitID = unitID
+	user.ClassName = className
 	return &user, nil
 }
 
@@ -148,9 +160,9 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 func (r *UserRepository) UpdateProfile(ctx context.Context, user *domain.User) error {
 	query := `
 		UPDATE users
-		SET display_name = $1, avatar_url = $2, updated_at = NOW()
-		WHERE id = $3`
+		SET display_name = $1, avatar_url = $2, class_name = $3, updated_at = NOW()
+		WHERE id = $4`
 
-	_, err := r.pool.Exec(ctx, query, user.DisplayName, user.AvatarURL, user.ID)
+	_, err := r.pool.Exec(ctx, query, user.DisplayName, user.AvatarURL, user.ClassName, user.ID)
 	return err
 }

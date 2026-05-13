@@ -37,6 +37,7 @@ func Load() (*Config, error) {
 			Login:    getEnvInt("RATE_LIMIT_LOGIN", 5),
 			Upload:   getEnvInt("RATE_LIMIT_UPLOAD", 10),
 			Evidence: getEnvInt("RATE_LIMIT_EVIDENCE", 10),
+			Profile:  getEnvInt("RATE_LIMIT_PROFILE", 10),
 		},
 		Media: MediaConfig{
 			R2Bucket:             getEnvRequired("R2_BUCKET"),

@@ -1,0 +1,56 @@
+post:
+  summary: Upload media file
+  operationId: uploadMedia
+  tags:
+    - Media
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            file:
+              type: string
+              format: binary
+            type:
+              type: string
+              enum: [avatar, thumbnail, evidence]
+              description: Type of media upload
+        required:
+          - file
+          - type
+  responses:
+    '200':
+      description: File uploaded successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                  key:
+                    type: string
+    '400':
+      $ref: '#/components/responses/BadRequest'
+    '401':
+      $ref: '#/components/responses/Unauthorized'
+    '413':
+      description: File too large
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    '500':
+      $ref: '#/components/responses/InternalServerError'

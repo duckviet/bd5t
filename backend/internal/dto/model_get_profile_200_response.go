@@ -9,8 +9,8 @@
 
 package dto
 
-type GetActivityDetail200Response struct {
+type GetProfile200Response struct {
 	Success bool `json:"success,omitempty"`
 
-	Data ActivityDetail `json:"data,omitempty"`
+	Data UserProfile `json:"data,omitempty"`
 }

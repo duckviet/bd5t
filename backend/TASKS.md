@@ -152,7 +152,7 @@
 
 ### 3.4 Domain
 - [x] `internal/domain/user.go` — `User` struct
-  - [ ] Update with `UnitID`, `ClassName`, rename `DisplayName` to `FullName`
+  - [x] Update with `UnitID`, `ClassName`, rename `DisplayName` to `FullName`
 
 ### 3.5 Repository — User
 - [x] Define `UserRepository` interface in `internal/repository/interfaces/`
@@ -241,11 +241,11 @@
 
 > Goal: authenticated user can view and update their own profile.
 
-- [ ] `GET /profile` — returns current user's full profile
-- [ ] `PATCH /profile` — update full name, avatar URL, class name
-- [ ] Add `ProfileUpdateRequest` schema to OpenAPI
-- [ ] `UpdateProfile(ctx, userId, req)` in `UserService`
-- [ ] Apply rate limit on `PATCH /profile`
+- [x] `GET /profile` — returns current user's full profile
+- [x] `PATCH /profile` — update full name, avatar URL, class name
+- [x] Add `ProfileUpdateRequest` schema to OpenAPI
+- [x] `UpdateProfile(ctx, userId, req)` in `UserService`
+- [x] Apply rate limit on `PATCH /profile`
 
 ---
 
@@ -254,28 +254,28 @@
 > Goal: images and evidence files uploadable to Cloudflare R2.
 
 ### 6.1 R2 Client
-- [ ] `internal/media/r2_client.go` — init S3-compatible client from config
+- [x] `internal/media/r2_client.go` — init S3-compatible client from config
 
 ### 6.2 Validation
-- [ ] `internal/media/validation.go`
-  - [ ] Validate MIME type against whitelist
-  - [ ] Validate file size against config limit
-  - [ ] Reject files that cannot be decoded
+- [x] `internal/media/validation.go`
+  - [x] Validate MIME type against whitelist
+  - [x] Validate file size against config limit
+  - [x] Reject files that cannot be decoded
 
 ### 6.3 MediaService (images)
-- [ ] `UploadImage(ctx, file) (*MediaUploadResult, error)`
-- [ ] `DeleteObject(ctx, key) error`
+- [x] `UploadImage(ctx, file) (*MediaUploadResult, error)`
+- [x] `DeleteObject(ctx, key) error`
 
 ### 6.4 FileStorageService (evidence files)
-- [ ] `UploadFile(ctx, filename, contentType, r, size) (*StoredFile, error)`
-- [ ] `DeleteFile(ctx, key) error`
+- [x] `UploadFile(ctx, filename, contentType, r, size) (*StoredFile, error)`
+- [x] `DeleteFile(ctx, key) error`
 
 ### 6.5 OpenAPI Spec
-- [ ] `openapi/paths/media/upload.yaml` — `POST /media/upload`
-- [ ] Add `MediaUploadResponse` schema
+- [x] `openapi/paths/media/upload.yaml` — `POST /media/upload`
+- [x] Add `MediaUploadResponse` schema
 
 ### 6.6 Handler
-- [ ] `POST /media/upload` — authenticated, rate limited, returns CDN URL + key
+- [x] `POST /media/upload` — authenticated, rate limited, returns CDN URL + key
 
 ### 6.7 Tests
 - [ ] Unit test: file type and size validation
@@ -456,8 +456,8 @@
 
 ## Phase 12 — Operational Endpoints
 
-- [ ] `GET /healthz` — liveness, returns 200 + `{"status":"ok"}`
-- [ ] `GET /readyz` — readiness, checks DB ping, returns 200 or 503
+- [x] `GET /healthz` — liveness, returns 200 + `{"status":"ok"}`
+- [x] `GET /readyz` — readiness, checks DB ping, returns 200 or 503
 
 ---
 
@@ -476,11 +476,11 @@
 - [ ] File uploads rejected outside whitelist MIME types
 
 ### Rate Limiting
-- [ ] Login endpoint rate limited
-- [ ] Register endpoint rate limited
-- [ ] Evidence create rate limited
-- [ ] Media upload rate limited
-- [ ] Refresh token rate limited
+- [x] Login endpoint rate limited
+- [x] Register endpoint rate limited
+- [x] Evidence create rate limited
+- [x] Media upload rate limited
+- [x] Refresh token rate limited
 
 ### Observability
 - [ ] All audit actions are logged (login, logout, evidence upload, approve/reject)

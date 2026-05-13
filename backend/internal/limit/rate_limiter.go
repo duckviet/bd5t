@@ -34,6 +34,10 @@ func (rl *RateLimiter) Evidence() gin.HandlerFunc {
 	return rl.limitByIP(rl.cfg.Evidence)
 }
 
+func (rl *RateLimiter) Profile() gin.HandlerFunc {
+	return rl.limitByIP(rl.cfg.Profile)
+}
+
 func (rl *RateLimiter) limitByIP(limit int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ip := c.ClientIP()
