@@ -42,14 +42,11 @@ func (h *EvidencesAPI) ListEvidences(c *gin.Context) {
 
 	totalPages := (result.Total + result.PageSize - 1) / result.PageSize
 
-	response.OK(c, gin.H{
-		"data": result.Evidences,
-		"meta": gin.H{
-			"page":       result.Page,
-			"pageSize":   result.PageSize,
-			"total":      result.Total,
-			"totalPages": totalPages,
-		},
+	response.Paginated(c, result.Evidences, &response.PaginationMeta{
+		Page:       result.Page,
+		PageSize:   result.PageSize,
+		Total:      int64(result.Total),
+		TotalPages: totalPages,
 	})
 }
 

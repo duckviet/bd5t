@@ -12,15 +12,31 @@ import {
   MapPin,
   ExternalLink,
   ListFilter,
+  Loader2,
 } from "lucide-react";
 import {
   CRITERIA,
   REVIEW_LEVELS,
   type CriterionType,
-  type ReviewLevel,
 } from "@/lib/constants";
-import { MOCK_ACTIVITIES } from "../../../lib/mock-data";
+import { useListActivities, type ListActivities200 } from "@/services/generated/api";
 import { cn } from "@/lib/utils";
+
+interface ActivityApiItem {
+  id?: string;
+  slug?: string;
+  title?: string;
+  shortDescription?: string;
+  thumbnailUrl?: string | null;
+  location?: string | null;
+  targetAudience?: string | null;
+  unitId?: string | null;
+  unitName?: string | null;
+  startDate?: string;
+  endDate?: string;
+  isActive?: boolean;
+  reviewLevel?: string;
+}
 
 export default function ActivitiesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,6 +44,14 @@ export default function ActivitiesPage() {
   const [selectedCriterion, setSelectedCriterion] = useState<string>("all");
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data: _apiResponse, isLoading, error } = useListActivities({
+    pageSize: 100,
+  });
+
+  const responseData = (_apiResponse as any)?.data as ListActivities200 | undefined;
+  const activities: ActivityApiItem[] = responseData?.data || [];
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -38,31 +62,31 @@ export default function ActivitiesPage() {
 
   const filteredActivities = useMemo(() => {
     const now = new Date();
-    return MOCK_ACTIVITIES.filter((activity: any) => {
+    return activities.filter((activity) => {
       const matchesSearch = activity.title
-        .toLowerCase()
+        ?.toLowerCase()
         .includes(debouncedSearchQuery.toLowerCase());
-
-      const matchesCriterion =
-        selectedCriterion === "all" ||
-        activity.criteria.includes(selectedCriterion as CriterionType);
 
       const matchesLevel =
         selectedLevel === "all" || activity.reviewLevel === selectedLevel;
 
-      const start = new Date(activity.startAt);
-      const end = new Date(activity.endAt);
+      const start = activity.startDate ? new Date(activity.startDate) : null;
+      const end = activity.endDate ? new Date(activity.endDate) : null;
       let status = "";
-      if (now < start) status = "UPCOMING";
-      else if (now > end) status = "ENDED";
-      else status = "OPEN";
+      if (start && end) {
+        if (now < start) status = "UPCOMING";
+        else if (now > end) status = "ENDED";
+        else status = "OPEN";
+      }
 
       const matchesStatus =
         selectedStatus === "all" || status === selectedStatus;
 
+      const matchesCriterion = selectedCriterion === "all";
+
       return matchesSearch && matchesCriterion && matchesLevel && matchesStatus;
     });
-  }, [debouncedSearchQuery, selectedCriterion, selectedLevel, selectedStatus]);
+  }, [activities, debouncedSearchQuery, selectedCriterion, selectedLevel, selectedStatus]);
 
   const statusOptions = [
     { label: "Đang mở", value: "OPEN" },
@@ -237,8 +261,26 @@ export default function ActivitiesPage() {
           </p>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-24">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-3 text-muted-foreground">Đang tải hoạt động...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-slate-300 flex w-full items-center justify-center flex-col gap-4">
+            <p className="text-red-500 font-medium">Không thể tải hoạt động</p>
+            <Button variant="link" onClick={() => window.location.reload()}>
+              Thử lại
+            </Button>
+          </div>
+        )}
+
         {/* Results */}
-        {filteredActivities.length === 0 ? (
+        {!isLoading && !error && filteredActivities.length === 0 ? (
           <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-slate-300 flex w-full items-center justify-center flex-col gap-4">
             <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mb-2">
               <Search className="h-8 w-8 text-slate-300" />
@@ -269,7 +311,7 @@ export default function ActivitiesPage() {
                   {activity.thumbnailUrl ? (
                     <img
                       src={activity.thumbnailUrl}
-                      alt={activity.slug}
+                      alt={activity.slug || ""}
                       className="object-cover w-full h-full"
                     />
                   ) : (
@@ -277,27 +319,28 @@ export default function ActivitiesPage() {
                       <Calendar className="h-12 w-12 text-slate-300" />
                     </div>
                   )}
-                  <div className="absolute top-3 right-3">
-                    <Badge
-                      variant="secondary"
-                      className="bg-white/90 backdrop-blur-sm text-primary border-none shadow-sm"
-                    >
-                      {REVIEW_LEVELS[activity.reviewLevel as ReviewLevel]}
-                    </Badge>
-                  </div>
+                  {activity.unitName && (
+                    <div className="absolute top-3 right-3">
+                      <Badge
+                        variant="secondary"
+                        className="bg-white/90 backdrop-blur-sm text-primary border-none shadow-sm"
+                      >
+                        {activity.unitName}
+                      </Badge>
+                    </div>
+                  )}
                 </div>
                 <CardContent className="p-5">
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    {activity.criteria.map((c: CriterionType) => (
+                  {activity.shortDescription && (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
                       <Badge
-                        key={c}
                         variant="outline"
                         className="text-[10px] uppercase tracking-wider py-0 px-2 font-bold border-primary/20 text-primary/80 bg-primary/5"
                       >
-                        {CRITERIA[c].replace(" tốt", "")}
+                        Hoạt động
                       </Badge>
-                    ))}
-                  </div>
+                    </div>
+                  )}
                   <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-primary transition-colors leading-tight">
                     {activity.title}
                   </h3>
@@ -312,8 +355,9 @@ export default function ActivitiesPage() {
                       <div className="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center">
                         <Calendar className="h-3 w-3" />
                       </div>
-                      {new Date(activity.startAt).toLocaleDateString("vi-VN")} -{" "}
-                      {new Date(activity.endAt).toLocaleDateString("vi-VN")}
+                      {activity.startDate && activity.endDate
+                        ? `${new Date(activity.startDate).toLocaleDateString("vi-VN")} - ${new Date(activity.endDate).toLocaleDateString("vi-VN")}`
+                        : "Chưa có ngày"}
                     </div>
                   </div>
                 </CardContent>
@@ -330,20 +374,18 @@ export default function ActivitiesPage() {
                       Chi tiết
                     </Button>
                   </Link>
-                  <a
-                    href={activity.registrationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1"
+                  <Button
+                    size="sm"
+                    className="w-full gap-2 rounded-xl bg-primary hover:bg-primary/90 shadow-sm shadow-primary/20"
+                    onClick={() => {
+                      if (activity.startDate && activity.endDate) {
+                        alert("Chuyển đến trang đăng ký hoạt động");
+                      }
+                    }}
                   >
-                    <Button
-                      size="sm"
-                      className="w-full gap-2 rounded-xl bg-primary hover:bg-primary/90 shadow-sm shadow-primary/20"
-                    >
-                      Tham gia
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </Button>
-                  </a>
+                    Tham gia
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Button>
                 </CardFooter>
               </Card>
             ))}

@@ -32,7 +32,7 @@ func (h *AdminAPI) ReviewEvidence(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{"data": result})
+	response.OK(c, result)
 }
 
 func (h *AdminAPI) CreateActivity(c *gin.Context) {
@@ -48,7 +48,7 @@ func (h *AdminAPI) CreateActivity(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, gin.H{"data": result})
+	response.Created(c, result)
 }
 
 func (h *AdminAPI) UpdateActivity(c *gin.Context) {
@@ -66,7 +66,7 @@ func (h *AdminAPI) UpdateActivity(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{"data": result})
+	response.OK(c, result)
 }
 
 func (h *AdminAPI) DeleteActivity(c *gin.Context) {

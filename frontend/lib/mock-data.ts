@@ -1,4 +1,8 @@
 /**
+ * @deprecated Đã chuyển sang dùng API thật từ backend.
+ * Tất cả dữ liệu mẫu ở file này không còn được sử dụng trong app.
+ * Xem thêm: @/services/generated/api.ts
+ *
  * MOCK DATA FOR BẢN ĐỒ 5 TỐT
  * Dựa trên RAW_TEXT_DATA.md, DATABASE_SCHEMA.md và API_SPEC.md
  */

@@ -53,8 +53,5 @@ func (h *ActivitiesAPI) GetActivityDetail(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, gin.H{
-		"success": true,
-		"data":    result,
-	})
+	response.OK(c, result)
 }

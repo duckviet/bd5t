@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,34 +10,48 @@ import {
   MapPin,
   Users,
   ExternalLink,
-  Clock,
   FileText,
   Award,
+  Loader2,
 } from "lucide-react";
 import {
-  CRITERIA,
-  type CriterionType,
   type ReviewLevel,
   REVIEW_LEVELS,
 } from "@/lib/constants";
-import { MOCK_ACTIVITIES } from "../../../../lib/mock-data";
+import { useGetActivityDetail } from "@/services/generated/api";
+import type { ActivityDetail } from "@/services/generated/api";
 
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
+export default function ActivityDetailPage() {
+  const params = useParams();
+  const slug = params.slug as string;
 
-export default async function ActivityDetailPage({ params }: PageProps) {
-  const { slug } = await params;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data: _apiResponse, isLoading, error } = useGetActivityDetail(slug);
 
-  const activity = MOCK_ACTIVITIES.find((act: any) => act.slug === slug);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen py-12 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-3 text-muted-foreground">Đang tải...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    notFound();
+  }
+
+  const activity = (_apiResponse as any)?.data as ActivityDetail | undefined;
 
   if (!activity) {
     notFound();
   }
 
-  const daysRemaining = Math.ceil(
-    (new Date(activity.endAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-  );
+  const startDate = activity?.startDate ? new Date(activity.startDate) : null;
+  const endDate = activity?.endDate ? new Date(activity.endDate) : null;
+  const daysRemaining = endDate
+    ? Math.ceil((endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : 0;
 
   return (
     <div className="min-h-screen py-12">
@@ -51,15 +67,15 @@ export default async function ActivityDetailPage({ params }: PageProps) {
         </div>
 
         {/* Header */}
-        <div className="mb-8 flex justify-center gap-4">
-          <div className="">
+        <div className="mb-8 flex flex-col lg:flex-row gap-8">
+          <div className="flex-1">
             <div className="flex flex-wrap gap-2 mb-4">
-              {activity.criteria.map((c: CriterionType) => (
-                <Badge key={c} variant="secondary">
-                  {CRITERIA[c]}
+              {activity?.criteriaDocs?.map((c: any) => (
+                <Badge key={c.id} variant="secondary">
+                  {c.title}
                 </Badge>
               ))}
-              {activity.reviewLevel && (
+              {activity?.reviewLevel && (
                 <Badge variant="outline">
                   {REVIEW_LEVELS[activity.reviewLevel as ReviewLevel]}
                 </Badge>
@@ -71,78 +87,106 @@ export default async function ActivityDetailPage({ params }: PageProps) {
             </h1>
 
             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                {new Date(activity.startAt).toLocaleDateString("vi-VN")} -{" "}
-                {new Date(activity.endAt).toLocaleDateString("vi-VN")}
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                {activity.organizer}
-              </div>
+              {startDate && endDate && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  {startDate.toLocaleDateString("vi-VN")} -{" "}
+                  {endDate.toLocaleDateString("vi-VN")}
+                </div>
+              )}
+              {activity?.organizer && (
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  {activity.organizer}
+                </div>
+              )}
+              {activity?.location && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  {activity.location}
+                </div>
+              )}
             </div>
           </div>
-          <div className="max-w-50 rounded-md overflow-hidden">
-            {activity.thumbnailUrl && (
+          {activity?.thumbnailUrl && (
+            <div className="lg:max-w-xs w-full rounded-md overflow-hidden">
               <img
                 src={activity.thumbnailUrl}
-                alt={activity.slug}
+                alt={activity.slug || ""}
                 className="object-cover w-full h-full"
               />
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Main Info */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Description */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Mô tả</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground whitespace-pre-line">
-                  {activity.description}
-                </p>
-              </CardContent>
-            </Card>
+            {activity?.description && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Mô tả</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground whitespace-pre-line">
+                    {activity.description}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Thể lệ */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Thể lệ
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground whitespace-pre-line">
-                  {activity.rules}
-                </p>
-              </CardContent>
-            </Card>
+            {activity?.rules && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Thể lệ
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground whitespace-pre-line">
+                    {activity.rules}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Cơ cấu giải thưởng */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Cơ cấu giải thưởng
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground whitespace-pre-line">
-                  {activity.rewards}
-                </p>
-              </CardContent>
-            </Card>
+            {activity?.rewards && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Award className="h-5 w-5" />
+                    Cơ cấu giải thưởng
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground whitespace-pre-line">
+                    {activity.rewards}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {activity?.targetAudience && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Đối tượng tham gia
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground whitespace-pre-line">
+                    {activity.targetAudience}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
-            {/* Actions */}
             <Card className="sticky top-24">
               <CardContent className="p-6 space-y-4">
                 {daysRemaining > 0 && (
@@ -157,17 +201,23 @@ export default async function ActivityDetailPage({ params }: PageProps) {
                 )}
 
                 <div className="space-y-2">
-                  <a
-                    href={activity.registrationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full"
-                  >
-                    <Button size="lg" className="w-full gap-2">
-                      Tham gia ngay
-                      <ExternalLink className="h-4 w-4" />
+                  {activity?.registrationUrl ? (
+                    <a
+                      href={activity.registrationUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full"
+                    >
+                      <Button size="lg" className="w-full gap-2">
+                        Tham gia ngay
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                    </a>
+                  ) : (
+                    <Button size="lg" className="w-full gap-2" disabled>
+                      Chưa mở đăng ký
                     </Button>
-                  </a>
+                  )}
 
                   <Button
                     variant="outline"
@@ -178,15 +228,16 @@ export default async function ActivityDetailPage({ params }: PageProps) {
                   </Button>
                 </div>
 
-                <div className="pt-4 border-t border-border">
-                  <div className="text-sm text-muted-foreground mb-2">
-                    Thông tin liên hệ:
+                {(activity?.contactInfo || activity?.organizer) && (
+                  <div className="pt-4 border-t border-border">
+                    <div className="text-sm text-muted-foreground mb-2">
+                      Thông tin liên hệ:
+                    </div>
+                    <div className="text-sm">
+                      {activity?.contactInfo || activity?.organizer}
+                    </div>
                   </div>
-                  <div className="text-sm">
-                    {activity?.contactInfo ||
-                      "Email: doantn@ulis.edu.vn | ĐT: 0123 456 789"}
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </div>

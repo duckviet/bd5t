@@ -29,8 +29,5 @@ func (h *UnitsAPI) ListUnits(c *gin.Context) {
 		}
 	}
 
-	response.OK(c, gin.H{
-		"success": true,
-		"data":    data,
-	})
+	response.OK(c, data)
 }
