@@ -1,0 +1,46 @@
+patch:
+  summary: Update an activity
+  description: Admin updates an existing activity. All fields are optional.
+  operationId: updateActivity
+  tags:
+    - Admin
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Activity ID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/UpdateActivityRequest'
+  responses:
+    '200':
+      description: Activity updated successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: '#/components/schemas/ActivityDetail'
+    '400':
+      $ref: '#/components/responses/BadRequest'
+    '401':
+      $ref: '#/components/responses/Unauthorized'
+    '403':
+      $ref: '#/components/responses/Forbidden'
+    '404':
+      $ref: '#/components/responses/NotFound'
+    '500':
+      $ref: '#/components/responses/InternalServerError'

@@ -10,7 +10,6 @@
 package dto
 
 type UpdateProfileRequest struct {
-
 	FullName string `json:"fullName,omitempty"`
 
 	AvatarUrl string `json:"avatarUrl,omitempty"`

@@ -10,7 +10,6 @@
 package dto
 
 type ErrorResponse struct {
-
 	Success bool `json:"success,omitempty"`
 
 	Error ErrorResponseError `json:"error,omitempty"`

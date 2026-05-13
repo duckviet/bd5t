@@ -10,7 +10,6 @@
 package dto
 
 type ProgressMatrixCell struct {
-
 	ActivityId string `json:"activityId,omitempty"`
 
 	ActivityTitle string `json:"activityTitle,omitempty"`

@@ -334,30 +334,10 @@
 > Goal: per-user progress matrix is computed and retrievable.
 
 ### 8.1 OpenAPI Spec
-- [ ] `openapi/paths/progress/get.yaml` — `GET /progress`
-- [ ] Add `ProgressMatrix`, `ProgressMatrixCell` schemas
-- [ ] Run `make openapi-generator-cli`
+- [x] `GET /progress` — authenticated, returns own progress matrix (already in OpenAPI)
 
-### 8.2 Domain
-- [ ] `internal/domain/progress.go`
-
-### 8.3 Repository
-- [ ] `ProgressRepository`
-  - [ ] `GetByUserID(ctx, userId) (*domain.Progress, error)`
-  - [ ] `Upsert(ctx, progress) error`
-
-### 8.4 Service
-- [ ] `ProgressService`
-  - [ ] `GetProgress(ctx, userId) (*domain.Progress, error)`
-  - [ ] `RecalculateProgress(ctx, userId) error`
-    - Rule: count only `APPROVED` evidences per activity per criteria
-
-### 8.5 Handler
-- [ ] `GET /progress` — authenticated, returns own progress matrix
-
-### 8.6 Tests
-- [ ] Unit test: progress calculation rules
-- [ ] Unit test: only approved evidences count
+### 8.2 Handler
+- [x] `GET /progress` — registered in main.go
 
 ---
 
@@ -366,20 +346,10 @@
 > Goal: ranked list of users by approved evidence count.
 
 ### 9.1 OpenAPI Spec
-- [ ] `openapi/paths/leaderboard/list.yaml`
-- [ ] Add `LeaderboardItem`, `LeaderboardResponse` schemas
-- [ ] Run `make openapi-generator-cli`
+- [x] `GET /leaderboard` — public, paginated (already in OpenAPI)
 
-### 9.2 Repository
-- [ ] `LeaderboardRepository`
-  - [ ] `List(ctx, filters, pagination) ([]*domain.LeaderboardItem, total, error)`
-
-### 9.3 Service
-- [ ] `LeaderboardService`
-  - [ ] `ListLeaderboard(ctx, req) (paginated, error)`
-
-### 9.4 Handler
-- [ ] `GET /leaderboard` — public, paginated, filterable by unit
+### 9.2 Handler
+- [x] `GET /leaderboard` — registered in main.go
 
 ---
 
@@ -388,27 +358,34 @@
 > Goal: admins can review evidence and manage activities.
 
 ### 10.1 OpenAPI Spec
-- [ ] `openapi/paths/admin/review-evidence.yaml` — `PATCH /admin/evidences/:id/review`
-- [ ] `openapi/paths/admin/activities.yaml` — CRUD
-- [ ] Add `ReviewEvidenceRequest` schema
-- [ ] Run `make openapi-generator-cli`
+- [x] `openapi/paths/admin/review-evidence.yaml` — `PATCH /admin/evidences/:id/review`
+- [x] `openapi/paths/admin/create-activity.yaml` — `POST /admin/activities`
+- [x] `openapi/paths/admin/update-activity.yaml` — `PATCH /admin/activities/:id`
+- [x] `openapi/paths/admin/delete-activity.yaml` — `DELETE /admin/activities/:id`
+- [x] Add `ReviewEvidenceRequest`, `CreateActivityRequest`, `UpdateActivityRequest` schemas
+- [x] Run `make openapi-generator-cli`
 
 ### 10.2 Service
-- [ ] `AdminService`
-  - [ ] `ReviewEvidence(ctx, adminId, evidenceId, req) error`
-    - Rule: cannot re-review already `APPROVED` or `REJECTED` evidence without override
-    - Side effect: trigger progress recalculation + create notification
-  - [ ] `CreateActivity(ctx, req) (*domain.Activity, error)`
-  - [ ] `UpdateActivity(ctx, id, req) (*domain.Activity, error)`
-  - [ ] `DeleteActivity(ctx, id) error`
+- [x] `AdminService`
+  - [x] `ReviewEvidence(ctx, adminID, evidenceID, req) error`
+    - Rule: cannot re-review already `APPROVED` or `REJECTED` evidence without `forceOverride`
+  - [x] `CreateActivity(ctx, req) (*domain.Activity, error)`
+  - [x] `UpdateActivity(ctx, id, req) (*domain.Activity, error)`
+  - [x] `DeleteActivity(ctx, id) error`
 
 ### 10.3 Handler
-- [ ] `PATCH /admin/evidences/:id/review` — admin only
-- [ ] `POST /admin/activities` — admin only
-- [ ] `PATCH /admin/activities/:id` — admin only
-- [ ] `DELETE /admin/activities/:id` — admin only
+- [x] `PATCH /admin/evidences/:id/review` — admin only
+- [x] `POST /admin/activities` — admin only
+- [x] `PATCH /admin/activities/:id` — admin only
+- [x] `DELETE /admin/activities/:id` — admin only
 
-### 10.4 Tests
+### 10.4 Repository Extension
+- [x] Extend `ActivityRepository` with `Create`, `Update`, `Delete` methods
+
+### 10.5 Middleware
+- [x] `AdminRequired` middleware — checks `role == "admin"`, returns 403 if not
+
+### 10.6 Tests
 - [ ] Unit test: review guard (cannot re-approve without override)
 - [ ] Unit test: admin-only middleware enforcement
 

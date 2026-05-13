@@ -10,6 +10,5 @@
 package dto
 
 type Register400Response struct {
-
 	Error string `json:"error,omitempty"`
 }

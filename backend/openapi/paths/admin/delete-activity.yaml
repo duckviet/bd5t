@@ -1,0 +1,28 @@
+delete:
+  summary: Delete an activity
+  description: Admin deletes an existing activity.
+  operationId: deleteActivity
+  tags:
+    - Admin
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Activity ID
+  responses:
+    '200':
+      description: Activity deleted successfully
+    '401':
+      $ref: '#/components/responses/Unauthorized'
+    '403':
+      $ref: '#/components/responses/Forbidden'
+    '404':
+      $ref: '#/components/responses/NotFound'
+    '500':
+      $ref: '#/components/responses/InternalServerError'

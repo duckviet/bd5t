@@ -18,13 +18,13 @@ import (
 // Route is the information for every URI.
 type Route struct {
 	// Name is the name of this Route.
-	Name		string
+	Name string
 	// Method is the string for the HTTP method. ex) GET, POST etc..
-	Method		string
+	Method string
 	// Pattern is the pattern of the URI.
-	Pattern	 	string
+	Pattern string
 	// HandlerFunc is the handler function of this route.
-	HandlerFunc	gin.HandlerFunc
+	HandlerFunc gin.HandlerFunc
 }
 
 // NewRouter returns a new router.
@@ -64,6 +64,8 @@ type ApiHandleFunctions struct {
 
 	// Routes for the ActivitiesAPI part of the API
 	ActivitiesAPI ActivitiesAPI
+	// Routes for the AdminAPI part of the API
+	AdminAPI AdminAPI
 	// Routes for the AuthAPI part of the API
 	AuthAPI AuthAPI
 	// Routes for the EvidencesAPI part of the API
@@ -83,7 +85,7 @@ type ApiHandleFunctions struct {
 }
 
 func getRoutes(handleFunctions ApiHandleFunctions) []Route {
-	return []Route{ 
+	return []Route{
 		{
 			"GetActivityDetail",
 			http.MethodGet,
@@ -95,6 +97,30 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			http.MethodGet,
 			"/activities",
 			handleFunctions.ActivitiesAPI.ListActivities,
+		},
+		{
+			"CreateActivity",
+			http.MethodPost,
+			"/admin/activities",
+			handleFunctions.AdminAPI.CreateActivity,
+		},
+		{
+			"DeleteActivity",
+			http.MethodDelete,
+			"/admin/activities/:id",
+			handleFunctions.AdminAPI.DeleteActivity,
+		},
+		{
+			"ReviewEvidence",
+			http.MethodPatch,
+			"/admin/evidences/:id/review",
+			handleFunctions.AdminAPI.ReviewEvidence,
+		},
+		{
+			"UpdateActivity",
+			http.MethodPatch,
+			"/admin/activities/:id",
+			handleFunctions.AdminAPI.UpdateActivity,
 		},
 		{
 			"Login",

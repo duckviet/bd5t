@@ -14,7 +14,6 @@ import (
 )
 
 type UserProfile struct {
-
 	Id string `json:"id,omitempty"`
 
 	Email string `json:"email,omitempty"`

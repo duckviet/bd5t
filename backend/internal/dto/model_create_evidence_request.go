@@ -10,7 +10,6 @@
 package dto
 
 type CreateEvidenceRequest struct {
-
 	ActivityId string `json:"activityId"`
 
 	CriteriaDocId string `json:"criteriaDocId,omitempty"`

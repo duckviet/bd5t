@@ -206,3 +206,81 @@ func (r *ActivityRepository) GetCriteriaDocsByActivityID(ctx context.Context, ac
 
 	return criteria, nil
 }
+
+func (r *ActivityRepository) Create(ctx context.Context, activity *domain.Activity) (*domain.Activity, error) {
+	query := `
+		INSERT INTO activities (title, description, slug, thumbnail_url, short_description, unit_id, start_date, end_date, is_active, registration_url, review_level, organizer)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+		RETURNING id, created_at, updated_at`
+
+	err := r.pool.QueryRow(ctx, query,
+		activity.Title,
+		activity.Description,
+		activity.Slug,
+		activity.ThumbnailURL,
+		activity.ShortDescription,
+		activity.UnitID,
+		activity.StartDate,
+		activity.EndDate,
+		activity.IsActive,
+		activity.RegistrationURL,
+		activity.ReviewLevel,
+		activity.Organizer,
+	).Scan(&activity.ID, &activity.CreatedAt, &activity.UpdatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return activity, nil
+}
+
+func (r *ActivityRepository) Update(ctx context.Context, id string, activity *domain.Activity) (*domain.Activity, error) {
+	query := `
+		UPDATE activities
+		SET title = $2, description = $3, slug = $4, thumbnail_url = $5, short_description = $6,
+		    unit_id = $7, start_date = $8, end_date = $9, is_active = $10, registration_url = $11,
+		    review_level = $12, organizer = $13, updated_at = NOW()
+		WHERE id = $1
+		RETURNING updated_at`
+
+	err := r.pool.QueryRow(ctx, query,
+		id,
+		activity.Title,
+		activity.Description,
+		activity.Slug,
+		activity.ThumbnailURL,
+		activity.ShortDescription,
+		activity.UnitID,
+		activity.StartDate,
+		activity.EndDate,
+		activity.IsActive,
+		activity.RegistrationURL,
+		activity.ReviewLevel,
+		activity.Organizer,
+	).Scan(&activity.UpdatedAt)
+
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	activity.ID = id
+	return activity, nil
+}
+
+func (r *ActivityRepository) Delete(ctx context.Context, id string) error {
+	query := `DELETE FROM activities WHERE id = $1`
+	result, err := r.pool.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return nil
+	}
+
+	return nil
+}

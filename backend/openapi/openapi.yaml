@@ -426,6 +426,119 @@ components:
         totalScore:
           type: integer
 
+    ReviewEvidenceRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [approved, rejected]
+        reviewNote:
+          type: string
+          nullable: true
+        forceOverride:
+          type: boolean
+          default: false
+          description: Allow re-reviewing already reviewed evidence
+
+    CreateActivityRequest:
+      type: object
+      required:
+        - title
+        - slug
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        slug:
+          type: string
+          pattern: '^[a-z0-9-]+$'
+          description: URL-friendly slug, must be unique
+        thumbnailUrl:
+          type: string
+          format: uri
+          nullable: true
+        shortDescription:
+          type: string
+          nullable: true
+        unitId:
+          type: string
+          format: uuid
+          nullable: true
+        startDate:
+          type: string
+          format: date
+          nullable: true
+        endDate:
+          type: string
+          format: date
+          nullable: true
+        isActive:
+          type: boolean
+          default: true
+        registrationUrl:
+          type: string
+          format: uri
+          nullable: true
+        reviewLevel:
+          type: string
+          enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
+          nullable: true
+        organizer:
+          type: string
+          nullable: true
+
+    UpdateActivityRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        slug:
+          type: string
+          pattern: '^[a-z0-9-]+$'
+        thumbnailUrl:
+          type: string
+          format: uri
+          nullable: true
+        shortDescription:
+          type: string
+          nullable: true
+        unitId:
+          type: string
+          format: uuid
+          nullable: true
+        startDate:
+          type: string
+          format: date
+          nullable: true
+        endDate:
+          type: string
+          format: date
+          nullable: true
+        isActive:
+          type: boolean
+        registrationUrl:
+          type: string
+          format: uri
+          nullable: true
+        reviewLevel:
+          type: string
+          enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
+          nullable: true
+        organizer:
+          type: string
+          nullable: true
+
 paths:
   /healthz:
     get:
@@ -972,5 +1085,175 @@ paths:
                       $ref: '#/components/schemas/LeaderboardItem'
                   meta:
                     $ref: '#/components/schemas/PaginationMeta'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /admin/evidences/{id}/review:
+    patch:
+      summary: Review an evidence submission
+      operationId: reviewEvidence
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Evidence ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewEvidenceRequest'
+      responses:
+        '200':
+          description: Evidence reviewed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/EvidenceItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Evidence already reviewed and forceOverride not set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /admin/activities:
+    post:
+      summary: Create a new activity
+      operationId: createActivity
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateActivityRequest'
+      responses:
+        '201':
+          description: Activity created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/ActivityDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Activity with this slug already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  '/admin/activities/{id}':
+    patch:
+      summary: Update an activity
+      operationId: updateActivity
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Activity ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateActivityRequest'
+      responses:
+        '200':
+          description: Activity updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/ActivityDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      summary: Delete an activity
+      operationId: deleteActivity
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Activity ID
+      responses:
+        '200':
+          description: Activity deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'

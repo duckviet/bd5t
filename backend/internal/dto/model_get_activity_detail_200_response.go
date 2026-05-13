@@ -10,7 +10,6 @@
 package dto
 
 type GetActivityDetail200Response struct {
-
 	Success bool `json:"success,omitempty"`
 
 	Data ActivityDetail `json:"data,omitempty"`

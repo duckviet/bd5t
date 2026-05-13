@@ -120,6 +120,9 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	leaderboardService := svcImpl.NewLeaderboardService(leaderboardRepo)
 	leaderboardAPI := handlers.NewLeaderboardAPI(leaderboardService)
 
+	adminService := svcImpl.NewAdminService(evidenceRepo, activityRepo, progressService)
+	adminAPI := handlers.NewAdminAPI(adminService)
+
 	healthAPI := handlers.NewHealthAPI()
 
 	authGroup := router.Group("/auth")
@@ -144,8 +147,19 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	router.POST("/evidences", middleware.AuthRequired(tokenMgr), evidencesAPI.CreateEvidence)
 	router.DELETE("/evidences/:id", middleware.AuthRequired(tokenMgr), evidencesAPI.DeleteEvidence)
 
+	router.GET("/progress", middleware.AuthRequired(tokenMgr), progressAPI.GetProgress)
+	router.GET("/leaderboard", leaderboardAPI.ListLeaderboard)
+
 	router.GET("/healthz", healthAPI.Healthz)
 	router.GET("/readyz", healthAPI.Readyz)
+
+	adminGroup := router.Group("/admin")
+	{
+		adminGroup.PATCH("/evidences/:id/review", middleware.AdminRequired(tokenMgr), adminAPI.ReviewEvidence)
+		adminGroup.POST("/activities", middleware.AdminRequired(tokenMgr), adminAPI.CreateActivity)
+		adminGroup.PATCH("/activities/:id", middleware.AdminRequired(tokenMgr), adminAPI.UpdateActivity)
+		adminGroup.DELETE("/activities/:id", middleware.AdminRequired(tokenMgr), adminAPI.DeleteActivity)
+	}
 
 	return router
 }

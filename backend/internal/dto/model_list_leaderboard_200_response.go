@@ -10,7 +10,6 @@
 package dto
 
 type ListLeaderboard200Response struct {
-
 	Success bool `json:"success,omitempty"`
 
 	Data []LeaderboardItem `json:"data,omitempty"`

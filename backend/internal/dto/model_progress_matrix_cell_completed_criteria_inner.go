@@ -10,7 +10,6 @@
 package dto
 
 type ProgressMatrixCellCompletedCriteriaInner struct {
-
 	CriteriaDocId string `json:"criteriaDocId,omitempty"`
 
 	CriteriaDocTitle string `json:"criteriaDocTitle,omitempty"`

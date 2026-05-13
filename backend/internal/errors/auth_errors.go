@@ -16,6 +16,14 @@ func ErrForbidden() *AppError {
 	}
 }
 
+func ErrForbiddenWithMessage(msg string) *AppError {
+	return &AppError{
+		Code:       CodeForbidden,
+		Message:    msg,
+		HTTPStatus: 403,
+	}
+}
+
 func ErrInvalidCredentials() *AppError {
 	return &AppError{
 		Code:       CodeInvalidCredentials,

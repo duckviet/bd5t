@@ -16,11 +16,13 @@ const (
 	CodeUserNotFound  = "USER_NOT_FOUND"
 	CodeUserForbidden = "USER_FORBIDDEN"
 
-	CodeActivityNotFound = "ACTIVITY_NOT_FOUND"
+	CodeActivityNotFound   = "ACTIVITY_NOT_FOUND"
+	CodeActivitySlugExists = "ACTIVITY_SLUG_EXISTS"
 
-	CodeEvidenceNotFound  = "EVIDENCE_NOT_FOUND"
-	CodeEvidenceApproved  = "EVIDENCE_ALREADY_APPROVED"
-	CodeEvidenceForbidden = "EVIDENCE_FORBIDDEN"
+	CodeEvidenceNotFound        = "EVIDENCE_NOT_FOUND"
+	CodeEvidenceApproved        = "EVIDENCE_ALREADY_APPROVED"
+	CodeEvidenceForbidden       = "EVIDENCE_FORBIDDEN"
+	CodeEvidenceAlreadyReviewed = "EVIDENCE_ALREADY_REVIEWED"
 
 	CodeMediaInvalidFile  = "MEDIA_INVALID_FILE"
 	CodeMediaUploadFailed = "MEDIA_UPLOAD_FAILED"

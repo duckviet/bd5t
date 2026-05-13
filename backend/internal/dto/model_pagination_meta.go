@@ -10,7 +10,6 @@
 package dto
 
 type PaginationMeta struct {
-
 	Page int32 `json:"page,omitempty"`
 
 	PageSize int32 `json:"pageSize,omitempty"`
