@@ -1,0 +1,58 @@
+ActivityDetail:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    slug:
+      type: string
+      example: "tap-hop-truong-2025"
+    title:
+      type: string
+      example: "Tập hợp trường 2025"
+    description:
+      type: string
+      example: "Hoạt động tập hợp toàn trường lần thứ 5..."
+    shortDescription:
+      type: string
+      example: "Hoạt động tập hợp toàn trường"
+    thumbnailUrl:
+      type: string
+      format: uri
+      example: "https://cdn.example.com/activities/tap-hop-2025.jpg"
+    unitId:
+      type: string
+      format: uuid
+      nullable: true
+    unitName:
+      type: string
+      nullable: true
+      example: "Khoa Công nghệ Thông tin"
+    startDate:
+      type: string
+      format: date
+      example: "2025-03-01"
+    endDate:
+      type: string
+      format: date
+      example: "2025-03-31"
+    isActive:
+      type: boolean
+      example: true
+    registrationUrl:
+      type: string
+      format: uri
+      nullable: true
+      example: "https://forms.example.com/register"
+    reviewLevel:
+      type: string
+      enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
+      example: "TRUONG"
+    organizer:
+      type: string
+      nullable: true
+      example: "Ban Công tác Sinh viên"
+    criteriaDocs:
+      type: array
+      items:
+        $ref: '#/components/schemas/CriteriaDoc'

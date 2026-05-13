@@ -1,0 +1,15 @@
+CriteriaDoc:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    title:
+      type: string
+      example: "Tham gia đầy đủ các buổi sinh hoạt"
+    description:
+      type: string
+      example: "Sinh viên phải tham gia ít nhất 80% số buổi sinh hoạt"
+    maxScore:
+      type: integer
+      example: 100

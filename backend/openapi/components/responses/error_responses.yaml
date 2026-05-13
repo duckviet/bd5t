@@ -1,0 +1,54 @@
+BadRequest:
+  description: "Bad Request. The request is invalid."
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          error:
+            type: string
+            example: "Invalid request."
+
+Unauthorized:
+  description: "Unauthorized. The provided JWT token is missing, invalid, or expired."
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          error:
+            type: string
+            example: "Authentication token is required."
+
+Forbidden:
+  description: "Forbidden - You don't have permission to access this resource"
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          error:
+            type: string
+            example: "Forbidden"
+
+NotFound:
+  description: "Not Found. The requested resource was not found."
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          error:
+            type: string
+            example: "Resource not found."
+
+InternalServerError:
+  description: "Internal Server Error. The server encountered an unexpected condition that prevented it from fulfilling the request."
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          error:
+            type: string
+            example: "Internal server error."

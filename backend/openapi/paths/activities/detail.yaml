@@ -1,0 +1,30 @@
+get:
+  summary: Get activity detail
+  description: Get detailed information about an activity by slug
+  operationId: getActivityDetail
+  tags:
+    - Activities
+  parameters:
+    - name: slug
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Activity slug
+  responses:
+    '200':
+      description: Activity detail
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: '#/components/schemas/ActivityDetail'
+    '404':
+      $ref: '#/components/responses/NotFound'
+    '500':
+      $ref: '#/components/responses/InternalServerError'

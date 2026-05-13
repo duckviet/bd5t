@@ -1,0 +1,23 @@
+get:
+  summary: List all units
+  description: Get a list of all organizational units (faculties/departments)
+  operationId: listUnits
+  tags:
+    - Units
+  responses:
+    '200':
+      description: List of units
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UnitItem'
+    '500':
+      $ref: '#/components/responses/InternalServerError'

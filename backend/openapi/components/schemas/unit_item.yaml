@@ -1,0 +1,15 @@
+UnitItem:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    name:
+      type: string
+      example: "Khoa Công nghệ Thông tin"
+    code:
+      type: string
+      example: "CNTT"
+    description:
+      type: string
+      example: "Khoa Công nghệ Thông tin - Đại học Quốc gia Hà Nội"

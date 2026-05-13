@@ -62,14 +62,30 @@ func DefaultHandleFunc(c *gin.Context) {
 
 type ApiHandleFunctions struct {
 
+	// Routes for the ActivitiesAPI part of the API
+	ActivitiesAPI ActivitiesAPI
 	// Routes for the AuthAPI part of the API
 	AuthAPI AuthAPI
 	// Routes for the HealthAPI part of the API
 	HealthAPI HealthAPI
+	// Routes for the UnitsAPI part of the API
+	UnitsAPI UnitsAPI
 }
 
 func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 	return []Route{ 
+		{
+			"GetActivityDetail",
+			http.MethodGet,
+			"/activities/:slug",
+			handleFunctions.ActivitiesAPI.GetActivityDetail,
+		},
+		{
+			"ListActivities",
+			http.MethodGet,
+			"/activities",
+			handleFunctions.ActivitiesAPI.ListActivities,
+		},
 		{
 			"Login",
 			http.MethodPost,
@@ -111,6 +127,12 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			http.MethodGet,
 			"/readyz",
 			handleFunctions.HealthAPI.Readyz,
+		},
+		{
+			"ListUnits",
+			http.MethodGet,
+			"/units",
+			handleFunctions.UnitsAPI.ListUnits,
 		},
 	}
 }

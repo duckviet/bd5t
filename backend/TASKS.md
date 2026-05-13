@@ -65,6 +65,11 @@
   - [x] `notifications` table
   - [x] `leaderboard_snapshots` table (optional at MVP)
 - [ ] Verify `make migrate-up` runs cleanly (needs database)
+- [x] Write migration `000002_add_activities_fields.up.sql` to align with Frontend:
+  - [x] Add `slug`, `thumbnail_url`, `short_description`, `registration_url`, `review_level`, `organizer` to `activities`
+  - [x] Add `unit_id`, `class_name` to `users`
+  - [x] Add `criterion_type` to `evidences`
+- [x] Migration file created at `internal/database/migrations/000002_add_activities_fields.up.sql`
 
 ### 1.2 Logger
 - [x] Set up structured logger in `internal/logger/logger.go`
@@ -146,7 +151,8 @@
 - [x] Run `make openapi-generator-cli`
 
 ### 3.4 Domain
-- [x] `internal/domain/user.go` — `User` struct with all fields
+- [x] `internal/domain/user.go` — `User` struct
+  - [ ] Update with `UnitID`, `ClassName`, rename `DisplayName` to `FullName`
 
 ### 3.5 Repository — User
 - [x] Define `UserRepository` interface in `internal/repository/interfaces/`
@@ -191,39 +197,39 @@
 > Goal: students can browse units and activities.
 
 ### 4.1 OpenAPI Spec — Units
-- [ ] `openapi/paths/units/list.yaml`
-- [ ] Add `UnitItem` schema
+- [x] `openapi/paths/units/list.yaml`
+- [x] Add `UnitItem` schema
 
 ### 4.2 OpenAPI Spec — Activities
-- [ ] `openapi/paths/activities/list.yaml`
-- [ ] `openapi/paths/activities/detail.yaml`
-- [ ] Add `ActivityItem`, `ActivityDetail`, `CriteriaDoc` schemas
-- [ ] Run `make openapi-generator-cli`
+- [x] `openapi/paths/activities/list.yaml`
+- [x] `openapi/paths/activities/detail.yaml` (GET by slug)
+- [x] Add `ActivityItem`, `ActivityDetail`, `CriteriaDoc` schemas
+- [x] Run `make openapi-generator-cli`
 
 ### 4.3 Domain
-- [ ] `internal/domain/unit.go`
-- [ ] `internal/domain/activity.go`
-- [ ] `internal/domain/criteria_doc.go`
+- [x] `internal/domain/unit.go`
+- [x] `internal/domain/activity.go` (include `slug`, `thumbnail_url`, `registration_url`, `review_level`, `organizer`)
+- [x] `internal/domain/criteria_doc.go`
 
 ### 4.4 Repository
-- [ ] `UnitRepository` — `List(ctx) ([]*domain.Unit, error)`
-- [ ] `ActivityRepository`
-  - [ ] `List(ctx, filters) ([]*domain.Activity, total int, error)`
-  - [ ] `GetByID(ctx, id) (*domain.Activity, error)`
+- [x] `UnitRepository` — `List(ctx) ([]*domain.Unit, error)`
+- [x] `ActivityRepository`
+  - [x] `List(ctx, filters) ([]*domain.Activity, total int, error)`
+  - [x] `GetBySlug(ctx, slug) (*domain.Activity, error)`
 
 ### 4.5 Service
-- [ ] `UnitService` — `ListUnits(ctx) ([]*domain.Unit, error)`
-- [ ] `ActivityService`
-  - [ ] `ListActivities(ctx, req) (paginated result, error)`
-  - [ ] `GetActivityDetail(ctx, id) (*domain.Activity, error)`
+- [x] `UnitService` — `ListUnits(ctx) ([]*domain.Unit, error)`
+- [x] `ActivityService`
+  - [x] `ListActivities(ctx, req) (paginated result, error)`
+  - [x] `GetActivityDetail(ctx, slug) (*domain.Activity, error)`
 
 ### 4.6 Handler
-- [ ] `GET /units` — public, optional auth
-- [ ] `GET /activities` — public, optional auth, with pagination
-- [ ] `GET /activities/:id` — public, optional auth
+- [x] `GET /units` — public
+- [x] `GET /activities` — public, with pagination
+- [x] `GET /activities/:slug` — public, get by slug
 
 ### 4.7 Mapper
-- [ ] `internal/mapper/activity_mapper.go`
+- [x] `internal/mapper/activity_mapper.go`
 
 ### 4.8 Tests
 - [ ] Unit test: `ActivityService` list + detail
@@ -236,7 +242,7 @@
 > Goal: authenticated user can view and update their own profile.
 
 - [ ] `GET /profile` — returns current user's full profile
-- [ ] `PATCH /profile` — update display name, avatar URL
+- [ ] `PATCH /profile` — update full name, avatar URL, class name
 - [ ] Add `ProfileUpdateRequest` schema to OpenAPI
 - [ ] `UpdateProfile(ctx, userId, req)` in `UserService`
 - [ ] Apply rate limit on `PATCH /profile`
@@ -289,7 +295,9 @@
 - [ ] Run `make openapi-generator-cli`
 
 ### 7.2 Domain
-- [ ] `internal/domain/evidence.go` — status enum: `PENDING`, `APPROVED`, `REJECTED`
+- [ ] `internal/domain/evidence.go`
+  - Status enum: `PENDING`, `APPROVED`, `REJECTED`
+  - Add `CriterionType` (DAO_DUC, HOC_TAP, etc.)
 
 ### 7.3 Repository
 - [ ] `EvidenceRepository`

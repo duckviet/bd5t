@@ -76,10 +76,19 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	middlewareStack(router, cfg)
 
 	tokenMgr := auth.NewTokenManager(cfg)
+
 	userRepo := repoImpl.NewUserRepository(db)
 	authService := svcImpl.NewAuthService(userRepo, tokenMgr)
-
 	authAPI := handlers.NewAuthAPI(authService)
+
+	unitRepo := repoImpl.NewUnitRepository(db)
+	unitService := svcImpl.NewUnitService(unitRepo)
+	unitsAPI := handlers.NewUnitsAPI(unitService)
+
+	activityRepo := repoImpl.NewActivityRepository(db)
+	activityService := svcImpl.NewActivityService(activityRepo)
+	activitiesAPI := handlers.NewActivitiesAPI(activityService)
+
 	healthAPI := handlers.NewHealthAPI()
 
 	authGroup := router.Group("/auth")
@@ -90,6 +99,10 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 		authGroup.POST("/refresh", authAPI.Refresh)
 		authGroup.GET("/me", middleware.AuthRequired(tokenMgr), authAPI.Me)
 	}
+
+	router.GET("/units", unitsAPI.ListUnits)
+	router.GET("/activities", activitiesAPI.ListActivities)
+	router.GET("/activities/:slug", activitiesAPI.GetActivityDetail)
 
 	router.GET("/healthz", healthAPI.Healthz)
 	router.GET("/readyz", healthAPI.Readyz)

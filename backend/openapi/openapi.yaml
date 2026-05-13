@@ -19,6 +19,58 @@ components:
       in: cookie
       name: access_token
 
+  responses:
+    BadRequest:
+      description: "Bad Request. The request is invalid."
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Invalid request."
+    Unauthorized:
+      description: "Unauthorized. The provided JWT token is missing, invalid, or expired."
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Authentication token is required."
+    Forbidden:
+      description: "Forbidden - You don't have permission to access this resource"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Forbidden"
+    NotFound:
+      description: "Not Found. The requested resource was not found."
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Resource not found."
+    InternalServerError:
+      description: "Internal Server Error. The server encountered an unexpected condition."
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Internal server error."
+
   schemas:
     ErrorResponse:
       type: object
@@ -129,6 +181,110 @@ components:
           type: string
           format: date-time
 
+    UnitItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        title:
+          type: string
+        shortDescription:
+          type: string
+        thumbnailUrl:
+          type: string
+          format: uri
+        unitId:
+          type: string
+          format: uuid
+          nullable: true
+        unitName:
+          type: string
+          nullable: true
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        isActive:
+          type: boolean
+
+    CriteriaDoc:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        maxScore:
+          type: integer
+
+    ActivityDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        shortDescription:
+          type: string
+        thumbnailUrl:
+          type: string
+          format: uri
+        unitId:
+          type: string
+          format: uuid
+          nullable: true
+        unitName:
+          type: string
+          nullable: true
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        isActive:
+          type: boolean
+        registrationUrl:
+          type: string
+          format: uri
+          nullable: true
+        reviewLevel:
+          type: string
+          enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
+        organizer:
+          type: string
+          nullable: true
+        criteriaDocs:
+          type: array
+          items:
+            $ref: '#/components/schemas/CriteriaDoc'
+
 paths:
   /healthz:
     get:
@@ -188,11 +344,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
         '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/BadRequest'
         '409':
           description: User already exists
           content:
@@ -220,11 +372,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
         '401':
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/Unauthorized'
 
   /auth/logout:
     post:
@@ -239,11 +387,7 @@ paths:
         '200':
           description: Logout successful
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/Unauthorized'
 
   /auth/me:
     get:
@@ -262,11 +406,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserProfile'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/Unauthorized'
 
   /auth/refresh:
     post:
@@ -288,8 +428,104 @@ paths:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
         '401':
-          description: Invalid or expired refresh token
+          $ref: '#/components/responses/Unauthorized'
+
+  /units:
+    get:
+      summary: List all units
+      operationId: listUnits
+      tags:
+        - Units
+      responses:
+        '200':
+          description: List of units
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UnitItem'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /activities:
+    get:
+      summary: List activities
+      operationId: listActivities
+      tags:
+        - Activities
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: unitId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by unit ID
+      responses:
+        '200':
+          description: List of activities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ActivityItem'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /activities/{slug}:
+    get:
+      summary: Get activity detail
+      operationId: getActivityDetail
+      tags:
+        - Activities
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Activity slug
+      responses:
+        '200':
+          description: Activity detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/ActivityDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
