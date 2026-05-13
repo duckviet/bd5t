@@ -79,7 +79,6 @@ export const REVIEW_LEVELS: Record<Activity["reviewLevel"], string> = {
   DHQGHN: "Cấp ĐHQGHN",
   THANH_PHO: "Cấp Thành phố",
   TRUNG_UONG: "Cấp Trung ương",
-  QUOC_TE: "Cấp Quốc tế",
 };
 export const MOCK_UNITS: Unit[] = [
   { id: "unit_1", name: "Khoa Ngôn ngữ & Văn hóa Anh", code: "ENG" },

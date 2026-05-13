@@ -10,6 +10,7 @@
 package dto
 
 type ReviewEvidenceRequest struct {
+
 	Status string `json:"status"`
 
 	ReviewNote *string `json:"reviewNote,omitempty"`

@@ -10,6 +10,7 @@
 package dto
 
 type LeaderboardItem struct {
+
 	Rank int32 `json:"rank,omitempty"`
 
 	UserId string `json:"userId,omitempty"`

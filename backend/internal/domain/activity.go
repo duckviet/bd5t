@@ -11,6 +11,11 @@ type Activity struct {
 	Slug             *string
 	ThumbnailURL     *string
 	ShortDescription *string
+	Location         *string
+	TargetAudience    *string
+	Rules            *string
+	Rewards          *string
+	ContactInfo      *string
 	UnitID           *string
 	StartDate        *time.Time
 	EndDate          *time.Time

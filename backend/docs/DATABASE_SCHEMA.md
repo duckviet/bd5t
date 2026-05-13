@@ -69,6 +69,11 @@ Quản lý các hoạt động 5 tốt.
 | `id` | UUID (PK) | Khóa chính |
 | `title` | VARCHAR(255) | Tiêu đề hoạt động |
 | `description` | TEXT | Mô tả chi tiết |
+| `location` | TEXT | Địa điểm tổ chức |
+| `target_audience` | TEXT | Đối tượng tham gia |
+| `rules` | TEXT | Thể lệ/luật thi |
+| `rewards` | TEXT | Giải thưởng/quyền lợi |
+| `contact_info` | TEXT | Thông tin liên hệ |
 | `unit_id` | UUID (FK) | Đơn vị tổ chức (tham chiếu `units.id`) |
 | `start_date` | DATE | Ngày bắt đầu |
 | `end_date` | DATE | Ngày kết thúc |
@@ -82,8 +87,11 @@ Quản lý các hoạt động 5 tốt.
 - Thiếu `short_description`
 - Thiếu `registration_url`
 - Thiếu `review_level` (Cấp trường, ĐHQG, v.v.)
-- Thiếu `organizer`, `contact_info`
 - Cấu trúc tiêu chí đang dùng bảng `criteria_docs` thay vì join table như FE đề xuất.
+
+**Cập nhật:**
+- `location`, `target_audience`, `rules`, `rewards`, `contact_info` đã được bổ sung vào schema backend.
+- `organizer` cũng đã có trong schema backend.
 
 ---
 

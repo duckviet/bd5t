@@ -70,6 +70,11 @@ func (s *AdminService) CreateActivity(ctx context.Context, req *dto.CreateActivi
 		Slug:             &req.Slug,
 		ThumbnailURL:     req.ThumbnailUrl,
 		ShortDescription: req.ShortDescription,
+		Location:         req.Location,
+		TargetAudience:    req.TargetAudience,
+		Rules:            req.Rules,
+		Rewards:          req.Rewards,
+		ContactInfo:      req.ContactInfo,
 		UnitID:           req.UnitId,
 		RegistrationURL:  req.RegistrationUrl,
 		ReviewLevel:      req.ReviewLevel,
@@ -121,6 +126,21 @@ func (s *AdminService) UpdateActivity(ctx context.Context, id string, req *dto.U
 	}
 	if req.ShortDescription != nil {
 		activity.ShortDescription = req.ShortDescription
+	}
+	if req.Location != nil {
+		activity.Location = req.Location
+	}
+	if req.TargetAudience != nil {
+		activity.TargetAudience = req.TargetAudience
+	}
+	if req.Rules != nil {
+		activity.Rules = req.Rules
+	}
+	if req.Rewards != nil {
+		activity.Rewards = req.Rewards
+	}
+	if req.ContactInfo != nil {
+		activity.ContactInfo = req.ContactInfo
 	}
 	if req.UnitId != nil {
 		activity.UnitID = req.UnitId

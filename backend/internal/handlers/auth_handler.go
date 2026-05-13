@@ -23,13 +23,18 @@ func (h *AuthAPI) Register(c *gin.Context) {
 		return
 	}
 
-	user, err := h.authService.Register(c.Request.Context(), &req)
+	result, err := h.authService.Register(c.Request.Context(), &req)
 	if err != nil {
 		response.Error(c, err)
 		return
 	}
 
-	response.Created(c, gin.H{"user": user})
+	setAuthCookies(c, result.AccessToken, result.RefreshToken)
+	response.Created(c, gin.H{
+		"user":         result.User,
+		"accessToken":  result.AccessToken,
+		"refreshToken": result.RefreshToken,
+	})
 }
 
 func (h *AuthAPI) Login(c *gin.Context) {

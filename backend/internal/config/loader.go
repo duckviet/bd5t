@@ -5,9 +5,14 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 func Load() (*Config, error) {
+	// Load .env file if it exists
+	_ = godotenv.Load()
+
 	cfg := &Config{
 		Server: ServerConfig{
 			Host: getEnv("APP_HOST", "0.0.0.0"),

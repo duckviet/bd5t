@@ -10,6 +10,7 @@
 package dto
 
 type GetProfile200Response struct {
+
 	Success bool `json:"success,omitempty"`
 
 	Data UserProfile `json:"data,omitempty"`

@@ -10,6 +10,7 @@
 package dto
 
 type ErrorResponseError struct {
+
 	Code string `json:"code,omitempty"`
 
 	Message string `json:"message,omitempty"`

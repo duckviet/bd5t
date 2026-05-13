@@ -10,6 +10,7 @@
 package dto
 
 type RegisterRequest struct {
+
 	Email string `json:"email"`
 
 	Password string `json:"password"`
@@ -17,4 +18,8 @@ type RegisterRequest struct {
 	StudentId string `json:"studentId"`
 
 	DisplayName string `json:"displayName,omitempty"`
+
+	UnitId *string `json:"unitId,omitempty"`
+
+	ClassName *string `json:"className,omitempty"`
 }

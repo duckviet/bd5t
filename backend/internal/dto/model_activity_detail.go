@@ -10,6 +10,7 @@
 package dto
 
 type ActivityDetail struct {
+
 	Id string `json:"id,omitempty"`
 
 	Slug string `json:"slug,omitempty"`
@@ -21,6 +22,16 @@ type ActivityDetail struct {
 	ShortDescription string `json:"shortDescription,omitempty"`
 
 	ThumbnailUrl string `json:"thumbnailUrl,omitempty"`
+
+	Location *string `json:"location,omitempty"`
+
+	TargetAudience *string `json:"targetAudience,omitempty"`
+
+	Rules *string `json:"rules,omitempty"`
+
+	Rewards *string `json:"rewards,omitempty"`
+
+	ContactInfo *string `json:"contactInfo,omitempty"`
 
 	UnitId *string `json:"unitId,omitempty"`
 

@@ -28,7 +28,7 @@ type LoginResult struct {
 	RefreshToken string
 }
 
-func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*dto.UserProfile, error) {
+func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*LoginResult, error) {
 	existingUser, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, errors.ErrInternalError(err, "failed to check existing user")
@@ -47,6 +47,14 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 		}
 	}
 
+	if req.UnitId != nil && *req.UnitId == "" {
+		req.UnitId = nil
+	}
+
+	if req.ClassName != nil && *req.ClassName == "" {
+		req.ClassName = nil
+	}
+
 	hashedPassword, err := auth.HashPassword(req.Password)
 	if err != nil {
 		return nil, errors.ErrInternalError(err, "failed to hash password")
@@ -59,7 +67,21 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 		return nil, errors.ErrInternalError(err, "failed to create user")
 	}
 
-	return mapper.UserToProfileDTO(user), nil
+	accessToken, err := s.tokenMgr.SignAccessToken(user.ID, user.Email, user.Role, "")
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to sign access token")
+	}
+
+	refreshToken, err := s.tokenMgr.SignRefreshToken(user.ID)
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to sign refresh token")
+	}
+
+	return &LoginResult{
+		User:         mapper.UserToProfileDTO(user),
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }
 
 func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*LoginResult, error) {

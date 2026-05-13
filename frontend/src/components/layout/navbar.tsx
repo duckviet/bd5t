@@ -15,6 +15,8 @@ import {
   X
 } from "lucide-react"
 import { useState } from "react"
+import { useAuthStore } from "@/features/auth/store/authStore"
+import authAction from "@/services/actions/auth.action"
 
 const navItems = [
   { href: "/", label: "Trang chủ", icon: Home },
@@ -26,7 +28,12 @@ const navItems = [
 export function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { isAuth, user } = useAuthStore()
 
+  const handleLogout = async () => {
+    await authAction.logout()
+  }
+console.log("Navbar render - isAuth:", isAuth, "user:", user)
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-white/80 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -64,25 +71,35 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2">
-              <Link href="/login">
-                <Button variant="ghost" size="sm">
-                  Đăng nhập
+            {!isAuth ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <Link href="/login">
+                  <Button variant="ghost" size="sm">
+                    Đăng nhập
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button size="sm">
+                    Đăng ký
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="hidden sm:flex items-center gap-3">
+                <Link href="/profile" className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-muted transition-colors">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium border border-primary/20">
+                    {user?.displayName?.charAt(0) || <User className="h-4 w-4" />}
+                  </div>
+                  <span className="text-sm font-medium text-foreground max-w-[120px] truncate">
+                    {user?.displayName}
+                  </span>
+                </Link>
+                <Button variant="ghost" size="icon" onClick={handleLogout} title="Đăng xuất">
+                  <LogOut className="h-5 w-5 text-muted-foreground hover:text-destructive transition-colors" />
                 </Button>
-              </Link>
-              <Link href="/register">
-                <Button size="sm">
-                  Đăng ký
-                </Button>
-              </Link>
-            </div>
+              </div>
+            )}
             
-            <Link href="/profile" className="hidden sm:block">
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <User className="h-5 w-5" />
-              </Button>
-            </Link>
-
             <button
               className="md:hidden p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -118,18 +135,37 @@ export function Navbar() {
                   </Link>
                 )
               })}
-              <div className="flex gap-2 mt-2 pt-2 border-t border-border">
-                <Link href="/login" className="flex-1">
-                  <Button variant="outline" className="w-full" size="sm">
-                    Đăng nhập
-                  </Button>
-                </Link>
-                <Link href="/register" className="flex-1">
-                  <Button className="w-full" size="sm">
-                    Đăng ký
-                  </Button>
-                </Link>
-              </div>
+              {!isAuth ? (
+                <div className="flex gap-2 mt-2 pt-2 border-t border-border">
+                  <Link href="/login" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full" size="sm">
+                      Đăng nhập
+                    </Button>
+                  </Link>
+                  <Link href="/register" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full" size="sm">
+                      Đăng ký
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-2 pt-2 border-t border-border flex flex-col gap-2">
+                   <Link href="/profile" className="flex items-center gap-2 px-3 py-2" onClick={() => setMobileMenuOpen(false)}>
+                    <User className="h-4 w-4" />
+                    <span>Trang cá nhân ({user?.displayName})</span>
+                  </Link>
+                  <button 
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Đăng xuất</span>
+                  </button>
+                </div>
+              )}
             </nav>
           </div>
         )}

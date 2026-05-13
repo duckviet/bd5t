@@ -20,6 +20,14 @@ RegisterRequest:
     displayName:
       type: string
       example: "John Doe"
+    unitId:
+      type: string
+      nullable: true
+      example: "unit_1"
+    className:
+      type: string
+      nullable: true
+      example: "K56A1"
 
 LoginRequest:
   type: object

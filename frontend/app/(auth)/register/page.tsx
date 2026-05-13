@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import Link from "next/link";
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -14,25 +13,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { UNITS } from "@/lib/constants"
 
-const registerSchema = z.object({
-  fullName: z.string().min(2, "Họ và tên phải có ít nhất 2 ký tự"),
-  email: z.string().email("Email không hợp lệ"),
-  studentId: z.string().min(8, "Mã sinh viên phải có ít nhất 8 ký tự"),
-  className: z.string().min(1, "Vui lòng nhập lớp"),
-  unitId: z.string().min(1, "Vui lòng chọn đơn vị"),
-  password: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Mật khẩu xác nhận không khớp",
-  path: ["confirmPassword"],
-})
+import { useRegisterMutation } from "@/features/auth/hooks/useAuthMutation"
+import type { RegisterRequest } from "@/services/generated/api";
+
+const registerSchema = z
+  .object({
+    displayName: z.string().min(2, "Họ và tên phải có ít nhất 2 ký tự"),
+    email: z.string().email("Email không hợp lệ"),
+    studentId: z.string().min(8, "Mã sinh viên phải có ít nhất 8 ký tự"),
+    password: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
+    confirmPassword: z.string(),
+    className: z.string().optional().or(z.literal("")),
+    unitId: z.string().optional().or(z.literal("")),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["confirmPassword"],
+  });
 
 type RegisterFormData = z.infer<typeof registerSchema>
 
 export default function RegisterPage() {
-  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const registerMutation = useRegisterMutation()
 
   const {
     register,
@@ -41,16 +44,22 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-  })
+  });
 
   const onSubmit = async (data: RegisterFormData) => {
-    setIsLoading(true)
-    console.log("Register:", data)
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/login")
-    }, 1000)
+    const payload: RegisterRequest = {
+      displayName: data.displayName,
+      email: data.email,
+      studentId: data.studentId,
+      password: data.password,
+      className: data.className || undefined,
+      unitId: data.unitId || undefined,
+    };
+
+    registerMutation.mutate(payload);
   }
+
+  const isLoading = registerMutation.isPending
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
@@ -67,14 +76,16 @@ export default function RegisterPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Họ và tên</Label>
+              <Label htmlFor="displayName">Họ và tên</Label>
               <Input
-                id="fullName"
+                id="displayName"
                 placeholder="Nguyen Van A"
-                {...register("fullName")}
+                {...register("displayName")}
               />
-              {errors.fullName && (
-                <p className="text-sm text-destructive">{errors.fullName.message}</p>
+              {errors.displayName && (
+                <p className="text-sm text-destructive">
+                  {errors.displayName.message}
+                </p>
               )}
             </div>
 
@@ -87,23 +98,26 @@ export default function RegisterPage() {
                 {...register("email")}
               />
               {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
+                <p className="text-sm text-destructive">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="studentId">Mã sinh viên</Label>
+              <Input
+                id="studentId"
+                placeholder="22040001"
+                {...register("studentId")}
+              />
+              {errors.studentId && (
+                <p className="text-sm text-destructive">
+                  {errors.studentId.message}
+                </p>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="studentId">Mã sinh viên</Label>
-                <Input
-                  id="studentId"
-                  placeholder="22040001"
-                  {...register("studentId")}
-                />
-                {errors.studentId && (
-                  <p className="text-sm text-destructive">{errors.studentId.message}</p>
-                )}
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="className">Lớp</Label>
                 <Input
@@ -112,28 +126,42 @@ export default function RegisterPage() {
                   {...register("className")}
                 />
                 {errors.className && (
-                  <p className="text-sm text-destructive">{errors.className.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.className.message}
+                  </p>
                 )}
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="unitId">Đơn vị</Label>
-              <Select onValueChange={(value) => setValue("unitId", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn khoa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {UNITS.map((unit) => (
-                    <SelectItem className="focus:text-foreground" key={unit.id} value={unit.id}>
-                      {unit.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.unitId && (
-                <p className="text-sm text-destructive">{errors.unitId.message}</p>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="unitId">Đơn vị</Label>
+                <Select
+                  onValueChange={(value) =>
+                    setValue("unitId", value, { shouldDirty: true })
+                  }
+                  defaultValue=""
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn khoa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Không chọn</SelectItem>
+                    {UNITS.map((unit) => (
+                      <SelectItem
+                        className="focus:text-foreground"
+                        key={unit.id}
+                        value={unit.id}
+                      >
+                        {unit.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.unitId && (
+                  <p className="text-sm text-destructive">
+                    {errors.unitId.message}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -158,7 +186,9 @@ export default function RegisterPage() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -171,7 +201,9 @@ export default function RegisterPage() {
                   {...register("confirmPassword")}
                 />
                 {errors.confirmPassword && (
-                  <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.confirmPassword.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -184,12 +216,15 @@ export default function RegisterPage() {
 
           <div className="mt-6 text-center text-sm">
             <span className="text-muted-foreground">Đã có tài khoản? </span>
-            <Link href="/login" className="text-primary hover:underline font-medium">
+            <Link
+              href="/login"
+              className="text-primary hover:underline font-medium"
+            >
               Đăng nhập
             </Link>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

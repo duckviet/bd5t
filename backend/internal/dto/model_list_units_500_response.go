@@ -10,5 +10,6 @@
 package dto
 
 type ListUnits500Response struct {
+
 	Error string `json:"error,omitempty"`
 }

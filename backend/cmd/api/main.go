@@ -125,40 +125,43 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 
 	healthAPI := handlers.NewHealthAPI()
 
-	authGroup := router.Group("/auth")
+	v1 := router.Group("/api/v1")
 	{
-		authGroup.POST("/register", authAPI.Register)
-		authGroup.POST("/login", authAPI.Login)
-		authGroup.POST("/logout", middleware.AuthRequired(tokenMgr), authAPI.Logout)
-		authGroup.POST("/refresh", authAPI.Refresh)
-		authGroup.GET("/me", middleware.AuthRequired(tokenMgr), authAPI.Me)
-	}
+		authGroup := v1.Group("/auth")
+		{
+			authGroup.POST("/register", authAPI.Register)
+			authGroup.POST("/login", authAPI.Login)
+			authGroup.POST("/logout", middleware.AuthRequired(tokenMgr), authAPI.Logout)
+			authGroup.POST("/refresh", authAPI.Refresh)
+			authGroup.GET("/me", middleware.AuthRequired(tokenMgr), authAPI.Me)
+		}
 
-	router.GET("/units", unitsAPI.ListUnits)
-	router.GET("/activities", activitiesAPI.ListActivities)
-	router.GET("/activities/:slug", activitiesAPI.GetActivityDetail)
+		v1.GET("/units", unitsAPI.ListUnits)
+		v1.GET("/activities", activitiesAPI.ListActivities)
+		v1.GET("/activities/:slug", activitiesAPI.GetActivityDetail)
 
-	router.GET("/profile", middleware.AuthRequired(tokenMgr), profileAPI.GetProfile)
-	router.PATCH("/profile", middleware.AuthRequired(tokenMgr), profileAPI.UpdateProfile)
+		v1.GET("/profile", middleware.AuthRequired(tokenMgr), profileAPI.GetProfile)
+		v1.PATCH("/profile", middleware.AuthRequired(tokenMgr), profileAPI.UpdateProfile)
 
-	router.POST("/media/upload", middleware.AuthRequired(tokenMgr), mediaAPI.UploadMedia)
+		v1.POST("/media/upload", middleware.AuthRequired(tokenMgr), mediaAPI.UploadMedia)
 
-	router.GET("/evidences", middleware.AuthRequired(tokenMgr), evidencesAPI.ListEvidences)
-	router.POST("/evidences", middleware.AuthRequired(tokenMgr), evidencesAPI.CreateEvidence)
-	router.DELETE("/evidences/:id", middleware.AuthRequired(tokenMgr), evidencesAPI.DeleteEvidence)
+		v1.GET("/evidences", middleware.AuthRequired(tokenMgr), evidencesAPI.ListEvidences)
+		v1.POST("/evidences", middleware.AuthRequired(tokenMgr), evidencesAPI.CreateEvidence)
+		v1.DELETE("/evidences/:id", middleware.AuthRequired(tokenMgr), evidencesAPI.DeleteEvidence)
 
-	router.GET("/progress", middleware.AuthRequired(tokenMgr), progressAPI.GetProgress)
-	router.GET("/leaderboard", leaderboardAPI.ListLeaderboard)
+		v1.GET("/progress", middleware.AuthRequired(tokenMgr), progressAPI.GetProgress)
+		v1.GET("/leaderboard", leaderboardAPI.ListLeaderboard)
 
-	router.GET("/healthz", healthAPI.Healthz)
-	router.GET("/readyz", healthAPI.Readyz)
+		v1.GET("/healthz", healthAPI.Healthz)
+		v1.GET("/readyz", healthAPI.Readyz)
 
-	adminGroup := router.Group("/admin")
-	{
-		adminGroup.PATCH("/evidences/:id/review", middleware.AdminRequired(tokenMgr), adminAPI.ReviewEvidence)
-		adminGroup.POST("/activities", middleware.AdminRequired(tokenMgr), adminAPI.CreateActivity)
-		adminGroup.PATCH("/activities/:id", middleware.AdminRequired(tokenMgr), adminAPI.UpdateActivity)
-		adminGroup.DELETE("/activities/:id", middleware.AdminRequired(tokenMgr), adminAPI.DeleteActivity)
+		adminGroup := v1.Group("/admin")
+		{
+			adminGroup.PATCH("/evidences/:id/review", middleware.AdminRequired(tokenMgr), adminAPI.ReviewEvidence)
+			adminGroup.POST("/activities", middleware.AdminRequired(tokenMgr), adminAPI.CreateActivity)
+			adminGroup.PATCH("/activities/:id", middleware.AdminRequired(tokenMgr), adminAPI.UpdateActivity)
+			adminGroup.DELETE("/activities/:id", middleware.AdminRequired(tokenMgr), adminAPI.DeleteActivity)
+		}
 	}
 
 	return router

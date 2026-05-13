@@ -54,6 +54,7 @@ func (r *ActivityRepository) List(ctx context.Context, filter *interfaces.ListAc
 	offset := (page - 1) * pageSize
 	query := fmt.Sprintf(`
 		SELECT id, title, description, slug, thumbnail_url, short_description, 
+		       location, target_audience, rules, rewards, contact_info,
 		       unit_id, start_date, end_date, is_active, registration_url, 
 		       review_level, organizer, created_at, updated_at
 		FROM activities
@@ -79,6 +80,11 @@ func (r *ActivityRepository) List(ctx context.Context, filter *interfaces.ListAc
 			&a.Slug,
 			&a.ThumbnailURL,
 			&a.ShortDescription,
+			&a.Location,
+			&a.TargetAudience,
+			&a.Rules,
+			&a.Rewards,
+			&a.ContactInfo,
 			&a.UnitID,
 			&a.StartDate,
 			&a.EndDate,
@@ -104,6 +110,7 @@ func (r *ActivityRepository) List(ctx context.Context, filter *interfaces.ListAc
 func (r *ActivityRepository) GetBySlug(ctx context.Context, slug string) (*domain.Activity, error) {
 	query := `
 		SELECT id, title, description, slug, thumbnail_url, short_description,
+		       location, target_audience, rules, rewards, contact_info,
 		       unit_id, start_date, end_date, is_active, registration_url,
 		       review_level, organizer, created_at, updated_at
 		FROM activities
@@ -117,6 +124,11 @@ func (r *ActivityRepository) GetBySlug(ctx context.Context, slug string) (*domai
 		&a.Slug,
 		&a.ThumbnailURL,
 		&a.ShortDescription,
+		&a.Location,
+		&a.TargetAudience,
+		&a.Rules,
+		&a.Rewards,
+		&a.ContactInfo,
 		&a.UnitID,
 		&a.StartDate,
 		&a.EndDate,
@@ -140,6 +152,7 @@ func (r *ActivityRepository) GetBySlug(ctx context.Context, slug string) (*domai
 func (r *ActivityRepository) GetByID(ctx context.Context, id string) (*domain.Activity, error) {
 	query := `
 		SELECT id, title, description, slug, thumbnail_url, short_description,
+		       location, target_audience, rules, rewards, contact_info,
 		       unit_id, start_date, end_date, is_active, registration_url,
 		       review_level, organizer, created_at, updated_at
 		FROM activities
@@ -153,6 +166,11 @@ func (r *ActivityRepository) GetByID(ctx context.Context, id string) (*domain.Ac
 		&a.Slug,
 		&a.ThumbnailURL,
 		&a.ShortDescription,
+		&a.Location,
+		&a.TargetAudience,
+		&a.Rules,
+		&a.Rewards,
+		&a.ContactInfo,
 		&a.UnitID,
 		&a.StartDate,
 		&a.EndDate,
@@ -209,8 +227,8 @@ func (r *ActivityRepository) GetCriteriaDocsByActivityID(ctx context.Context, ac
 
 func (r *ActivityRepository) Create(ctx context.Context, activity *domain.Activity) (*domain.Activity, error) {
 	query := `
-		INSERT INTO activities (title, description, slug, thumbnail_url, short_description, unit_id, start_date, end_date, is_active, registration_url, review_level, organizer)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+		INSERT INTO activities (title, description, slug, thumbnail_url, short_description, location, target_audience, rules, rewards, contact_info, unit_id, start_date, end_date, is_active, registration_url, review_level, organizer)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 		RETURNING id, created_at, updated_at`
 
 	err := r.pool.QueryRow(ctx, query,
@@ -219,6 +237,11 @@ func (r *ActivityRepository) Create(ctx context.Context, activity *domain.Activi
 		activity.Slug,
 		activity.ThumbnailURL,
 		activity.ShortDescription,
+		activity.Location,
+		activity.TargetAudience,
+		activity.Rules,
+		activity.Rewards,
+		activity.ContactInfo,
 		activity.UnitID,
 		activity.StartDate,
 		activity.EndDate,
@@ -239,8 +262,9 @@ func (r *ActivityRepository) Update(ctx context.Context, id string, activity *do
 	query := `
 		UPDATE activities
 		SET title = $2, description = $3, slug = $4, thumbnail_url = $5, short_description = $6,
-		    unit_id = $7, start_date = $8, end_date = $9, is_active = $10, registration_url = $11,
-		    review_level = $12, organizer = $13, updated_at = NOW()
+		    location = $7, target_audience = $8, rules = $9, rewards = $10, contact_info = $11,
+		    unit_id = $12, start_date = $13, end_date = $14, is_active = $15, registration_url = $16,
+		    review_level = $17, organizer = $18, updated_at = NOW()
 		WHERE id = $1
 		RETURNING updated_at`
 
@@ -251,6 +275,11 @@ func (r *ActivityRepository) Update(ctx context.Context, id string, activity *do
 		activity.Slug,
 		activity.ThumbnailURL,
 		activity.ShortDescription,
+		activity.Location,
+		activity.TargetAudience,
+		activity.Rules,
+		activity.Rewards,
+		activity.ContactInfo,
 		activity.UnitID,
 		activity.StartDate,
 		activity.EndDate,

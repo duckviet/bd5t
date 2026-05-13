@@ -21,7 +21,7 @@ HANDLERS_DST_DIR := internal/handlers
 HANDLERS_INTERFACE_DST_DIR := internal/handlers/interfaces
 SERVICE_INTERFACE_DST_DIR := internal/service/interfaces
 DTO_DST_DIR := internal/dto
-
+DATABASE_URL :=postgres://postgres:postgres@localhost:5436/bd5t?sslmode=disable
 run:
 	go run ./cmd/api
 
@@ -99,10 +99,10 @@ openapi-generator-cli:
 	@echo "--- Code generation and integration complete! ---"
 
 migrate-up:
-	migrate -path internal/database/migrations -database "$(DATABASE_URL)" up
+	docker run --rm -v $(shell pwd)/internal/database/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "$(DATABASE_URL)" up
 
 migrate-down:
-	migrate -path internal/database/migrations -database "$(DATABASE_URL)" down 1
+	docker run --rm -v $(shell pwd)/internal/database/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "$(DATABASE_URL)" down 1
 
 mock-gen:
 	go generate ./internal/...

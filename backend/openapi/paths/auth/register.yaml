@@ -12,6 +12,11 @@ post:
   responses:
     '201':
       description: User registered successfully
+      headers:
+        Set-Cookie:
+          schema:
+            type: string
+            description: HTTP-only cookies for access and refresh tokens
       content:
         application/json:
           schema:

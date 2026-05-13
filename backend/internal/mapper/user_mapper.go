@@ -66,6 +66,14 @@ func RegisterRequestToDomain(req *dto.RegisterRequest) *domain.User {
 		user.DisplayName = &req.DisplayName
 	}
 
+	if req.UnitId != nil && *req.UnitId != "" {
+		user.UnitID = req.UnitId
+	}
+
+	if req.ClassName != nil && *req.ClassName != "" {
+		user.ClassName = req.ClassName
+	}
+
 	return user
 }
 

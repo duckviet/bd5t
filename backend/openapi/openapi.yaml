@@ -122,6 +122,12 @@ components:
           type: string
         displayName:
           type: string
+        unitId:
+          type: string
+          nullable: true
+        className:
+          type: string
+          nullable: true
 
     LoginRequest:
       type: object
@@ -234,6 +240,21 @@ components:
         thumbnailUrl:
           type: string
           format: uri
+        location:
+          type: string
+          nullable: true
+        targetAudience:
+          type: string
+          nullable: true
+        rules:
+          type: string
+          nullable: true
+        rewards:
+          type: string
+          nullable: true
+        contactInfo:
+          type: string
+          nullable: true
         unitId:
           type: string
           format: uuid
@@ -280,6 +301,21 @@ components:
         thumbnailUrl:
           type: string
           format: uri
+        location:
+          type: string
+          nullable: true
+        targetAudience:
+          type: string
+          nullable: true
+        rules:
+          type: string
+          nullable: true
+        rewards:
+          type: string
+          nullable: true
+        contactInfo:
+          type: string
+          nullable: true
         unitId:
           type: string
           format: uuid
@@ -466,6 +502,21 @@ components:
         shortDescription:
           type: string
           nullable: true
+        location:
+          type: string
+          nullable: true
+        targetAudience:
+          type: string
+          nullable: true
+        rules:
+          type: string
+          nullable: true
+        rewards:
+          type: string
+          nullable: true
+        contactInfo:
+          type: string
+          nullable: true
         unitId:
           type: string
           format: uuid
@@ -511,6 +562,21 @@ components:
           format: uri
           nullable: true
         shortDescription:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        targetAudience:
+          type: string
+          nullable: true
+        rules:
+          type: string
+          nullable: true
+        rewards:
+          type: string
+          nullable: true
+        contactInfo:
           type: string
           nullable: true
         unitId:

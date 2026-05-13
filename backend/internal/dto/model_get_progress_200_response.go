@@ -10,6 +10,7 @@
 package dto
 
 type GetProgress200Response struct {
+
 	Success bool `json:"success,omitempty"`
 
 	Data ProgressMatrix `json:"data,omitempty"`

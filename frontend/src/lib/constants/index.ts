@@ -15,8 +15,7 @@ export const REVIEW_LEVELS = {
   DHQGHN: "Cấp ĐHQGHN",
   THANH_PHO: "Cấp Thành phố",
   TRUNG_UONG: "Cấp Trung ương",
-  QUOC_TE: "Cấp Quốc tế",
-} as const
+} as const;
 
 export type ReviewLevel = keyof typeof REVIEW_LEVELS
 

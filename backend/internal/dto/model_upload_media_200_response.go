@@ -10,6 +10,7 @@
 package dto
 
 type UploadMedia200Response struct {
+
 	Success bool `json:"success,omitempty"`
 
 	Data UploadMedia200ResponseData `json:"data,omitempty"`

@@ -10,5 +10,6 @@
 package dto
 
 type Healthz200Response struct {
+
 	Status string `json:"status,omitempty"`
 }

@@ -56,6 +56,21 @@ func ActivityToItemDTO(activity *domain.Activity) *dto.ActivityItem {
 	if activity.ShortDescription != nil {
 		dtoItem.ShortDescription = *activity.ShortDescription
 	}
+	if activity.Location != nil {
+		dtoItem.Location = activity.Location
+	}
+	if activity.TargetAudience != nil {
+		dtoItem.TargetAudience = activity.TargetAudience
+	}
+	if activity.Rules != nil {
+		dtoItem.Rules = activity.Rules
+	}
+	if activity.Rewards != nil {
+		dtoItem.Rewards = activity.Rewards
+	}
+	if activity.ContactInfo != nil {
+		dtoItem.ContactInfo = activity.ContactInfo
+	}
 	if activity.ThumbnailURL != nil {
 		dtoItem.ThumbnailUrl = *activity.ThumbnailURL
 	}
@@ -129,6 +144,21 @@ func ActivityToDetailDTO(activity *domain.Activity, criteria []*domain.CriteriaD
 	}
 	if activity.ShortDescription != nil {
 		detail.ShortDescription = *activity.ShortDescription
+	}
+	if activity.Location != nil {
+		detail.Location = activity.Location
+	}
+	if activity.TargetAudience != nil {
+		detail.TargetAudience = activity.TargetAudience
+	}
+	if activity.Rules != nil {
+		detail.Rules = activity.Rules
+	}
+	if activity.Rewards != nil {
+		detail.Rewards = activity.Rewards
+	}
+	if activity.ContactInfo != nil {
+		detail.ContactInfo = activity.ContactInfo
 	}
 	if activity.ThumbnailURL != nil {
 		detail.ThumbnailUrl = *activity.ThumbnailURL

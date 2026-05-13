@@ -12,17 +12,18 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 
+import { useLoginMutation } from "@/features/auth/hooks/useAuthMutation"
+
 const loginSchema = z.object({
-  identifier: z.string().min(1, "Vui lòng nhập email hoặc mã sinh viên"),
+  email: z.string().email("Email không hợp lệ").min(1, "Vui lòng nhập email"),
   password: z.string().min(1, "Vui lòng nhập mật khẩu"),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
-  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const loginMutation = useLoginMutation()
 
   const {
     register,
@@ -33,13 +34,10 @@ export default function LoginPage() {
   })
 
   const onSubmit = async (data: LoginFormData) => {
-    setIsLoading(true)
-    console.log("Login:", data)
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/profile")
-    }, 1000)
+    loginMutation.mutate(data)
   }
+
+  const isLoading = loginMutation.isPending
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4 py-12">
@@ -56,15 +54,15 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="identifier">Email hoặc Mã sinh viên</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="identifier"
-                type="text"
-                placeholder="a@example.com hoặc 22040001"
-                {...register("identifier")}
+                id="email"
+                type="email"
+                placeholder="a@example.com"
+                {...register("email")}
               />
-              {errors.identifier && (
-                <p className="text-sm text-destructive">{errors.identifier.message}</p>
+              {errors.email && (
+                <p className="text-sm text-destructive">{errors.email.message}</p>
               )}
             </div>
 

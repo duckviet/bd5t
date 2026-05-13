@@ -10,5 +10,6 @@
 package dto
 
 type Login401Response struct {
+
 	Error string `json:"error,omitempty"`
 }
