@@ -9,9 +9,9 @@
 
 package dto
 
-type ErrorResponse struct {
+type GetProgress200Response struct {
 
 	Success bool `json:"success,omitempty"`
 
-	Error ErrorResponseError `json:"error,omitempty"`
+	Data ProgressMatrix `json:"data,omitempty"`
 }

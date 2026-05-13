@@ -9,13 +9,13 @@
 
 package dto
 
-type CreateEvidenceRequest struct {
-
-	ActivityId string `json:"activityId"`
+type ProgressMatrixCellCompletedCriteriaInner struct {
 
 	CriteriaDocId string `json:"criteriaDocId,omitempty"`
 
-	FileKey string `json:"fileKey"`
+	CriteriaDocTitle string `json:"criteriaDocTitle,omitempty"`
 
-	Description string `json:"description,omitempty"`
+	Score int32 `json:"score,omitempty"`
+
+	EvidenceCount int32 `json:"evidenceCount,omitempty"`
 }

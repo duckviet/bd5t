@@ -9,13 +9,11 @@
 
 package dto
 
-type UnitItem struct {
+type ListLeaderboard200Response struct {
 
-	Id string `json:"id,omitempty"`
+	Success bool `json:"success,omitempty"`
 
-	Name string `json:"name,omitempty"`
+	Data []LeaderboardItem `json:"data,omitempty"`
 
-	Code string `json:"code,omitempty"`
-
-	Description string `json:"description,omitempty"`
+	Meta PaginationMeta `json:"meta,omitempty"`
 }

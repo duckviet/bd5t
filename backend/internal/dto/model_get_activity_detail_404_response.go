@@ -10,5 +10,6 @@
 package dto
 
 type GetActivityDetail404Response struct {
+
 	Error string `json:"error,omitempty"`
 }

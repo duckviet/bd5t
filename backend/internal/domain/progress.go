@@ -1,0 +1,28 @@
+package domain
+
+import (
+	"time"
+)
+
+type Progress struct {
+	ID                string
+	UserID            string
+	ActivityID        string
+	TotalScore        int
+	CompletedCriteria []CompletedCriteria
+	UpdatedAt         time.Time
+}
+
+type CompletedCriteria struct {
+	CriteriaDocID    string
+	CriteriaDocTitle string
+	Score            int
+	EvidenceCount    int
+}
+
+type UserActivityProgress struct {
+	ActivityID        string
+	ActivityTitle     string
+	TotalScore        int
+	CompletedCriteria []CompletedCriteria
+}

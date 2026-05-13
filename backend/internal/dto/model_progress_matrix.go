@@ -9,9 +9,9 @@
 
 package dto
 
-type ErrorResponse struct {
+type ProgressMatrix struct {
 
-	Success bool `json:"success,omitempty"`
+	UserId string `json:"userId,omitempty"`
 
-	Error ErrorResponseError `json:"error,omitempty"`
+	Activities []ProgressMatrixCell `json:"activities,omitempty"`
 }

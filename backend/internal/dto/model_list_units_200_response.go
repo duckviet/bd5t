@@ -10,6 +10,7 @@
 package dto
 
 type ListUnits200Response struct {
+
 	Success bool `json:"success,omitempty"`
 
 	Data []UnitItem `json:"data,omitempty"`

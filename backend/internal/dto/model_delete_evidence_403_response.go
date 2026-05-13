@@ -10,5 +10,6 @@
 package dto
 
 type DeleteEvidence403Response struct {
+
 	Error string `json:"error,omitempty"`
 }

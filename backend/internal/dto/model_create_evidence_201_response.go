@@ -10,6 +10,7 @@
 package dto
 
 type CreateEvidence201Response struct {
+
 	Success bool `json:"success,omitempty"`
 
 	Data EvidenceItem `json:"data,omitempty"`

@@ -10,6 +10,7 @@
 package dto
 
 type UploadMedia200ResponseData struct {
+
 	Url string `json:"url,omitempty"`
 
 	Key string `json:"key,omitempty"`

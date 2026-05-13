@@ -112,6 +112,14 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	evidenceService := svcImpl.NewEvidenceService(evidenceRepo, activityRepo, fileStorageService, mediaService, cfg.Media)
 	evidencesAPI := handlers.NewEvidencesAPI(evidenceService)
 
+	progressRepo := repoImpl.NewProgressRepository(db)
+	progressService := svcImpl.NewProgressService(progressRepo, evidenceRepo, activityRepo)
+	progressAPI := handlers.NewProgressAPI(progressService)
+
+	leaderboardRepo := repoImpl.NewLeaderboardRepository(db)
+	leaderboardService := svcImpl.NewLeaderboardService(leaderboardRepo)
+	leaderboardAPI := handlers.NewLeaderboardAPI(leaderboardService)
+
 	healthAPI := handlers.NewHealthAPI()
 
 	authGroup := router.Group("/auth")

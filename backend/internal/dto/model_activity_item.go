@@ -10,6 +10,7 @@
 package dto
 
 type ActivityItem struct {
+
 	Id string `json:"id,omitempty"`
 
 	Slug string `json:"slug,omitempty"`

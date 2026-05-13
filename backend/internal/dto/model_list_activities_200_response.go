@@ -10,6 +10,7 @@
 package dto
 
 type ListActivities200Response struct {
+
 	Success bool `json:"success,omitempty"`
 
 	Data []ActivityItem `json:"data,omitempty"`
