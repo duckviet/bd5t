@@ -310,6 +310,64 @@ components:
           items:
             $ref: '#/components/schemas/CriteriaDoc'
 
+    EvidenceItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        activityId:
+          type: string
+          format: uuid
+        activityTitle:
+          type: string
+        criteriaDocId:
+          type: string
+          format: uuid
+          nullable: true
+        criteriaDocTitle:
+          type: string
+          nullable: true
+        fileUrl:
+          type: string
+          format: uri
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        reviewNote:
+          type: string
+          nullable: true
+        reviewedBy:
+          type: string
+          format: uuid
+          nullable: true
+        reviewedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateEvidenceRequest:
+      type: object
+      required:
+        - activityId
+        - fileKey
+      properties:
+        activityId:
+          type: string
+          format: uuid
+        criteriaDocId:
+          type: string
+          format: uuid
+        fileKey:
+          type: string
+        description:
+          type: string
+
 paths:
   /healthz:
     get:
@@ -670,5 +728,121 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /evidences:
+    get:
+      summary: List evidences for current user
+      operationId: listEvidences
+      tags:
+        - Evidences
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: activityId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by activity ID
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+          description: Filter by status
+      responses:
+        '200':
+          description: List of evidences
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EvidenceItem'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create a new evidence
+      operationId: createEvidence
+      tags:
+        - Evidences
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEvidenceRequest'
+      responses:
+        '201':
+          description: Evidence created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/EvidenceItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /evidences/{id}:
+    delete:
+      summary: Delete an evidence
+      operationId: deleteEvidence
+      tags:
+        - Evidences
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Evidence ID
+      responses:
+        '200':
+          description: Evidence deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'

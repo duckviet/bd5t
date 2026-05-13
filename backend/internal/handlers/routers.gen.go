@@ -66,6 +66,8 @@ type ApiHandleFunctions struct {
 	ActivitiesAPI ActivitiesAPI
 	// Routes for the AuthAPI part of the API
 	AuthAPI AuthAPI
+	// Routes for the EvidencesAPI part of the API
+	EvidencesAPI EvidencesAPI
 	// Routes for the HealthAPI part of the API
 	HealthAPI HealthAPI
 	// Routes for the MediaAPI part of the API
@@ -119,6 +121,24 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			http.MethodPost,
 			"/auth/register",
 			handleFunctions.AuthAPI.Register,
+		},
+		{
+			"CreateEvidence",
+			http.MethodPost,
+			"/evidences",
+			handleFunctions.EvidencesAPI.CreateEvidence,
+		},
+		{
+			"DeleteEvidence",
+			http.MethodDelete,
+			"/evidences/:id",
+			handleFunctions.EvidencesAPI.DeleteEvidence,
+		},
+		{
+			"ListEvidences",
+			http.MethodGet,
+			"/evidences",
+			handleFunctions.EvidencesAPI.ListEvidences,
 		},
 		{
 			"Healthz",

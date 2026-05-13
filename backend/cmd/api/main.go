@@ -108,6 +108,10 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	fileStorageService := media.NewFileStorageService(r2Client, cfg.Media)
 	mediaAPI := handlers.NewMediaAPI(mediaService, fileStorageService)
 
+	evidenceRepo := repoImpl.NewEvidenceRepository(db)
+	evidenceService := svcImpl.NewEvidenceService(evidenceRepo, activityRepo, fileStorageService, mediaService, cfg.Media)
+	evidencesAPI := handlers.NewEvidencesAPI(evidenceService)
+
 	healthAPI := handlers.NewHealthAPI()
 
 	authGroup := router.Group("/auth")
@@ -127,6 +131,10 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	router.PATCH("/profile", middleware.AuthRequired(tokenMgr), profileAPI.UpdateProfile)
 
 	router.POST("/media/upload", middleware.AuthRequired(tokenMgr), mediaAPI.UploadMedia)
+
+	router.GET("/evidences", middleware.AuthRequired(tokenMgr), evidencesAPI.ListEvidences)
+	router.POST("/evidences", middleware.AuthRequired(tokenMgr), evidencesAPI.CreateEvidence)
+	router.DELETE("/evidences/:id", middleware.AuthRequired(tokenMgr), evidencesAPI.DeleteEvidence)
 
 	router.GET("/healthz", healthAPI.Healthz)
 	router.GET("/readyz", healthAPI.Readyz)

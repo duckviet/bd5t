@@ -19,5 +19,6 @@ type ListActivitiesResult struct {
 type ActivityRepository interface {
 	List(ctx context.Context, filter *ListActivitiesFilter, page, pageSize int) (*ListActivitiesResult, error)
 	GetBySlug(ctx context.Context, slug string) (*domain.Activity, error)
+	GetByID(ctx context.Context, id string) (*domain.Activity, error)
 	GetCriteriaDocsByActivityID(ctx context.Context, activityID string) ([]*domain.CriteriaDoc, error)
 }

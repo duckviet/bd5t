@@ -1,0 +1,52 @@
+get:
+  summary: List evidences for current user
+  operationId: listEvidences
+  tags:
+    - Evidences
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+    - name: pageSize
+      in: query
+      schema:
+        type: integer
+        default: 20
+    - name: activityId
+      in: query
+      schema:
+        type: string
+        format: uuid
+      description: Filter by activity ID
+    - name: status
+      in: query
+      schema:
+        type: string
+        enum: [pending, approved, rejected]
+      description: Filter by status
+  responses:
+    '200':
+      description: List of evidences
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EvidenceItem'
+              meta:
+                $ref: '#/components/schemas/PaginationMeta'
+    '401':
+      $ref: '#/components/responses/Unauthorized'
+    '500':
+      $ref: '#/components/responses/InternalServerError'

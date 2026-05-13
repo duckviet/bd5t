@@ -288,39 +288,39 @@
 > Goal: students can submit, list, and delete their evidence.
 
 ### 7.1 OpenAPI Spec
-- [ ] `openapi/paths/evidences/list.yaml`
-- [ ] `openapi/paths/evidences/create.yaml`
-- [ ] `openapi/paths/evidences/delete.yaml`
-- [ ] Add `EvidenceItem`, `CreateEvidenceRequest` schemas
-- [ ] Run `make openapi-generator-cli`
+- [x] `openapi/paths/evidences/list.yaml`
+- [x] `openapi/paths/evidences/create.yaml`
+- [x] `openapi/paths/evidences/delete.yaml`
+- [x] Add `EvidenceItem`, `CreateEvidenceRequest` schemas
+- [x] Run `make openapi-generator-cli`
 
 ### 7.2 Domain
-- [ ] `internal/domain/evidence.go`
+- [x] `internal/domain/evidence.go`
   - Status enum: `PENDING`, `APPROVED`, `REJECTED`
   - Add `CriterionType` (DAO_DUC, HOC_TAP, etc.)
 
 ### 7.3 Repository
-- [ ] `EvidenceRepository`
-  - [ ] `List(ctx, userId, filters) ([]*domain.Evidence, total, error)`
-  - [ ] `GetByID(ctx, id) (*domain.Evidence, error)`
-  - [ ] `Create(ctx, input) (*domain.Evidence, error)`
-  - [ ] `Delete(ctx, id) error`
-  - [ ] `UpdateStatus(ctx, id, status, reviewNote) error`
+- [x] `EvidenceRepository`
+  - [x] `List(ctx, userId, filters) ([]*domain.Evidence, total, error)`
+  - [x] `GetByID(ctx, id) (*domain.Evidence, error)`
+  - [x] `Create(ctx, input) (*domain.Evidence, error)`
+  - [x] `Delete(ctx, id) error`
+  - [x] `UpdateStatus(ctx, id, status, reviewNote) error`
 
 ### 7.4 Service
-- [ ] `EvidenceService`
-  - [ ] `ListEvidences(ctx, userId, req) (paginated, error)`
-  - [ ] `CreateEvidence(ctx, userId, req) (*domain.Evidence, error)`
-  - [ ] `DeleteEvidence(ctx, userId, evidenceId) error`
+- [x] `EvidenceService`
+  - [x] `ListEvidences(ctx, userId, req) (paginated, error)`
+  - [x] `CreateEvidence(ctx, userId, req) (*domain.Evidence, error)`
+  - [x] `DeleteEvidence(ctx, userId, evidenceId) error`
     - Rule: only owner can delete; cannot delete if status = `APPROVED`
 
 ### 7.5 Handler
-- [ ] `GET /evidences` — authenticated, paginated, filter by activity/status
-- [ ] `POST /evidences` — authenticated, rate limited
-- [ ] `DELETE /evidences/:id` — authenticated, owner only
+- [x] `GET /evidences` — authenticated, paginated, filter by activity/status
+- [x] `POST /evidences` — authenticated, rate limited
+- [x] `DELETE /evidences/:id` — authenticated, owner only
 
 ### 7.6 Mapper
-- [ ] `internal/mapper/evidence_mapper.go`
+- [x] `internal/mapper/evidence_mapper.go`
 
 ### 7.7 Tests
 - [ ] Unit test: delete guard (approved evidence cannot be deleted)

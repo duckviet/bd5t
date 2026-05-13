@@ -1,0 +1,33 @@
+post:
+  summary: Create a new evidence
+  operationId: createEvidence
+  tags:
+    - Evidences
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/CreateEvidenceRequest'
+  responses:
+    '201':
+      description: Evidence created successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: '#/components/schemas/EvidenceItem'
+    '400':
+      $ref: '#/components/responses/BadRequest'
+    '401':
+      $ref: '#/components/responses/Unauthorized'
+    '500':
+      $ref: '#/components/responses/InternalServerError'

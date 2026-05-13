@@ -137,6 +137,42 @@ func (r *ActivityRepository) GetBySlug(ctx context.Context, slug string) (*domai
 	return &a, nil
 }
 
+func (r *ActivityRepository) GetByID(ctx context.Context, id string) (*domain.Activity, error) {
+	query := `
+		SELECT id, title, description, slug, thumbnail_url, short_description,
+		       unit_id, start_date, end_date, is_active, registration_url,
+		       review_level, organizer, created_at, updated_at
+		FROM activities
+		WHERE id = $1`
+
+	var a domain.Activity
+	err := r.pool.QueryRow(ctx, query, id).Scan(
+		&a.ID,
+		&a.Title,
+		&a.Description,
+		&a.Slug,
+		&a.ThumbnailURL,
+		&a.ShortDescription,
+		&a.UnitID,
+		&a.StartDate,
+		&a.EndDate,
+		&a.IsActive,
+		&a.RegistrationURL,
+		&a.ReviewLevel,
+		&a.Organizer,
+		&a.CreatedAt,
+		&a.UpdatedAt,
+	)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &a, nil
+}
+
 func (r *ActivityRepository) GetCriteriaDocsByActivityID(ctx context.Context, activityID string) ([]*domain.CriteriaDoc, error) {
 	query := `
 		SELECT id, activity_id, title, description, max_score, created_at, updated_at

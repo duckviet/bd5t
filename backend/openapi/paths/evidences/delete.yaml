@@ -1,0 +1,27 @@
+delete:
+  summary: Delete an evidence
+  operationId: deleteEvidence
+  tags:
+    - Evidences
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Evidence ID
+  responses:
+    '200':
+      description: Evidence deleted successfully
+    '401':
+      $ref: '#/components/responses/Unauthorized'
+    '403':
+      $ref: '#/components/responses/Forbidden'
+    '404':
+      $ref: '#/components/responses/NotFound'
+    '500':
+      $ref: '#/components/responses/InternalServerError'
