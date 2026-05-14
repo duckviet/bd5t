@@ -21,9 +21,9 @@ type EvidenceItem struct {
 
 	ActivityTitle string `json:"activityTitle,omitempty"`
 
-	CriteriaDocId *string `json:"criteriaDocId,omitempty"`
+	CriteriaDocId string `json:"criteriaDocId,omitempty"`
 
-	CriteriaDocTitle *string `json:"criteriaDocTitle,omitempty"`
+	CriteriaDocTitle string `json:"criteriaDocTitle,omitempty"`
 
 	FileUrl string `json:"fileUrl,omitempty"`
 
@@ -31,11 +31,12 @@ type EvidenceItem struct {
 
 	Status string `json:"status,omitempty"`
 
-	ReviewNote *string `json:"reviewNote,omitempty"`
+	// Note from reviewer
+	ReviewNote string `json:"reviewNote,omitempty"`
 
-	ReviewedBy *string `json:"reviewedBy,omitempty"`
+	ReviewedBy string `json:"reviewedBy,omitempty"`
 
-	ReviewedAt *time.Time `json:"reviewedAt,omitempty"`
+	ReviewedAt time.Time `json:"reviewedAt,omitempty"`
 
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 }

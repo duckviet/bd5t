@@ -34,15 +34,20 @@ func (s *LeaderboardService) ListLeaderboard(ctx context.Context, unitID *string
 
 	items := make([]*dto.LeaderboardItem, len(result.Items))
 	for i, item := range result.Items {
-		items[i] = &dto.LeaderboardItem{
+		row := &dto.LeaderboardItem{
 			Rank:          int32(item.Rank),
 			UserId:        item.UserID,
 			UserName:      item.UserName,
-			UnitId:        item.UnitID,
-			UnitName:      item.UnitName,
 			TotalApproved: int32(item.TotalApproved),
 			TotalScore:    int32(item.TotalScore),
 		}
+		if item.UnitID != nil {
+			row.UnitId = *item.UnitID
+		}
+		if item.UnitName != nil {
+			row.UnitName = *item.UnitName
+		}
+		items[i] = row
 	}
 
 	return &ListLeaderboardResult{

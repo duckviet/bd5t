@@ -17,12 +17,24 @@ export const customInstance = <T>(
 
   if (typeof urlOrConfig === "string") {
     // Trường hợp Orval gọi: customInstance(url, config)
+    const { body, data: configData, ...restConfig } = config || {};
+    const data = configData || body;
+
     finalConfig = {
       url: urlOrConfig,
-      ...config,
-      // Orval dùng 'body' cho fetch, Axios dùng 'data'
-      data: config?.data || config?.body,
+      ...restConfig,
+      data,
     };
+
+    // Nếu data là FormData, xoá Content-Type để Axios/browser tự set boundary cho multipart
+    // Cần set thành undefined để override default header 'application/json' của axios instance
+    if (data instanceof FormData) {
+      finalConfig.headers = {
+        ...finalConfig.headers,
+        "Content-Type": undefined,
+      };
+      console.log(`[CustomInstance] Sending FormData to ${urlOrConfig}`);
+    }
   } else {
     // Trường hợp gọi thủ công: customInstance({ url, ... })
     finalConfig = urlOrConfig;

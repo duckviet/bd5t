@@ -1,0 +1,67 @@
+/healthz:
+  $ref: ./health/health.yaml#/~1healthz
+
+/readyz:
+  $ref: ./health/health.yaml#/~1readyz
+
+/auth/register:
+  $ref: ./auth/register.yaml
+
+/auth/login:
+  $ref: ./auth/login.yaml
+
+/auth/logout:
+  $ref: ./auth/logout.yaml
+
+/auth/me:
+  $ref: ./auth/me.yaml
+
+/auth/refresh:
+  $ref: ./auth/refresh.yaml
+
+/units:
+  $ref: ./units/list.yaml
+
+/activities:
+  $ref: ./activities/list.yaml
+
+/activities/{slug}:
+  $ref: ./activities/detail.yaml
+
+/profile:
+  get:
+    $ref: ./profile/get.yaml#/get
+  patch:
+    $ref: ./profile/patch.yaml#/patch
+
+/media/upload:
+  $ref: ./media/upload.yaml
+
+/evidences:
+  get:
+    $ref: ./evidences/list.yaml#/get
+  post:
+    $ref: ./evidences/create.yaml#/post
+
+/evidences/{id}:
+  delete:
+    $ref: ./evidences/delete.yaml#/delete
+
+/progress:
+  $ref: ./progress/get.yaml
+
+/leaderboard:
+  $ref: ./leaderboard/list.yaml
+
+/admin/activities:
+  post:
+    $ref: ./admin/create-activity.yaml#/post
+
+"/admin/activities/{id}":
+  patch:
+    $ref: ./admin/update-activity.yaml#/patch
+  delete:
+    $ref: ./admin/delete-activity.yaml#/delete
+
+/admin/evidences/{id}/review:
+  $ref: ./admin/review-evidence.yaml

@@ -13,10 +13,6 @@ post:
         Set-Cookie:
           schema:
             type: string
-            description: Clear authentication cookies
+          description: Clear authentication cookies
     '401':
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'

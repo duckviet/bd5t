@@ -12,10 +12,11 @@ get:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/UserProfile'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/user.yaml#/UserProfile'
     '401':
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'

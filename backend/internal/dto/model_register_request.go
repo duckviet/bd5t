@@ -19,7 +19,7 @@ type RegisterRequest struct {
 
 	DisplayName string `json:"displayName,omitempty"`
 
-	UnitId *string `json:"unitId,omitempty"`
+	UnitId string `json:"unitId,omitempty"`
 
-	ClassName *string `json:"className,omitempty"`
+	ClassName string `json:"className,omitempty"`
 }

@@ -20,37 +20,36 @@ post:
               type: string
               enum: [avatar, thumbnail, evidence]
               description: Type of media upload
-        required:
-          - file
-          - type
+          required:
+            - file
+            - type
   responses:
     '200':
       description: File uploaded successfully
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: true
-              data:
-                type: object
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
                 properties:
-                  url:
-                    type: string
-                    format: uri
-                  key:
-                    type: string
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
     '400':
-      $ref: '#/components/responses/BadRequest'
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
     '401':
-      $ref: '#/components/responses/Unauthorized'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
     '413':
-      description: File too large
+      description: File too large - exceeds maximum allowed size
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '../../components/schemas/_common.yaml#/ErrorResponse'
     '500':
-      $ref: '#/components/responses/InternalServerError'
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

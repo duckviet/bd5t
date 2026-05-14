@@ -12,14 +12,13 @@ get:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: true
-              data:
-                $ref: '#/components/schemas/UserProfile'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/user.yaml#/UserProfile'
     '401':
-      $ref: '#/components/responses/Unauthorized'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
     '500':
-      $ref: '#/components/responses/InternalServerError'
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

@@ -1,0 +1,57 @@
+get:
+  summary: Get current user profile
+  operationId: getProfile
+  tags:
+    - Profile
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  responses:
+    '200':
+      description: Current user profile
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../components/schemas/user.yaml#/UserProfile'
+    '401':
+      $ref: '../components/responses/error_responses.yaml#/Unauthorized'
+    '500':
+      $ref: '../components/responses/error_responses.yaml#/InternalServerError'
+
+patch:
+  summary: Update current user profile
+  operationId: updateProfile
+  tags:
+    - Profile
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../components/schemas/user.yaml#/UpdateProfileRequest'
+  responses:
+    '200':
+      description: Profile updated successfully
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../components/schemas/user.yaml#/UserProfile'
+    '400':
+      $ref: '../components/responses/error_responses.yaml#/BadRequest'
+    '401':
+      $ref: '../components/responses/error_responses.yaml#/Unauthorized'
+    '500':
+      $ref: '../components/responses/error_responses.yaml#/InternalServerError'

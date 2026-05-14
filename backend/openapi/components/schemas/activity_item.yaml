@@ -13,6 +13,21 @@ ActivityItem:
     shortDescription:
       type: string
       example: "Hoạt động tập hợp toàn trường"
+    location:
+      type: string
+      nullable: true
+    targetAudience:
+      type: string
+      nullable: true
+    rules:
+      type: string
+      nullable: true
+    rewards:
+      type: string
+      nullable: true
+    contactInfo:
+      type: string
+      nullable: true
     thumbnailUrl:
       type: string
       format: uri

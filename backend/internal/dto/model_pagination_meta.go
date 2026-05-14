@@ -11,11 +11,15 @@ package dto
 
 type PaginationMeta struct {
 
+	// Current page number
 	Page int32 `json:"page,omitempty"`
 
+	// Number of items per page
 	PageSize int32 `json:"pageSize,omitempty"`
 
+	// Total number of items
 	Total int32 `json:"total,omitempty"`
 
+	// Total number of pages
 	TotalPages int32 `json:"totalPages,omitempty"`
 }

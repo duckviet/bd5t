@@ -13,7 +13,9 @@ type AuthResponse struct {
 
 	User UserProfile `json:"user,omitempty"`
 
+	// JWT access token
 	AccessToken string `json:"accessToken,omitempty"`
 
+	// JWT refresh token
 	RefreshToken string `json:"refreshToken,omitempty"`
 }

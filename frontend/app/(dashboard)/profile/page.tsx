@@ -30,6 +30,7 @@ export default function ProfilePage() {
   const [viewMode, setViewMode] = useState<"profile" | "evidences">("profile")
   const [uploadOpen, setUploadOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
+  const [uploadKey, setUploadKey] = useState(0)
   const [user, setUser] = useState<UserProfile>(mockUser)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
@@ -85,7 +86,7 @@ export default function ProfilePage() {
           statusBadgeVariant={statusBadgeVariant}
           statusIcon={statusIcon}
         />
-        <UploadEvidenceDialog open={uploadOpen} onOpenChange={setUploadOpen} />
+        <UploadEvidenceDialog key={uploadKey} open={uploadOpen} onOpenChange={setUploadOpen} onSuccess={() => setUploadKey((k) => k + 1)} />
       </>
     )
   }
@@ -121,7 +122,7 @@ export default function ProfilePage() {
         user={user}
         onSave={handleSaveUser}
       />
-      <UploadEvidenceDialog open={uploadOpen} onOpenChange={setUploadOpen} />
+      <UploadEvidenceDialog key={uploadKey} open={uploadOpen} onOpenChange={setUploadOpen} onSuccess={() => setUploadKey((k) => k + 1)} />
     </div>
   )
 }

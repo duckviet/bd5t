@@ -8,6 +8,8 @@
 
 The Makefile drives the full OpenAPI code generation pipeline and common developer tasks. All generated files are post-processed into the correct internal layers automatically.
 
+The OpenAPI validation step now checks both the source spec and the bundled `dist.yaml` artifact, so a clean validation run confirms that modular refs and the generated bundle are aligned.
+
 ---
 
 ## Variables
@@ -21,7 +23,7 @@ HANDLERS_INTERFACE_DST_DIR := internal/handlers/interfaces
 SERVICE_INTERFACE_DST_DIR  := internal/service/interfaces
 DTO_DST_DIR                := internal/dto
 
-MODULE_NAME := github.com/your-org/ban-do-5-tot/backend
+MODULE_NAME := github.com/duckviet/bd5t/backend
 ```
 
 ---
@@ -100,13 +102,14 @@ openapi-generator-cli:
 
 ### `make openapi-validate`
 
-Validates the OpenAPI source spec before bundling.
+Validates the OpenAPI source spec and the bundled output.
 
 ```makefile
 .PHONY: openapi-validate
 
 openapi-validate:
 	swagger-cli validate $(OAPI_SPEC_SRC)
+	swagger-cli validate $(OAPI_SPEC_DST)
 ```
 
 ---
@@ -246,3 +249,5 @@ build:
 | `air` | Live reload for development | `go install github.com/air-verse/air@latest` |
 | `golang-migrate` | Database migration runner | `brew install golang-migrate` |
 | `mockery` | Mock generation | `go install github.com/vektra/mockery/v2@latest` |
+
+> The repo uses `npx @openapitools/openapi-generator-cli` directly in the Makefile so the generator version stays pinned by the project configuration instead of requiring a global install.

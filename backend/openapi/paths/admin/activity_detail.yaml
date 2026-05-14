@@ -1,0 +1,62 @@
+patch:
+  summary: Update an activity
+  description: Admin updates an existing activity. All fields are optional.
+  operationId: updateActivity
+  tags:
+    - Admin
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameters/_index.yaml#/uuid'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/activity_detail.yaml#/UpdateActivityRequest'
+  responses:
+    '200':
+      description: Activity updated successfully
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/activity_detail.yaml#/ActivityDetail'
+    '400':
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '403':
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
+    '404':
+      $ref: '../../components/responses/error_responses.yaml#/NotFound'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'
+
+delete:
+  summary: Delete an activity
+  description: Admin deletes an existing activity.
+  operationId: deleteActivity
+  tags:
+    - Admin
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameters/_index.yaml#/uuid'
+  responses:
+    '200':
+      description: Activity deleted successfully
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '403':
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
+    '404':
+      $ref: '../../components/responses/error_responses.yaml#/NotFound'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

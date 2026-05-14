@@ -47,14 +47,6 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 		}
 	}
 
-	if req.UnitId != nil && *req.UnitId == "" {
-		req.UnitId = nil
-	}
-
-	if req.ClassName != nil && *req.ClassName == "" {
-		req.ClassName = nil
-	}
-
 	hashedPassword, err := auth.HashPassword(req.Password)
 	if err != nil {
 		return nil, errors.ErrInternalError(err, "failed to hash password")

@@ -11,9 +11,11 @@ package dto
 
 type ReviewEvidenceRequest struct {
 
+	// Review decision
 	Status string `json:"status"`
 
-	ReviewNote *string `json:"reviewNote,omitempty"`
+	// Optional feedback for the student
+	ReviewNote string `json:"reviewNote,omitempty"`
 
 	// Allow re-reviewing already reviewed evidence
 	ForceOverride bool `json:"forceOverride,omitempty"`

@@ -7,46 +7,25 @@ get:
     - bearerAuth: []
     - cookieAuth: []
   parameters:
-    - name: page
-      in: query
-      schema:
-        type: integer
-        default: 1
-    - name: pageSize
-      in: query
-      schema:
-        type: integer
-        default: 20
-    - name: activityId
-      in: query
-      schema:
-        type: string
-        format: uuid
-      description: Filter by activity ID
-    - name: status
-      in: query
-      schema:
-        type: string
-        enum: [pending, approved, rejected]
-      description: Filter by status
+    - $ref: '../../components/parameters/_index.yaml#/page'
+    - $ref: '../../components/parameters/_index.yaml#/pageSize'
+    - $ref: '../../components/parameters/_index.yaml#/activityId'
+    - $ref: '../../components/parameters/_index.yaml#/evidenceStatus'
   responses:
     '200':
       description: List of evidences
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: true
-              data:
-                type: array
-                items:
-                  $ref: '#/components/schemas/EvidenceItem'
-              meta:
-                $ref: '#/components/schemas/PaginationMeta'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponseList'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '../../components/schemas/evidence.yaml#/EvidenceItem'
     '401':
-      $ref: '#/components/responses/Unauthorized'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
     '500':
-      $ref: '#/components/responses/InternalServerError'
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

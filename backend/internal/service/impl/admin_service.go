@@ -9,6 +9,7 @@ import (
 	"github.com/duckviet/bd5t/backend/internal/errors"
 	"github.com/duckviet/bd5t/backend/internal/mapper"
 	"github.com/duckviet/bd5t/backend/internal/repository/interfaces"
+	"github.com/duckviet/bd5t/backend/pkg/pointer"
 )
 
 type AdminService struct {
@@ -42,12 +43,17 @@ func (s *AdminService) ReviewEvidence(ctx context.Context, adminID, evidenceID s
 		return nil, errors.ErrEvidenceAlreadyReviewed()
 	}
 
-	if err := s.evidenceRepo.UpdateStatus(ctx, evidenceID, req.Status, req.ReviewNote, adminID); err != nil {
+	var reviewNote *string
+	if req.ReviewNote != "" {
+		reviewNote = pointer.ToPtr(req.ReviewNote)
+	}
+
+	if err := s.evidenceRepo.UpdateStatus(ctx, evidenceID, req.Status, reviewNote, adminID); err != nil {
 		return nil, errors.ErrInternalError(err, "failed to update evidence status")
 	}
 
 	evidence.Status = req.Status
-	evidence.ReviewNote = req.ReviewNote
+	evidence.ReviewNote = reviewNote
 	reviewedAt := time.Now()
 	evidence.ReviewedAt = &reviewedAt
 	evidence.ReviewedBy = &adminID
@@ -66,30 +72,55 @@ func (s *AdminService) CreateActivity(ctx context.Context, req *dto.CreateActivi
 
 	activity := &domain.Activity{
 		Title:            req.Title,
-		Description:      req.Description,
-		Slug:             &req.Slug,
-		ThumbnailURL:     req.ThumbnailUrl,
-		ShortDescription: req.ShortDescription,
-		Location:         req.Location,
-		TargetAudience:    req.TargetAudience,
-		Rules:            req.Rules,
-		Rewards:          req.Rewards,
-		ContactInfo:      req.ContactInfo,
-		UnitID:           req.UnitId,
-		RegistrationURL:  req.RegistrationUrl,
-		ReviewLevel:      req.ReviewLevel,
-		Organizer:        req.Organizer,
 		IsActive:         true,
 	}
 
-	if req.StartDate != nil {
-		startDate, err := time.Parse("2006-01-02", *req.StartDate)
+	if req.Description != "" {
+		activity.Description = pointer.ToPtr(req.Description)
+	}
+	activity.Slug = pointer.ToPtr(req.Slug)
+	if req.ThumbnailUrl != "" {
+		activity.ThumbnailURL = pointer.ToPtr(req.ThumbnailUrl)
+	}
+	if req.ShortDescription != "" {
+		activity.ShortDescription = pointer.ToPtr(req.ShortDescription)
+	}
+	if req.Location != "" {
+		activity.Location = pointer.ToPtr(req.Location)
+	}
+	if req.TargetAudience != "" {
+		activity.TargetAudience = pointer.ToPtr(req.TargetAudience)
+	}
+	if req.Rules != "" {
+		activity.Rules = pointer.ToPtr(req.Rules)
+	}
+	if req.Rewards != "" {
+		activity.Rewards = pointer.ToPtr(req.Rewards)
+	}
+	if req.ContactInfo != "" {
+		activity.ContactInfo = pointer.ToPtr(req.ContactInfo)
+	}
+	if req.UnitId != "" {
+		activity.UnitID = pointer.ToPtr(req.UnitId)
+	}
+	if req.RegistrationUrl != "" {
+		activity.RegistrationURL = pointer.ToPtr(req.RegistrationUrl)
+	}
+	if req.ReviewLevel != "" {
+		activity.ReviewLevel = pointer.ToPtr(req.ReviewLevel)
+	}
+	if req.Organizer != "" {
+		activity.Organizer = pointer.ToPtr(req.Organizer)
+	}
+
+	if req.StartDate != "" {
+		startDate, err := time.Parse("2006-01-02", req.StartDate)
 		if err == nil {
 			activity.StartDate = &startDate
 		}
 	}
-	if req.EndDate != nil {
-		endDate, err := time.Parse("2006-01-02", *req.EndDate)
+	if req.EndDate != "" {
+		endDate, err := time.Parse("2006-01-02", req.EndDate)
 		if err == nil {
 			activity.EndDate = &endDate
 		}
@@ -115,44 +146,44 @@ func (s *AdminService) UpdateActivity(ctx context.Context, id string, req *dto.U
 	if req.Title != "" {
 		activity.Title = req.Title
 	}
-	if req.Description != nil {
-		activity.Description = req.Description
+	if req.Description != "" {
+		activity.Description = pointer.ToPtr(req.Description)
 	}
 	if req.Slug != "" {
-		activity.Slug = &req.Slug
+		activity.Slug = pointer.ToPtr(req.Slug)
 	}
-	if req.ThumbnailUrl != nil {
-		activity.ThumbnailURL = req.ThumbnailUrl
+	if req.ThumbnailUrl != "" {
+		activity.ThumbnailURL = pointer.ToPtr(req.ThumbnailUrl)
 	}
-	if req.ShortDescription != nil {
-		activity.ShortDescription = req.ShortDescription
+	if req.ShortDescription != "" {
+		activity.ShortDescription = pointer.ToPtr(req.ShortDescription)
 	}
-	if req.Location != nil {
-		activity.Location = req.Location
+	if req.Location != "" {
+		activity.Location = pointer.ToPtr(req.Location)
 	}
-	if req.TargetAudience != nil {
-		activity.TargetAudience = req.TargetAudience
+	if req.TargetAudience != "" {
+		activity.TargetAudience = pointer.ToPtr(req.TargetAudience)
 	}
-	if req.Rules != nil {
-		activity.Rules = req.Rules
+	if req.Rules != "" {
+		activity.Rules = pointer.ToPtr(req.Rules)
 	}
-	if req.Rewards != nil {
-		activity.Rewards = req.Rewards
+	if req.Rewards != "" {
+		activity.Rewards = pointer.ToPtr(req.Rewards)
 	}
-	if req.ContactInfo != nil {
-		activity.ContactInfo = req.ContactInfo
+	if req.ContactInfo != "" {
+		activity.ContactInfo = pointer.ToPtr(req.ContactInfo)
 	}
-	if req.UnitId != nil {
-		activity.UnitID = req.UnitId
+	if req.UnitId != "" {
+		activity.UnitID = pointer.ToPtr(req.UnitId)
 	}
-	if req.StartDate != nil {
-		startDate, err := time.Parse("2006-01-02", *req.StartDate)
+	if req.StartDate != "" {
+		startDate, err := time.Parse("2006-01-02", req.StartDate)
 		if err == nil {
 			activity.StartDate = &startDate
 		}
 	}
-	if req.EndDate != nil {
-		endDate, err := time.Parse("2006-01-02", *req.EndDate)
+	if req.EndDate != "" {
+		endDate, err := time.Parse("2006-01-02", req.EndDate)
 		if err == nil {
 			activity.EndDate = &endDate
 		}
@@ -160,14 +191,14 @@ func (s *AdminService) UpdateActivity(ctx context.Context, id string, req *dto.U
 	if req.IsActive {
 		activity.IsActive = req.IsActive
 	}
-	if req.RegistrationUrl != nil {
-		activity.RegistrationURL = req.RegistrationUrl
+	if req.RegistrationUrl != "" {
+		activity.RegistrationURL = pointer.ToPtr(req.RegistrationUrl)
 	}
-	if req.ReviewLevel != nil {
-		activity.ReviewLevel = req.ReviewLevel
+	if req.ReviewLevel != "" {
+		activity.ReviewLevel = pointer.ToPtr(req.ReviewLevel)
 	}
-	if req.Organizer != nil {
-		activity.Organizer = req.Organizer
+	if req.Organizer != "" {
+		activity.Organizer = pointer.ToPtr(req.Organizer)
 	}
 
 	updated, err := s.activityRepo.Update(ctx, id, activity)

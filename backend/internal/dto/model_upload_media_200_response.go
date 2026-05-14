@@ -11,7 +11,8 @@ package dto
 
 type UploadMedia200Response struct {
 
+	// Indicates if the request was successful
 	Success bool `json:"success,omitempty"`
 
-	Data UploadMedia200ResponseData `json:"data,omitempty"`
+	Data UploadMedia200ResponseAllOfData `json:"data,omitempty"`
 }

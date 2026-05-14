@@ -8,39 +8,32 @@ patch:
     - bearerAuth: []
     - cookieAuth: []
   parameters:
-    - name: id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-      description: Activity ID
+    - $ref: '../../components/parameters/_index.yaml#/uuid'
   requestBody:
     required: true
     content:
       application/json:
         schema:
-          $ref: '#/components/schemas/UpdateActivityRequest'
+          $ref: '../../components/schemas/activity_detail.yaml#/UpdateActivityRequest'
   responses:
     '200':
       description: Activity updated successfully
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: true
-              data:
-                $ref: '#/components/schemas/ActivityDetail'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/activity_detail.yaml#/ActivityDetail'
     '400':
-      $ref: '#/components/responses/BadRequest'
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
     '401':
-      $ref: '#/components/responses/Unauthorized'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
     '403':
-      $ref: '#/components/responses/Forbidden'
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
     '404':
-      $ref: '#/components/responses/NotFound'
+      $ref: '../../components/responses/error_responses.yaml#/NotFound'
     '500':
-      $ref: '#/components/responses/InternalServerError'
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

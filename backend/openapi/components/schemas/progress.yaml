@@ -1,0 +1,43 @@
+ProgressMatrix:
+  type: object
+  properties:
+    userId:
+      type: string
+      format: uuid
+    activities:
+      type: array
+      items:
+        $ref: "#/ProgressMatrixCell"
+
+ProgressMatrixCell:
+  type: object
+  properties:
+    activityId:
+      type: string
+      format: uuid
+    activityTitle:
+      type: string
+      example: "Tập hợp trường 2025"
+    totalScore:
+      type: integer
+      description: Sum of all approved evidence scores
+      example: 80
+    completedCriteria:
+      type: array
+      description: List of criteria that have been approved
+      items:
+        type: object
+        properties:
+          criteriaDocId:
+            type: string
+            format: uuid
+          criteriaDocTitle:
+            type: string
+            example: "Tham gia đầy đủ các buổi sinh hoạt"
+          score:
+            type: integer
+            example: 100
+          evidenceCount:
+            type: integer
+            description: Number of approved evidence items
+            example: 2

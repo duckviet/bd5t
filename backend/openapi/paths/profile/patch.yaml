@@ -11,23 +11,22 @@ patch:
     content:
       application/json:
         schema:
-          $ref: '#/components/schemas/UpdateProfileRequest'
+          $ref: '../../components/schemas/user.yaml#/UpdateProfileRequest'
   responses:
     '200':
       description: Profile updated successfully
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: true
-              data:
-                $ref: '#/components/schemas/UserProfile'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/user.yaml#/UserProfile'
     '400':
-      $ref: '#/components/responses/BadRequest'
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
     '401':
-      $ref: '#/components/responses/Unauthorized'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
     '500':
-      $ref: '#/components/responses/InternalServerError'
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

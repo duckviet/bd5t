@@ -37,7 +37,13 @@ func (h *ActivitiesAPI) ListActivities(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, result)
+	meta := &response.PaginationMeta{
+		Page:       int(result.Meta.Page),
+		PageSize:   int(result.Meta.PageSize),
+		Total:      int64(result.Meta.Total),
+		TotalPages: int(result.Meta.TotalPages),
+	}
+	response.Paginated(c, result.Data, meta)
 }
 
 func (h *ActivitiesAPI) GetActivityDetail(c *gin.Context) {

@@ -1,0 +1,69 @@
+PaginationMeta:
+  type: object
+  properties:
+    page:
+      type: integer
+      description: Current page number
+      example: 1
+    pageSize:
+      type: integer
+      description: Number of items per page
+      example: 20
+    total:
+      type: integer
+      description: Total number of items
+      example: 100
+    totalPages:
+      type: integer
+      description: Total number of pages
+      example: 5
+
+ApiResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      description: Indicates if the request was successful
+      example: true
+    data:
+      type: object
+      description: Response data payload
+      nullable: true
+
+ApiResponseList:
+  type: object
+  properties:
+    success:
+      type: boolean
+      description: Indicates if the request was successful
+      example: true
+    data:
+      type: array
+      items:
+        type: object
+      description: Array of response data items
+    meta:
+      $ref: '#/PaginationMeta'
+
+ErrorResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      description: Always false for errors
+      example: false
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Machine-readable error code
+          example: UNAUTHORIZED
+        message:
+          type: string
+          description: Human-readable error message
+          example: Authentication token is required
+        details:
+          type: object
+          description: Additional error details (optional)
+          nullable: true

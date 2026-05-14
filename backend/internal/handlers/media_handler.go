@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/duckviet/bd5t/backend/internal/auth"
@@ -29,12 +31,14 @@ func (h *MediaAPI) UploadMedia(c *gin.Context) {
 		response.Error(c, &media.ValidationError{Message: "file is required"})
 		return
 	}
-
+	fmt.Printf("debug file size %d \n", file.Size)
+	
 	mediaType := c.PostForm("type")
 	if mediaType == "" {
 		response.Error(c, &media.ValidationError{Message: "type is required"})
 		return
 	}
+	fmt.Printf("debug media type %s \n", mediaType)
 
 	var result *media.UploadResult
 
@@ -49,6 +53,7 @@ func (h *MediaAPI) UploadMedia(c *gin.Context) {
 	}
 
 	if err != nil {
+		log.Printf("[UploadMedia] upload error (type=%s): %v", mediaType, err)
 		response.Error(c, err)
 		return
 	}

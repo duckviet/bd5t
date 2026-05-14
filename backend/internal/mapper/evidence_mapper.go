@@ -19,19 +19,19 @@ func DomainToEvidenceItem(e *domain.Evidence) *dto.EvidenceItem {
 	}
 
 	if e.CriteriaDocID != nil {
-		item.CriteriaDocId = e.CriteriaDocID
+		item.CriteriaDocId = *e.CriteriaDocID
 	}
 	if e.Description != nil {
 		item.Description = *e.Description
 	}
 	if e.ReviewNote != nil {
-		item.ReviewNote = e.ReviewNote
+		item.ReviewNote = *e.ReviewNote
 	}
 	if e.ReviewedBy != nil {
-		item.ReviewedBy = e.ReviewedBy
+		item.ReviewedBy = *e.ReviewedBy
 	}
 	if e.ReviewedAt != nil {
-		item.ReviewedAt = e.ReviewedAt
+		item.ReviewedAt = *e.ReviewedAt
 	}
 
 	return item

@@ -16,10 +16,9 @@ import {
 } from "lucide-react";
 import {
   CRITERIA,
-  REVIEW_LEVELS,
-  type CriterionType,
+  REVIEW_LEVELS, 
 } from "@/lib/constants";
-import { useListActivities, type ListActivities200 } from "@/services/generated/api";
+import { useListActivities } from "@/services/generated/api";
 import { cn } from "@/lib/utils";
 
 interface ActivityApiItem {
@@ -50,8 +49,7 @@ export default function ActivitiesPage() {
     pageSize: 100,
   });
 
-  const responseData = (_apiResponse as any)?.data as ListActivities200 | undefined;
-  const activities: ActivityApiItem[] = responseData?.data || [];
+    const activities: ActivityApiItem[] = (_apiResponse as any)?.data  
 
   useEffect(() => {
     const timer = setTimeout(() => {

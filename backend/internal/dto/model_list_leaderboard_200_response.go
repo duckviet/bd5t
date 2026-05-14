@@ -11,6 +11,7 @@ package dto
 
 type ListLeaderboard200Response struct {
 
+	// Indicates if the request was successful
 	Success bool `json:"success,omitempty"`
 
 	Data []LeaderboardItem `json:"data,omitempty"`

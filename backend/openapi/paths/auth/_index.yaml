@@ -1,0 +1,13 @@
+# Auth endpoints index - re-exports all auth operations
+get:
+  $ref: './me.yaml#/get'
+
+post:
+  '/auth/login':
+    $ref: './login.yaml#/post'
+  '/auth/logout':
+    $ref: './logout.yaml#/post'
+  '/auth/register':
+    $ref: './register.yaml#/post'
+  '/auth/refresh':
+    $ref: './refresh.yaml#/post'

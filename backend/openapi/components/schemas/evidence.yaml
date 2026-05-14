@@ -1,0 +1,90 @@
+EvidenceItem:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: "550e8400-e29b-41d4-a716-446655440001"
+    activityId:
+      type: string
+      format: uuid
+    activityTitle:
+      type: string
+      example: "Tập hợp trường 2025"
+    criteriaDocId:
+      type: string
+      format: uuid
+      nullable: true
+    criteriaDocTitle:
+      type: string
+      nullable: true
+      example: "Tham gia đầy đủ các buổi sinh hoạt"
+    fileUrl:
+      type: string
+      format: uri
+      example: "https://cdn.example.com/evidences/file.pdf"
+    description:
+      type: string
+      example: "Minh chứng tham gia buổi sinh hoạt ngày 15/03"
+    status:
+      type: string
+      enum: [pending, approved, rejected]
+      example: pending
+    reviewNote:
+      type: string
+      nullable: true
+      description: Note from reviewer
+    reviewedBy:
+      type: string
+      format: uuid
+      nullable: true
+    reviewedAt:
+      type: string
+      format: date-time
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+      example: "2025-03-16T10:30:00Z"
+
+CreateEvidenceRequest:
+  type: object
+  required:
+    - activityId
+    - fileKey
+  properties:
+    activityId:
+      type: string
+      format: uuid
+      description: Target activity ID
+    criteriaDocId:
+      type: string
+      format: uuid
+      nullable: true
+      description: Optional criteria document this evidence is for
+    fileKey:
+      type: string
+      description: R2 object key for the uploaded file
+    description:
+      type: string
+      maxLength: 1000
+      description: Optional description of the evidence
+
+ReviewEvidenceRequest:
+  type: object
+  required:
+    - status
+  properties:
+    status:
+      type: string
+      enum: [approved, rejected]
+      description: Review decision
+    reviewNote:
+      type: string
+      nullable: true
+      maxLength: 500
+      description: Optional feedback for the student
+    forceOverride:
+      type: boolean
+      default: false
+      description: Allow re-reviewing already reviewed evidence

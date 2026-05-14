@@ -36,7 +36,7 @@ export function proxy(request: NextRequest) {
   const isAuthPath = authPaths.some((path) => pathname.startsWith(path));
 
   // Các route cho phép truy cập mà không cần đăng nhập
-  const publicPaths = ["/", "/leaderboard"];
+  const publicPaths = ["/", "/activities", "/activities", "/criteria" , "/leaderboard"];
   const isPublicPath = publicPaths.includes(pathname) || isAuthPath;
 
   // 1. Đã đăng nhập mà vào trang Auth -> Đá về Home

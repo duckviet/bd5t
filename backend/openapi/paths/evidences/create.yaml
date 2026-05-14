@@ -11,23 +11,22 @@ post:
     content:
       application/json:
         schema:
-          $ref: '#/components/schemas/CreateEvidenceRequest'
+          $ref: '../../components/schemas/evidence.yaml#/CreateEvidenceRequest'
   responses:
     '201':
       description: Evidence created successfully
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: true
-              data:
-                $ref: '#/components/schemas/EvidenceItem'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/evidence.yaml#/EvidenceItem'
     '400':
-      $ref: '#/components/responses/BadRequest'
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
     '401':
-      $ref: '#/components/responses/Unauthorized'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
     '500':
-      $ref: '#/components/responses/InternalServerError'
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

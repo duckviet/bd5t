@@ -1,0 +1,68 @@
+PaginationMeta:
+  $ref: "./_common.yaml#/PaginationMeta"
+
+ApiResponse:
+  $ref: "./_common.yaml#/ApiResponse"
+
+ApiResponseList:
+  $ref: "./_common.yaml#/ApiResponseList"
+
+ErrorResponse:
+  $ref: "./_common.yaml#/ErrorResponse"
+
+UserProfile:
+  $ref: "./user.yaml#/UserProfile"
+
+RegisterRequest:
+  $ref: "./user.yaml#/RegisterRequest"
+
+LoginRequest:
+  $ref: "./user.yaml#/LoginRequest"
+
+RefreshRequest:
+  $ref: "./user.yaml#/RefreshRequest"
+
+AuthResponse:
+  $ref: "./user.yaml#/AuthResponse"
+
+TokenResponse:
+  $ref: "./user.yaml#/TokenResponse"
+
+UpdateProfileRequest:
+  $ref: "./user.yaml#/UpdateProfileRequest"
+
+UnitItem:
+  $ref: "./unit_item.yaml#/UnitItem"
+
+ActivityItem:
+  $ref: "./activity_item.yaml#/ActivityItem"
+
+ActivityDetail:
+  $ref: "./activity_detail.yaml#/ActivityDetail"
+
+CreateActivityRequest:
+  $ref: "./activity_detail.yaml#/CreateActivityRequest"
+
+UpdateActivityRequest:
+  $ref: "./activity_detail.yaml#/UpdateActivityRequest"
+
+CriteriaDoc:
+  $ref: "./criteria_doc.yaml#/CriteriaDoc"
+
+EvidenceItem:
+  $ref: "./evidence.yaml#/EvidenceItem"
+
+CreateEvidenceRequest:
+  $ref: "./evidence.yaml#/CreateEvidenceRequest"
+
+ReviewEvidenceRequest:
+  $ref: "./evidence.yaml#/ReviewEvidenceRequest"
+
+ProgressMatrix:
+  $ref: "./progress.yaml#/ProgressMatrix"
+
+ProgressMatrixCell:
+  $ref: "./progress.yaml#/ProgressMatrixCell"
+
+LeaderboardItem:
+  $ref: "./leaderboard.yaml#/LeaderboardItem"

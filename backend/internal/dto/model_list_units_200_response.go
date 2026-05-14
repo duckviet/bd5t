@@ -11,6 +11,7 @@ package dto
 
 type ListUnits200Response struct {
 
+	// Indicates if the request was successful
 	Success bool `json:"success,omitempty"`
 
 	Data []UnitItem `json:"data,omitempty"`

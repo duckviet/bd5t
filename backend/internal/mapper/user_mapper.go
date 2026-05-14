@@ -29,7 +29,7 @@ func UserToProfileDTO(user *domain.User) *dto.UserProfile {
 		profile.AvatarUrl = *user.AvatarURL
 	}
 	if user.UnitID != nil {
-		profile.UnitId = user.UnitID
+		profile.UnitId = *user.UnitID
 	}
 	if user.ClassName != nil {
 		profile.ClassName = *user.ClassName
@@ -46,7 +46,7 @@ func UserToProfileDTOWithUnit(user *domain.User, unitName string) *dto.UserProfi
 
 	profile := UserToProfileDTO(user)
 	if unitName != "" {
-		profile.UnitName = &unitName
+		profile.UnitName = unitName
 	}
 
 	return profile
@@ -66,12 +66,12 @@ func RegisterRequestToDomain(req *dto.RegisterRequest) *domain.User {
 		user.DisplayName = &req.DisplayName
 	}
 
-	if req.UnitId != nil && *req.UnitId != "" {
-		user.UnitID = req.UnitId
+	if req.UnitId != "" {
+		user.UnitID = &req.UnitId
 	}
 
-	if req.ClassName != nil && *req.ClassName != "" {
-		user.ClassName = req.ClassName
+	if req.ClassName != "" {
+		user.ClassName = &req.ClassName
 	}
 
 	return user
@@ -99,7 +99,7 @@ func DomainToUserProfile(user *domain.User) *dto.UserProfile {
 		profile.AvatarUrl = *user.AvatarURL
 	}
 	if user.UnitID != nil {
-		profile.UnitId = user.UnitID
+		profile.UnitId = *user.UnitID
 	}
 	if user.ClassName != nil {
 		profile.ClassName = *user.ClassName

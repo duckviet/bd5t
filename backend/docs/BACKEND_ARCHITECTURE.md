@@ -175,7 +175,7 @@ For this project, either option works with the layered architecture. `pgx` is pr
 ## 8. MVP API Priority
 
 ### P0 (Core)
-- Auth: register, login, logout, me
+- Auth: register, login, logout, me, refresh token
 - Units: list
 - Activities: list, detail
 - Profile: get, update
@@ -189,10 +189,11 @@ For this project, either option works with the layered architecture. `pgx` is pr
 - Criteria docs: CRUD
 
 ### P2 (Future)
-- Refresh token endpoint
 - Advanced recommendations
 - Event-driven notifications
 - Analytics endpoints
+
+The refresh endpoint is implemented and part of the core auth flow; keep it documented with the other auth routes rather than treating it as future work.
 
 ---
 

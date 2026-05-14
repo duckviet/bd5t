@@ -5,26 +5,20 @@ get:
   tags:
     - Activities
   parameters:
-    - name: slug
-      in: path
-      required: true
-      schema:
-        type: string
-      description: Activity slug
+    - $ref: '../../components/parameters/_index.yaml#/slug'
   responses:
     '200':
       description: Activity detail
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: true
-              data:
-                $ref: '#/components/schemas/ActivityDetail'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/activity_detail.yaml#/ActivityDetail'
     '404':
-      $ref: '#/components/responses/NotFound'
+      $ref: '../../components/responses/error_responses.yaml#/NotFound'
     '500':
-      $ref: '#/components/responses/InternalServerError'
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

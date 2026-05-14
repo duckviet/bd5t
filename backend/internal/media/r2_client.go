@@ -48,7 +48,7 @@ func (c *R2Client) Upload(ctx context.Context, key string, body io.Reader, conte
 }
 
 func (c *R2Client) GetURL(key string) string {
-	return c.cdnBaseURL + key
+	return c.cdnBaseURL + "/" + key
 }
 
 func (c *R2Client) Delete(ctx context.Context, key string) error {

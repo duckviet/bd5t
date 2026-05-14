@@ -8,7 +8,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: '#/components/schemas/RefreshRequest'
+          $ref: '../../components/schemas/user.yaml#/RefreshRequest'
   responses:
     '200':
       description: Token refreshed successfully
@@ -16,14 +16,15 @@ post:
         Set-Cookie:
           schema:
             type: string
-            description: New access token cookie
+          description: New access token cookie
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/TokenResponse'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/user.yaml#/TokenResponse'
     '401':
-      description: Invalid or expired refresh token
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'

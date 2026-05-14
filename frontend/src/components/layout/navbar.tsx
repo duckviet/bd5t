@@ -22,7 +22,6 @@ const navItems = [
   { href: "/", label: "Trang chủ", icon: Home },
   { href: "/criteria", label: "Tiêu chí", icon: FileText },
   { href: "/activities", label: "Hoạt động", icon: Calendar },
-  { href: "/notifications", label: "Thông báo", icon: Bell },
 ]
 
 export function Navbar() {
@@ -33,7 +32,7 @@ export function Navbar() {
   const handleLogout = async () => {
     await authAction.logout()
   }
-console.log("Navbar render - isAuth:", isAuth, "user:", user)
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-white/80 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -86,6 +85,12 @@ console.log("Navbar render - isAuth:", isAuth, "user:", user)
               </div>
             ) : (
               <div className="hidden sm:flex items-center gap-3">
+                <Link href="/notifications" className="relative p-2 rounded-full hover:bg-muted transition-colors">
+                  <Bell className="h-5 w-5 text-muted-foreground" />
+                  <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
+                    3
+                  </span>
+                </Link>
                 <Link href="/profile" className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-muted transition-colors">
                   <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium border border-primary/20">
                     {user?.displayName?.charAt(0) || <User className="h-4 w-4" />}
@@ -150,7 +155,11 @@ console.log("Navbar render - isAuth:", isAuth, "user:", user)
                 </div>
               ) : (
                 <div className="mt-2 pt-2 border-t border-border flex flex-col gap-2">
-                   <Link href="/profile" className="flex items-center gap-2 px-3 py-2" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/notifications" className="flex items-center gap-2 px-3 py-2" onClick={() => setMobileMenuOpen(false)}>
+                    <Bell className="h-4 w-4" />
+                    <span>Thông báo</span>
+                  </Link>
+                  <Link href="/profile" className="flex items-center gap-2 px-3 py-2" onClick={() => setMobileMenuOpen(false)}>
                     <User className="h-4 w-4" />
                     <span>Trang cá nhân ({user?.displayName})</span>
                   </Link>

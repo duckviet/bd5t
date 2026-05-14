@@ -11,6 +11,7 @@ package dto
 
 type ListEvidences200Response struct {
 
+	// Indicates if the request was successful
 	Success bool `json:"success,omitempty"`
 
 	Data []EvidenceItem `json:"data,omitempty"`

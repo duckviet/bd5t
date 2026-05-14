@@ -46,6 +46,8 @@ fmt:
 
 openapi-validate:
 	swagger-cli validate $(OAPI_SPEC_SRC)
+	@echo "Validating bundled output..."
+	swagger-cli validate $(OAPI_SPEC_DST)
 
 openapi-generator-cli:
 	@echo "0. --- Generating bundle file to dist ---"

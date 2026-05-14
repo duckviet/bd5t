@@ -11,5 +11,6 @@ package dto
 
 type RefreshRequest struct {
 
+	// Optional refresh token (if not using cookie)
 	RefreshToken string `json:"refreshToken,omitempty"`
 }

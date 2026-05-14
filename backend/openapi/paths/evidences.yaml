@@ -1,0 +1,64 @@
+get:
+  summary: List evidences for current user
+  operationId: listEvidences
+  tags:
+    - Evidences
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - $ref: '../components/parameters/_index.yaml#/page'
+    - $ref: '../components/parameters/_index.yaml#/pageSize'
+    - $ref: '../components/parameters/_index.yaml#/activityId'
+    - $ref: '../components/parameters/_index.yaml#/evidenceStatus'
+  responses:
+    '200':
+      description: List of evidences
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../components/schemas/_common.yaml#/ApiResponseList'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '../components/schemas/evidence.yaml#/EvidenceItem'
+    '401':
+      $ref: '../components/responses/error_responses.yaml#/Unauthorized'
+    '500':
+      $ref: '../components/responses/error_responses.yaml#/InternalServerError'
+
+post:
+  summary: Submit a new evidence
+  operationId: createEvidence
+  tags:
+    - Evidences
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../components/schemas/evidence.yaml#/CreateEvidenceRequest'
+  responses:
+    '201':
+      description: Evidence submitted successfully
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../components/schemas/evidence.yaml#/EvidenceItem'
+    '400':
+      $ref: '../components/responses/error_responses.yaml#/BadRequest'
+    '401':
+      $ref: '../components/responses/error_responses.yaml#/Unauthorized'
+    '500':
+      $ref: '../components/responses/error_responses.yaml#/InternalServerError'

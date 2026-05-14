@@ -11,6 +11,7 @@ package dto
 
 type ListActivities200Response struct {
 
+	// Indicates if the request was successful
 	Success bool `json:"success,omitempty"`
 
 	Data []ActivityItem `json:"data,omitempty"`

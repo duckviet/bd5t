@@ -8,7 +8,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: '#/components/schemas/RegisterRequest'
+          $ref: '../../components/schemas/user.yaml#/RegisterRequest'
   responses:
     '201':
       description: User registered successfully
@@ -16,20 +16,21 @@ post:
         Set-Cookie:
           schema:
             type: string
-            description: HTTP-only cookies for access and refresh tokens
+          description: HTTP-only cookies for access and refresh tokens
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/AuthResponse'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/user.yaml#/AuthResponse'
     '400':
-      description: Validation error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
     '409':
-      description: User already exists
+      description: User with this email or studentId already exists
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '../../components/schemas/_common.yaml#/ErrorResponse'

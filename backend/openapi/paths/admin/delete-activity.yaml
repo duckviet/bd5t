@@ -8,21 +8,15 @@ delete:
     - bearerAuth: []
     - cookieAuth: []
   parameters:
-    - name: id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-      description: Activity ID
+    - $ref: '../../components/parameters/_index.yaml#/uuid'
   responses:
     '200':
       description: Activity deleted successfully
     '401':
-      $ref: '#/components/responses/Unauthorized'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
     '403':
-      $ref: '#/components/responses/Forbidden'
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
     '404':
-      $ref: '#/components/responses/NotFound'
+      $ref: '../../components/responses/error_responses.yaml#/NotFound'
     '500':
-      $ref: '#/components/responses/InternalServerError'
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

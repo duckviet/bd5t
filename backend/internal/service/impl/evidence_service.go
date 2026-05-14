@@ -75,7 +75,7 @@ func (s *EvidenceService) CreateEvidence(ctx context.Context, userID string, req
 		return nil, errors.ErrActivityNotFound()
 	}
 
-	fileURL := s.cdnBaseURL + req.FileKey
+	fileURL := s.cdnBaseURL + "/" + req.FileKey
 
 	evidence := mapper.CreateEvidenceRequestToDomain(req, userID, fileURL)
 

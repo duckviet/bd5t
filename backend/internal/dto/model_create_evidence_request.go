@@ -11,11 +11,15 @@ package dto
 
 type CreateEvidenceRequest struct {
 
+	// Target activity ID
 	ActivityId string `json:"activityId"`
 
+	// Optional criteria document this evidence is for
 	CriteriaDocId string `json:"criteriaDocId,omitempty"`
 
+	// R2 object key for the uploaded file
 	FileKey string `json:"fileKey"`
 
+	// Optional description of the evidence
 	Description string `json:"description,omitempty"`
 }

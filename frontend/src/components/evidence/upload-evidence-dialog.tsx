@@ -18,28 +18,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Upload, File, X, FileText } from "lucide-react"
+import { Upload, File, X, FileText, Loader2 } from "lucide-react"
+import { listActivities, uploadMedia as uploadMediaApi, createEvidence as createEvidenceApi, type ActivityItem } from "@/services/generated/api"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 interface UploadEvidenceDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onSuccess?: () => void
 }
 
-const mockActivities = [
-  { id: "act_1", title: "Cuộc thi Olympic Tin học cấp Trường" },
-  { id: "act_2", title: "Hội thảo Nghiên cứu Khoa học" },
-  { id: "act_3", title: "Giải chạy Vì sức khỏe cộng đồng" },
-  { id: "act_4", title: "Chiến dịch Mùa hè xanh" },
-  { id: "act_5", title: "Cuộc thi Hùng biện tiếng Anh" },
-]
-
-export function UploadEvidenceDialog({ open, onOpenChange }: UploadEvidenceDialogProps) {
+export function UploadEvidenceDialog({ open, onOpenChange, onSuccess }: UploadEvidenceDialogProps) {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [description, setDescription] = useState("")
   const [activityId, setActivityId] = useState("")
   const [isDragging, setIsDragging] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const queryClient = useQueryClient()
+
+  const { data: activitiesData, isLoading: activitiesLoading } = useQuery<ActivityItem[]>({
+    queryKey: ["/activities"],
+    queryFn: async () => {
+      const res = await listActivities()
+      console.log(res)
+      return (res.data ?? []) as ActivityItem[]
+    },
+  })
+  const activities = activitiesData ?? []
 
   const handleFileChange = (selectedFile: File | null) => {
     if (!selectedFile) return
@@ -66,13 +73,43 @@ export function UploadEvidenceDialog({ open, onOpenChange }: UploadEvidenceDialo
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
 
-  const handleUpload = () => {
-    // TODO: integrate with actual API
-    console.log({ file, description, activityId })
-    handleRemoveFile()
-    setDescription("")
-    setActivityId("")
-    onOpenChange(false)
+  const handleUpload = async () => {
+    if (!file || !activityId) return
+    setUploading(true)
+
+    try {
+      // customInstance returns response.data directly (raw JSON body)
+      const uploadRes: any = await uploadMediaApi({
+        file,
+        type: "evidence",
+      })
+
+      // Backend returns: { success: true, data: { url, key } }
+      const uploadKey = uploadRes?.data?.key
+      if (!uploadKey) throw new Error("Upload failed - no file key returned")
+
+      const createRes: any = await createEvidenceApi({
+        activityId,
+        fileKey: uploadKey,
+        description: description || undefined,
+      })
+
+      if (!createRes?.success && !createRes?.data) {
+        throw new Error("Create evidence failed")
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["/evidences"] })
+      handleRemoveFile()
+      setDescription("")
+      setActivityId("")
+      onOpenChange(false)
+      onSuccess?.()
+    } catch (err: any) {
+      console.error("Upload evidence failed:", err)
+      alert(err?.response?.data?.error?.message || err?.message || "Tải lên thất bại")
+    } finally {
+      setUploading(false)
+    }
   }
 
   const fileSizeMB = file ? (file.size / (1024 * 1024)).toFixed(2) : "0"
@@ -91,13 +128,18 @@ export function UploadEvidenceDialog({ open, onOpenChange }: UploadEvidenceDialo
         <div className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="activity">Hoạt động</Label>
-            <Select value={activityId} onValueChange={setActivityId}>
+            <Select value={activityId} onValueChange={setActivityId} disabled={activitiesLoading}>
               <SelectTrigger>
-                <SelectValue placeholder="Chọn hoạt động" />
+                <SelectValue placeholder={activitiesLoading ? "Đang tải..." : "Chọn hoạt động"} />
               </SelectTrigger>
               <SelectContent>
-                {mockActivities.map((act) => (
-                  <SelectItem key={act.id} value={act.id}>
+                {activities.length === 0 && !activitiesLoading && (
+                  <SelectItem value="__none__" disabled>
+                    Không có hoạt động nào
+                  </SelectItem>
+                )}
+                {activities.map((act) => (
+                  <SelectItem key={act.id} value={act.id!}>
                     {act.title}
                   </SelectItem>
                 ))}
@@ -185,12 +227,16 @@ export function UploadEvidenceDialog({ open, onOpenChange }: UploadEvidenceDialo
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={uploading}>
             Hủy
           </Button>
-          <Button onClick={handleUpload} disabled={!file || !activityId} className="gap-2">
-            <Upload className="h-4 w-4" />
-            Tải lên
+          <Button onClick={handleUpload} disabled={!file || !activityId || uploading} className="gap-2">
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4" />
+            )}
+            {uploading ? "Đang tải lên..." : "Tải lên"}
           </Button>
         </div>
       </DialogContent>

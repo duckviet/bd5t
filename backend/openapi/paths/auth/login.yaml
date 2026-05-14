@@ -8,7 +8,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: '#/components/schemas/LoginRequest'
+          $ref: '../../components/schemas/user.yaml#/LoginRequest'
   responses:
     '200':
       description: Login successful
@@ -16,14 +16,15 @@ post:
         Set-Cookie:
           schema:
             type: string
-            description: HTTP-only cookies for access and refresh tokens
+          description: HTTP-only cookies for access and refresh tokens
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/AuthResponse'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/user.yaml#/AuthResponse'
     '401':
-      description: Invalid credentials
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'

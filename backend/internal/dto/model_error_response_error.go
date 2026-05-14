@@ -11,9 +11,12 @@ package dto
 
 type ErrorResponseError struct {
 
+	// Machine-readable error code
 	Code string `json:"code,omitempty"`
 
+	// Human-readable error message
 	Message string `json:"message,omitempty"`
 
+	// Additional error details (optional)
 	Details map[string]interface{} `json:"details,omitempty"`
 }

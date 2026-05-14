@@ -1,0 +1,30 @@
+LeaderboardItem:
+  type: object
+  properties:
+    rank:
+      type: integer
+      description: Current rank position
+      example: 1
+    userId:
+      type: string
+      format: uuid
+    userName:
+      type: string
+      description: Display name of the user
+      example: "Nguyễn Văn A"
+    unitId:
+      type: string
+      format: uuid
+      nullable: true
+    unitName:
+      type: string
+      nullable: true
+      example: "Khoa Công nghệ Thông tin"
+    totalApproved:
+      type: integer
+      description: Number of approved evidence submissions
+      example: 15
+    totalScore:
+      type: integer
+      description: Sum of all approved scores
+      example: 1250

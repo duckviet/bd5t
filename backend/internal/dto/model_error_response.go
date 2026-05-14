@@ -11,6 +11,7 @@ package dto
 
 type ErrorResponse struct {
 
+	// Always false for errors
 	Success bool `json:"success,omitempty"`
 
 	Error ErrorResponseError `json:"error,omitempty"`

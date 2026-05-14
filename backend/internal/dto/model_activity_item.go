@@ -19,21 +19,21 @@ type ActivityItem struct {
 
 	ShortDescription string `json:"shortDescription,omitempty"`
 
+	Location string `json:"location,omitempty"`
+
+	TargetAudience string `json:"targetAudience,omitempty"`
+
+	Rules string `json:"rules,omitempty"`
+
+	Rewards string `json:"rewards,omitempty"`
+
+	ContactInfo string `json:"contactInfo,omitempty"`
+
 	ThumbnailUrl string `json:"thumbnailUrl,omitempty"`
 
-	Location *string `json:"location,omitempty"`
+	UnitId string `json:"unitId,omitempty"`
 
-	TargetAudience *string `json:"targetAudience,omitempty"`
-
-	Rules *string `json:"rules,omitempty"`
-
-	Rewards *string `json:"rewards,omitempty"`
-
-	ContactInfo *string `json:"contactInfo,omitempty"`
-
-	UnitId *string `json:"unitId,omitempty"`
-
-	UnitName *string `json:"unitName,omitempty"`
+	UnitName string `json:"unitName,omitempty"`
 
 	StartDate string `json:"startDate,omitempty"`
 

@@ -1,0 +1,49 @@
+# Health check endpoints
+
+/healthz:
+  get:
+    summary: Liveness check
+    description: Returns 200 if the service is running. Use this for Kubernetes liveness probes.
+    operationId: healthz
+    tags:
+      - Health
+    responses:
+      '200':
+        description: Service is alive
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: ok
+
+/readyz:
+  get:
+    summary: Readiness check
+    description: Returns 200 if the service is ready to accept traffic. Use for Kubernetes readiness probes.
+    operationId: readyz
+    tags:
+      - Health
+    responses:
+      '200':
+        description: Service is ready
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: ok
+      '503':
+        description: Service unavailable - not ready to accept traffic
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: unavailable

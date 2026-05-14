@@ -53,7 +53,7 @@ AuthResponse:
   type: object
   properties:
     user:
-      $ref: '#/components/schemas/UserProfile'
+      $ref: '#/UserProfile'
     accessToken:
       type: string
       description: JWT access token
@@ -66,6 +66,20 @@ TokenResponse:
   properties:
     accessToken:
       type: string
+
+UpdateProfileRequest:
+  type: object
+  properties:
+    fullName:
+      type: string
+      minLength: 1
+      maxLength: 255
+    avatarUrl:
+      type: string
+      format: uri
+    className:
+      type: string
+      maxLength: 255
 
 UserProfile:
   type: object
@@ -81,12 +95,23 @@ UserProfile:
       type: string
     displayName:
       type: string
+    fullName:
+      type: string
     avatarUrl:
       type: string
     role:
       type: string
       enum: [student, admin]
       default: student
+    unitId:
+      type: string
+      nullable: true
+    unitName:
+      type: string
+      nullable: true
+    className:
+      type: string
+      nullable: true
     createdAt:
       type: string
       format: date-time

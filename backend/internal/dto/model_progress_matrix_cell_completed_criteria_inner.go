@@ -17,5 +17,6 @@ type ProgressMatrixCellCompletedCriteriaInner struct {
 
 	Score int32 `json:"score,omitempty"`
 
+	// Number of approved evidence items
 	EvidenceCount int32 `json:"evidenceCount,omitempty"`
 }

@@ -4,38 +4,22 @@ get:
   tags:
     - Leaderboard
   parameters:
-    - name: page
-      in: query
-      schema:
-        type: integer
-        default: 1
-    - name: pageSize
-      in: query
-      schema:
-        type: integer
-        default: 20
-    - name: unitId
-      in: query
-      schema:
-        type: string
-        format: uuid
-      description: Filter by unit ID
+    - $ref: '../../components/parameters/_index.yaml#/page'
+    - $ref: '../../components/parameters/_index.yaml#/pageSize'
+    - $ref: '../../components/parameters/_index.yaml#/unitId'
   responses:
     '200':
       description: Leaderboard list
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: true
-              data:
-                type: array
-                items:
-                  $ref: '#/components/schemas/LeaderboardItem'
-              meta:
-                $ref: '#/components/schemas/PaginationMeta'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponseList'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '../../components/schemas/leaderboard.yaml#/LeaderboardItem'
     '500':
-      $ref: '#/components/responses/InternalServerError'
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

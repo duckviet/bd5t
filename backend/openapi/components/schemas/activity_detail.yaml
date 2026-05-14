@@ -16,6 +16,21 @@ ActivityDetail:
     shortDescription:
       type: string
       example: "Hoạt động tập hợp toàn trường"
+    location:
+      type: string
+      nullable: true
+    targetAudience:
+      type: string
+      nullable: true
+    rules:
+      type: string
+      nullable: true
+    rewards:
+      type: string
+      nullable: true
+    contactInfo:
+      type: string
+      nullable: true
     thumbnailUrl:
       type: string
       format: uri
@@ -55,4 +70,131 @@ ActivityDetail:
     criteriaDocs:
       type: array
       items:
-        $ref: '#/components/schemas/CriteriaDoc'
+        $ref: './criteria_doc.yaml#/CriteriaDoc'
+
+CreateActivityRequest:
+  type: object
+  required:
+    - title
+    - slug
+  properties:
+    title:
+      type: string
+      minLength: 1
+      maxLength: 255
+    description:
+      type: string
+      nullable: true
+    slug:
+      type: string
+      pattern: '^[a-z0-9-]+$'
+      description: URL-friendly slug, must be unique
+    thumbnailUrl:
+      type: string
+      format: uri
+      nullable: true
+    shortDescription:
+      type: string
+      nullable: true
+    location:
+      type: string
+      nullable: true
+    targetAudience:
+      type: string
+      nullable: true
+    rules:
+      type: string
+      nullable: true
+    rewards:
+      type: string
+      nullable: true
+    contactInfo:
+      type: string
+      nullable: true
+    unitId:
+      type: string
+      format: uuid
+      nullable: true
+    startDate:
+      type: string
+      format: date
+      nullable: true
+    endDate:
+      type: string
+      format: date
+      nullable: true
+    isActive:
+      type: boolean
+      default: true
+    registrationUrl:
+      type: string
+      format: uri
+      nullable: true
+    reviewLevel:
+      type: string
+      enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
+      nullable: true
+    organizer:
+      type: string
+      nullable: true
+
+UpdateActivityRequest:
+  type: object
+  properties:
+    title:
+      type: string
+      minLength: 1
+      maxLength: 255
+    description:
+      type: string
+      nullable: true
+    slug:
+      type: string
+      pattern: '^[a-z0-9-]+$'
+    thumbnailUrl:
+      type: string
+      format: uri
+      nullable: true
+    shortDescription:
+      type: string
+      nullable: true
+    location:
+      type: string
+      nullable: true
+    targetAudience:
+      type: string
+      nullable: true
+    rules:
+      type: string
+      nullable: true
+    rewards:
+      type: string
+      nullable: true
+    contactInfo:
+      type: string
+      nullable: true
+    unitId:
+      type: string
+      format: uuid
+      nullable: true
+    startDate:
+      type: string
+      format: date
+      nullable: true
+    endDate:
+      type: string
+      format: date
+      nullable: true
+    isActive:
+      type: boolean
+    registrationUrl:
+      type: string
+      format: uri
+      nullable: true
+    reviewLevel:
+      type: string
+      enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
+      nullable: true
+    organizer:
+      type: string
+      nullable: true

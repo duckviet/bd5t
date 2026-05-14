@@ -13,36 +13,36 @@ type CreateActivityRequest struct {
 
 	Title string `json:"title"`
 
-	Description *string `json:"description,omitempty"`
+	Description string `json:"description,omitempty"`
 
 	// URL-friendly slug, must be unique
 	Slug string `json:"slug" validate:"regexp=^[a-z0-9-]+$"`
 
-	ThumbnailUrl *string `json:"thumbnailUrl,omitempty"`
+	ThumbnailUrl string `json:"thumbnailUrl,omitempty"`
 
-	ShortDescription *string `json:"shortDescription,omitempty"`
+	ShortDescription string `json:"shortDescription,omitempty"`
 
-	Location *string `json:"location,omitempty"`
+	Location string `json:"location,omitempty"`
 
-	TargetAudience *string `json:"targetAudience,omitempty"`
+	TargetAudience string `json:"targetAudience,omitempty"`
 
-	Rules *string `json:"rules,omitempty"`
+	Rules string `json:"rules,omitempty"`
 
-	Rewards *string `json:"rewards,omitempty"`
+	Rewards string `json:"rewards,omitempty"`
 
-	ContactInfo *string `json:"contactInfo,omitempty"`
+	ContactInfo string `json:"contactInfo,omitempty"`
 
-	UnitId *string `json:"unitId,omitempty"`
+	UnitId string `json:"unitId,omitempty"`
 
-	StartDate *string `json:"startDate,omitempty"`
+	StartDate string `json:"startDate,omitempty"`
 
-	EndDate *string `json:"endDate,omitempty"`
+	EndDate string `json:"endDate,omitempty"`
 
 	IsActive bool `json:"isActive,omitempty"`
 
-	RegistrationUrl *string `json:"registrationUrl,omitempty"`
+	RegistrationUrl string `json:"registrationUrl,omitempty"`
 
-	ReviewLevel *string `json:"reviewLevel,omitempty"`
+	ReviewLevel string `json:"reviewLevel,omitempty"`
 
-	Organizer *string `json:"organizer,omitempty"`
+	Organizer string `json:"organizer,omitempty"`
 }

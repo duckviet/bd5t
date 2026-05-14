@@ -1,0 +1,14 @@
+BadRequest:
+  $ref: "./error_responses.yaml#/BadRequest"
+
+Unauthorized:
+  $ref: "./error_responses.yaml#/Unauthorized"
+
+Forbidden:
+  $ref: "./error_responses.yaml#/Forbidden"
+
+NotFound:
+  $ref: "./error_responses.yaml#/NotFound"
+
+InternalServerError:
+  $ref: "./error_responses.yaml#/InternalServerError"

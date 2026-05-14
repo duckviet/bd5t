@@ -22,45 +22,57 @@ import type {
 } from "@tanstack/react-query";
 
 import { customInstance } from "../axios/custom-instance";
-export type ErrorResponseErrorDetails = { [key: string]: unknown };
+export interface PaginationMeta {
+  /** Current page number */
+  page?: number;
+  /** Number of items per page */
+  pageSize?: number;
+  /** Total number of items */
+  total?: number;
+  /** Total number of pages */
+  totalPages?: number;
+}
+
+/**
+ * Response data payload
+ */
+export type ApiResponseData = { [key: string]: unknown } | null;
+
+export interface ApiResponse {
+  /** Indicates if the request was successful */
+  success?: boolean;
+  /** Response data payload */
+  data?: ApiResponseData;
+}
+
+export type ApiResponseListDataItem = { [key: string]: unknown };
+
+export interface ApiResponseList {
+  /** Indicates if the request was successful */
+  success?: boolean;
+  /** Array of response data items */
+  data?: ApiResponseListDataItem[];
+  meta?: PaginationMeta;
+}
+
+/**
+ * Additional error details (optional)
+ */
+export type ErrorResponseErrorDetails = { [key: string]: unknown } | null;
 
 export type ErrorResponseError = {
+  /** Machine-readable error code */
   code?: string;
+  /** Human-readable error message */
   message?: string;
+  /** Additional error details (optional) */
   details?: ErrorResponseErrorDetails;
 };
 
 export interface ErrorResponse {
+  /** Always false for errors */
   success?: boolean;
   error?: ErrorResponseError;
-}
-
-export interface PaginationMeta {
-  page?: number;
-  pageSize?: number;
-  total?: number;
-  totalPages?: number;
-}
-
-export interface RegisterRequest {
-  email: string;
-  /** @minLength 8 */
-  password: string;
-  studentId: string;
-  displayName?: string;
-  /** @nullable */
-  unitId?: string | null;
-  /** @nullable */
-  className?: string | null;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RefreshRequest {
-  refreshToken?: string;
 }
 
 export type UserProfileRole =
@@ -78,18 +90,38 @@ export interface UserProfile {
   displayName?: string;
   fullName?: string;
   avatarUrl?: string;
-  /** @nullable */
-  unitId?: string | null;
-  /** @nullable */
-  unitName?: string | null;
-  className?: string;
   role?: UserProfileRole;
+  unitId?: string | null;
+  unitName?: string | null;
+  className?: string | null;
   createdAt?: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  /** @minLength 8 */
+  password: string;
+  studentId: string;
+  displayName?: string;
+  unitId?: string | null;
+  className?: string | null;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RefreshRequest {
+  /** Optional refresh token (if not using cookie) */
+  refreshToken?: string;
 }
 
 export interface AuthResponse {
   user?: UserProfile;
+  /** JWT access token */
   accessToken?: string;
+  /** JWT refresh token */
   refreshToken?: string;
 }
 
@@ -120,31 +152,17 @@ export interface ActivityItem {
   slug?: string;
   title?: string;
   shortDescription?: string;
-  thumbnailUrl?: string;
-  /** @nullable */
   location?: string | null;
-  /** @nullable */
   targetAudience?: string | null;
-  /** @nullable */
   rules?: string | null;
-  /** @nullable */
   rewards?: string | null;
-  /** @nullable */
   contactInfo?: string | null;
-  /** @nullable */
+  thumbnailUrl?: string;
   unitId?: string | null;
-  /** @nullable */
   unitName?: string | null;
   startDate?: string;
   endDate?: string;
   isActive?: boolean;
-}
-
-export interface CriteriaDoc {
-  id?: string;
-  title?: string;
-  description?: string;
-  maxScore?: number;
 }
 
 export type ActivityDetailReviewLevel =
@@ -157,124 +175,36 @@ export const ActivityDetailReviewLevel = {
   TRUNG_UONG: "TRUNG_UONG",
 } as const;
 
+export interface CriteriaDoc {
+  id?: string;
+  title?: string;
+  description?: string;
+  maxScore?: number;
+}
+
 export interface ActivityDetail {
   id?: string;
   slug?: string;
   title?: string;
   description?: string;
   shortDescription?: string;
-  thumbnailUrl?: string;
-  /** @nullable */
   location?: string | null;
-  /** @nullable */
   targetAudience?: string | null;
-  /** @nullable */
   rules?: string | null;
-  /** @nullable */
   rewards?: string | null;
-  /** @nullable */
   contactInfo?: string | null;
-  /** @nullable */
+  thumbnailUrl?: string;
   unitId?: string | null;
-  /** @nullable */
   unitName?: string | null;
   startDate?: string;
   endDate?: string;
   isActive?: boolean;
-  /** @nullable */
   registrationUrl?: string | null;
   reviewLevel?: ActivityDetailReviewLevel;
-  /** @nullable */
   organizer?: string | null;
   criteriaDocs?: CriteriaDoc[];
 }
 
-export type EvidenceItemStatus =
-  (typeof EvidenceItemStatus)[keyof typeof EvidenceItemStatus];
-
-export const EvidenceItemStatus = {
-  pending: "pending",
-  approved: "approved",
-  rejected: "rejected",
-} as const;
-
-export interface EvidenceItem {
-  id?: string;
-  activityId?: string;
-  activityTitle?: string;
-  /** @nullable */
-  criteriaDocId?: string | null;
-  /** @nullable */
-  criteriaDocTitle?: string | null;
-  fileUrl?: string;
-  description?: string;
-  status?: EvidenceItemStatus;
-  /** @nullable */
-  reviewNote?: string | null;
-  /** @nullable */
-  reviewedBy?: string | null;
-  /** @nullable */
-  reviewedAt?: string | null;
-  createdAt?: string;
-}
-
-export interface CreateEvidenceRequest {
-  activityId: string;
-  criteriaDocId?: string;
-  fileKey: string;
-  description?: string;
-}
-
-export type ProgressMatrixCellCompletedCriteriaItem = {
-  criteriaDocId?: string;
-  criteriaDocTitle?: string;
-  score?: number;
-  evidenceCount?: number;
-};
-
-export interface ProgressMatrixCell {
-  activityId?: string;
-  activityTitle?: string;
-  totalScore?: number;
-  completedCriteria?: ProgressMatrixCellCompletedCriteriaItem[];
-}
-
-export interface ProgressMatrix {
-  userId?: string;
-  activities?: ProgressMatrixCell[];
-}
-
-export interface LeaderboardItem {
-  rank?: number;
-  userId?: string;
-  userName?: string;
-  /** @nullable */
-  unitId?: string | null;
-  /** @nullable */
-  unitName?: string | null;
-  totalApproved?: number;
-  totalScore?: number;
-}
-
-export type ReviewEvidenceRequestStatus =
-  (typeof ReviewEvidenceRequestStatus)[keyof typeof ReviewEvidenceRequestStatus];
-
-export const ReviewEvidenceRequestStatus = {
-  approved: "approved",
-  rejected: "rejected",
-} as const;
-
-export interface ReviewEvidenceRequest {
-  status: ReviewEvidenceRequestStatus;
-  /** @nullable */
-  reviewNote?: string | null;
-  /** Allow re-reviewing already reviewed evidence */
-  forceOverride?: boolean;
-}
-
-/**
- * @nullable
- */
 export type CreateActivityRequestReviewLevel =
   | (typeof CreateActivityRequestReviewLevel)[keyof typeof CreateActivityRequestReviewLevel]
   | null;
@@ -292,45 +222,28 @@ export interface CreateActivityRequest {
    * @maxLength 255
    */
   title: string;
-  /** @nullable */
   description?: string | null;
   /**
    * URL-friendly slug, must be unique
    * @pattern ^[a-z0-9-]+$
    */
   slug: string;
-  /** @nullable */
   thumbnailUrl?: string | null;
-  /** @nullable */
   shortDescription?: string | null;
-  /** @nullable */
   location?: string | null;
-  /** @nullable */
   targetAudience?: string | null;
-  /** @nullable */
   rules?: string | null;
-  /** @nullable */
   rewards?: string | null;
-  /** @nullable */
   contactInfo?: string | null;
-  /** @nullable */
   unitId?: string | null;
-  /** @nullable */
   startDate?: string | null;
-  /** @nullable */
   endDate?: string | null;
   isActive?: boolean;
-  /** @nullable */
   registrationUrl?: string | null;
-  /** @nullable */
   reviewLevel?: CreateActivityRequestReviewLevel;
-  /** @nullable */
   organizer?: string | null;
 }
 
-/**
- * @nullable
- */
 export type UpdateActivityRequestReviewLevel =
   | (typeof UpdateActivityRequestReviewLevel)[keyof typeof UpdateActivityRequestReviewLevel]
   | null;
@@ -348,58 +261,176 @@ export interface UpdateActivityRequest {
    * @maxLength 255
    */
   title?: string;
-  /** @nullable */
   description?: string | null;
   /** @pattern ^[a-z0-9-]+$ */
   slug?: string;
-  /** @nullable */
   thumbnailUrl?: string | null;
-  /** @nullable */
   shortDescription?: string | null;
-  /** @nullable */
   location?: string | null;
-  /** @nullable */
   targetAudience?: string | null;
-  /** @nullable */
   rules?: string | null;
-  /** @nullable */
   rewards?: string | null;
-  /** @nullable */
   contactInfo?: string | null;
-  /** @nullable */
   unitId?: string | null;
-  /** @nullable */
   startDate?: string | null;
-  /** @nullable */
   endDate?: string | null;
   isActive?: boolean;
-  /** @nullable */
   registrationUrl?: string | null;
-  /** @nullable */
   reviewLevel?: UpdateActivityRequestReviewLevel;
-  /** @nullable */
   organizer?: string | null;
 }
 
-export type BadRequestResponse = {
-  error?: string;
+export type EvidenceItemStatus =
+  (typeof EvidenceItemStatus)[keyof typeof EvidenceItemStatus];
+
+export const EvidenceItemStatus = {
+  pending: "pending",
+  approved: "approved",
+  rejected: "rejected",
+} as const;
+
+export interface EvidenceItem {
+  id?: string;
+  activityId?: string;
+  activityTitle?: string;
+  criteriaDocId?: string | null;
+  criteriaDocTitle?: string | null;
+  fileUrl?: string;
+  description?: string;
+  status?: EvidenceItemStatus;
+  /** Note from reviewer */
+  reviewNote?: string | null;
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  createdAt?: string;
+}
+
+export interface CreateEvidenceRequest {
+  /** Target activity ID */
+  activityId: string;
+  /** Optional criteria document this evidence is for */
+  criteriaDocId?: string | null;
+  /** R2 object key for the uploaded file */
+  fileKey: string;
+  /**
+   * Optional description of the evidence
+   * @maxLength 1000
+   */
+  description?: string;
+}
+
+/**
+ * Review decision
+ */
+export type ReviewEvidenceRequestStatus =
+  (typeof ReviewEvidenceRequestStatus)[keyof typeof ReviewEvidenceRequestStatus];
+
+export const ReviewEvidenceRequestStatus = {
+  approved: "approved",
+  rejected: "rejected",
+} as const;
+
+export interface ReviewEvidenceRequest {
+  /** Review decision */
+  status: ReviewEvidenceRequestStatus;
+  /**
+   * Optional feedback for the student
+   * @maxLength 500
+   */
+  reviewNote?: string | null;
+  /** Allow re-reviewing already reviewed evidence */
+  forceOverride?: boolean;
+}
+
+export type ProgressMatrixCellCompletedCriteriaItem = {
+  criteriaDocId?: string;
+  criteriaDocTitle?: string;
+  score?: number;
+  /** Number of approved evidence items */
+  evidenceCount?: number;
 };
 
-export type UnauthorizedResponse = {
-  error?: string;
-};
+export interface ProgressMatrixCell {
+  activityId?: string;
+  activityTitle?: string;
+  /** Sum of all approved evidence scores */
+  totalScore?: number;
+  /** List of criteria that have been approved */
+  completedCriteria?: ProgressMatrixCellCompletedCriteriaItem[];
+}
 
-export type ForbiddenResponse = {
-  error?: string;
-};
+export interface ProgressMatrix {
+  userId?: string;
+  activities?: ProgressMatrixCell[];
+}
 
-export type NotFoundResponse = {
-  error?: string;
-};
+export interface LeaderboardItem {
+  /** Current rank position */
+  rank?: number;
+  userId?: string;
+  /** Display name of the user */
+  userName?: string;
+  unitId?: string | null;
+  unitName?: string | null;
+  /** Number of approved evidence submissions */
+  totalApproved?: number;
+  /** Sum of all approved scores */
+  totalScore?: number;
+}
 
-export type InternalServerErrorResponse = {
-  error?: string;
-};
+/**
+ * Bad Request - The request is invalid or missing required parameters
+ */
+export type BadRequestResponse = ErrorResponse;
+
+/**
+ * Unauthorized - JWT token is missing, invalid, or expired
+ */
+export type UnauthorizedResponse = ErrorResponse;
+
+/**
+ * Forbidden - You don't have permission to access this resource
+ */
+export type ForbiddenResponse = ErrorResponse;
+
+/**
+ * Not Found - The requested resource does not exist
+ */
+export type NotFoundResponse = ErrorResponse;
+
+/**
+ * Internal Server Error - An unexpected error occurred
+ */
+export type InternalServerErrorResponse = ErrorResponse;
+
+/**
+ * Page number for pagination
+ */
+export type PageParameter = number;
+
+/**
+ * Number of items per page
+ */
+export type PageSizeParameter = number;
+
+/**
+ * Filter by unit/organization ID
+ */
+export type UnitIdParameter = string;
+
+/**
+ * Filter by activity ID
+ */
+export type ActivityIdParameter = string;
+
+export type EvidenceStatusParameter =
+  (typeof EvidenceStatusParameter)[keyof typeof EvidenceStatusParameter];
+
+export const EvidenceStatusParameter = {
+  pending: "pending",
+  approved: "approved",
+  rejected: "rejected",
+} as const;
 
 export type Healthz200 = {
   status?: string;
@@ -409,38 +440,61 @@ export type Readyz200 = {
   status?: string;
 };
 
-export type ListUnits200 = {
-  success?: boolean;
+export type Readyz503 = {
+  status?: string;
+};
+
+export type Register201 = ApiResponse & {
+  data?: AuthResponse;
+};
+
+export type Login200 = ApiResponse & {
+  data?: AuthResponse;
+};
+
+export type Me200 = ApiResponse & {
+  data?: UserProfile;
+};
+
+export type Refresh200 = ApiResponse & {
+  data?: TokenResponse;
+};
+
+export type ListUnits200 = ApiResponse & {
   data?: UnitItem[];
 };
 
 export type ListActivitiesParams = {
-  page?: number;
-  pageSize?: number;
   /**
-   * Filter by unit ID
+   * Page number for pagination
+   * @minimum 1
    */
-  unitId?: string;
+  page?: PageParameter;
+  /**
+   * Number of items per page
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * Filter by unit/organization ID
+   */
+  unitId?: UnitIdParameter;
 };
 
-export type ListActivities200 = {
-  success?: boolean;
+export type ListActivities200 = ApiResponseList & {
   data?: ActivityItem[];
-  meta?: PaginationMeta;
 };
 
-export type GetActivityDetail200 = {
-  success?: boolean;
+export type GetActivityDetail200 = ApiResponse & {
   data?: ActivityDetail;
 };
 
-export type GetProfile200 = {
-  success?: boolean;
+export type GetProfile200 = ApiResponse & {
   data?: UserProfile;
 };
 
-export type UpdateProfile200 = {
-  success?: boolean;
+export type UpdateProfile200 = ApiResponse & {
   data?: UserProfile;
 };
 
@@ -467,77 +521,76 @@ export type UploadMedia200Data = {
   key?: string;
 };
 
-export type UploadMedia200 = {
-  success?: boolean;
+export type UploadMedia200 = ApiResponse & {
   data?: UploadMedia200Data;
 };
 
 export type ListEvidencesParams = {
-  page?: number;
-  pageSize?: number;
+  /**
+   * Page number for pagination
+   * @minimum 1
+   */
+  page?: PageParameter;
+  /**
+   * Number of items per page
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: PageSizeParameter;
   /**
    * Filter by activity ID
    */
-  activityId?: string;
+  activityId?: ActivityIdParameter;
   /**
-   * Filter by status
+   * Filter by evidence status
    */
-  status?: ListEvidencesStatus;
+  status?: EvidenceStatusParameter;
 };
 
-export type ListEvidencesStatus =
-  (typeof ListEvidencesStatus)[keyof typeof ListEvidencesStatus];
-
-export const ListEvidencesStatus = {
-  pending: "pending",
-  approved: "approved",
-  rejected: "rejected",
-} as const;
-
-export type ListEvidences200 = {
-  success?: boolean;
+export type ListEvidences200 = ApiResponseList & {
   data?: EvidenceItem[];
-  meta?: PaginationMeta;
 };
 
-export type CreateEvidence201 = {
-  success?: boolean;
+export type CreateEvidence201 = ApiResponse & {
   data?: EvidenceItem;
 };
 
-export type GetProgress200 = {
-  success?: boolean;
+export type GetProgress200 = ApiResponse & {
   data?: ProgressMatrix;
 };
 
 export type ListLeaderboardParams = {
-  page?: number;
-  pageSize?: number;
   /**
-   * Filter by unit ID
+   * Page number for pagination
+   * @minimum 1
    */
-  unitId?: string;
+  page?: PageParameter;
+  /**
+   * Number of items per page
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * Filter by unit/organization ID
+   */
+  unitId?: UnitIdParameter;
 };
 
-export type ListLeaderboard200 = {
-  success?: boolean;
+export type ListLeaderboard200 = ApiResponseList & {
   data?: LeaderboardItem[];
-  meta?: PaginationMeta;
 };
 
-export type ReviewEvidence200 = {
-  success?: boolean;
+export type CreateActivity201 = ApiResponse & {
+  data?: ActivityDetail;
+};
+
+export type UpdateActivity200 = ApiResponse & {
+  data?: ActivityDetail;
+};
+
+export type ReviewEvidence200 = ApiResponse & {
   data?: EvidenceItem;
-};
-
-export type CreateActivity201 = {
-  success?: boolean;
-  data?: ActivityDetail;
-};
-
-export type UpdateActivity200 = {
-  success?: boolean;
-  data?: ActivityDetail;
 };
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -557,6 +610,7 @@ export const getHealthzUrl = () => {
 };
 
 /**
+ * Returns 200 if the service is running. Use this for Kubernetes liveness probes.
  * @summary Liveness check
  */
 export const healthz = async (
@@ -693,7 +747,7 @@ export type readyzResponse200 = {
 };
 
 export type readyzResponse503 = {
-  data: void;
+  data: Readyz503;
   status: 503;
 };
 
@@ -711,6 +765,7 @@ export const getReadyzUrl = () => {
 };
 
 /**
+ * Returns 200 if the service is ready to accept traffic. Use for Kubernetes readiness probes.
  * @summary Readiness check
  */
 export const readyz = async (
@@ -728,7 +783,7 @@ export const getReadyzQueryKey = () => {
 
 export const getReadyzQueryOptions = <
   TData = Awaited<ReturnType<typeof readyz>>,
-  TError = void,
+  TError = Readyz503,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof readyz>>, TError, TData>
@@ -751,11 +806,11 @@ export const getReadyzQueryOptions = <
 };
 
 export type ReadyzQueryResult = NonNullable<Awaited<ReturnType<typeof readyz>>>;
-export type ReadyzQueryError = void;
+export type ReadyzQueryError = Readyz503;
 
 export function useReadyz<
   TData = Awaited<ReturnType<typeof readyz>>,
-  TError = void,
+  TError = Readyz503,
 >(
   options: {
     query: Partial<
@@ -777,7 +832,7 @@ export function useReadyz<
 };
 export function useReadyz<
   TData = Awaited<ReturnType<typeof readyz>>,
-  TError = void,
+  TError = Readyz503,
 >(
   options?: {
     query?: Partial<
@@ -799,7 +854,7 @@ export function useReadyz<
 };
 export function useReadyz<
   TData = Awaited<ReturnType<typeof readyz>>,
-  TError = void,
+  TError = Readyz503,
 >(
   options?: {
     query?: Partial<
@@ -817,7 +872,7 @@ export function useReadyz<
 
 export function useReadyz<
   TData = Awaited<ReturnType<typeof readyz>>,
-  TError = void,
+  TError = Readyz503,
 >(
   options?: {
     query?: Partial<
@@ -840,7 +895,7 @@ export function useReadyz<
 }
 
 export type registerResponse201 = {
-  data: AuthResponse;
+  data: Register201;
   status: 201;
 };
 
@@ -956,7 +1011,7 @@ export const useRegister = <
 };
 
 export type loginResponse200 = {
-  data: AuthResponse;
+  data: Login200;
   status: 200;
 };
 
@@ -1161,7 +1216,7 @@ export const useLogout = <TError = UnauthorizedResponse, TContext = unknown>(
 };
 
 export type meResponse200 = {
-  data: UserProfile;
+  data: Me200;
   status: 200;
 };
 
@@ -1310,7 +1365,7 @@ export function useMe<
 }
 
 export type refreshResponse200 = {
-  data: TokenResponse;
+  data: Refresh200;
   status: 200;
 };
 
@@ -1440,6 +1495,7 @@ export const getListUnitsUrl = () => {
 };
 
 /**
+ * Get a list of all organizational units (faculties/departments)
  * @summary List all units
  */
 export const listUnits = async (
@@ -1616,6 +1672,7 @@ export const getListActivitiesUrl = (params?: ListActivitiesParams) => {
 };
 
 /**
+ * Get a paginated list of active activities
  * @summary List activities
  */
 export const listActivities = async (
@@ -1790,6 +1847,7 @@ export const getGetActivityDetailUrl = (slug: string) => {
 };
 
 /**
+ * Get detailed information about an activity by slug
  * @summary Get activity detail
  */
 export const getActivityDetail = async (
@@ -3226,167 +3284,6 @@ export function useListLeaderboard<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type reviewEvidenceResponse200 = {
-  data: ReviewEvidence200;
-  status: 200;
-};
-
-export type reviewEvidenceResponse400 = {
-  data: BadRequestResponse;
-  status: 400;
-};
-
-export type reviewEvidenceResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type reviewEvidenceResponse403 = {
-  data: ForbiddenResponse;
-  status: 403;
-};
-
-export type reviewEvidenceResponse404 = {
-  data: NotFoundResponse;
-  status: 404;
-};
-
-export type reviewEvidenceResponse409 = {
-  data: ErrorResponse;
-  status: 409;
-};
-
-export type reviewEvidenceResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type reviewEvidenceResponseSuccess = reviewEvidenceResponse200 & {
-  headers: Headers;
-};
-export type reviewEvidenceResponseError = (
-  | reviewEvidenceResponse400
-  | reviewEvidenceResponse401
-  | reviewEvidenceResponse403
-  | reviewEvidenceResponse404
-  | reviewEvidenceResponse409
-  | reviewEvidenceResponse500
-) & {
-  headers: Headers;
-};
-
-export type reviewEvidenceResponse =
-  | reviewEvidenceResponseSuccess
-  | reviewEvidenceResponseError;
-
-export const getReviewEvidenceUrl = (id: string) => {
-  return `/admin/evidences/${id}/review`;
-};
-
-/**
- * @summary Review an evidence submission
- */
-export const reviewEvidence = async (
-  id: string,
-  reviewEvidenceRequest: ReviewEvidenceRequest,
-  options?: RequestInit,
-): Promise<reviewEvidenceResponse> => {
-  return customInstance<reviewEvidenceResponse>(getReviewEvidenceUrl(id), {
-    ...options,
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(reviewEvidenceRequest),
-  });
-};
-
-export const getReviewEvidenceMutationOptions = <
-  TError =
-    | BadRequestResponse
-    | UnauthorizedResponse
-    | ForbiddenResponse
-    | NotFoundResponse
-    | ErrorResponse
-    | InternalServerErrorResponse,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof reviewEvidence>>,
-    TError,
-    { id: string; data: ReviewEvidenceRequest },
-    TContext
-  >;
-  request?: SecondParameter<typeof customInstance>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof reviewEvidence>>,
-  TError,
-  { id: string; data: ReviewEvidenceRequest },
-  TContext
-> => {
-  const mutationKey = ["reviewEvidence"];
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof reviewEvidence>>,
-    { id: string; data: ReviewEvidenceRequest }
-  > = (props) => {
-    const { id, data } = props ?? {};
-
-    return reviewEvidence(id, data, requestOptions);
-  };
-
-  return { mutationFn, ...mutationOptions };
-};
-
-export type ReviewEvidenceMutationResult = NonNullable<
-  Awaited<ReturnType<typeof reviewEvidence>>
->;
-export type ReviewEvidenceMutationBody = ReviewEvidenceRequest;
-export type ReviewEvidenceMutationError =
-  | BadRequestResponse
-  | UnauthorizedResponse
-  | ForbiddenResponse
-  | NotFoundResponse
-  | ErrorResponse
-  | InternalServerErrorResponse;
-
-/**
- * @summary Review an evidence submission
- */
-export const useReviewEvidence = <
-  TError =
-    | BadRequestResponse
-    | UnauthorizedResponse
-    | ForbiddenResponse
-    | NotFoundResponse
-    | ErrorResponse
-    | InternalServerErrorResponse,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof reviewEvidence>>,
-      TError,
-      { id: string; data: ReviewEvidenceRequest },
-      TContext
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof reviewEvidence>>,
-  TError,
-  { id: string; data: ReviewEvidenceRequest },
-  TContext
-> => {
-  return useMutation(getReviewEvidenceMutationOptions(options), queryClient);
-};
-
 export type createActivityResponse201 = {
   data: CreateActivity201;
   status: 201;
@@ -3439,6 +3336,7 @@ export const getCreateActivityUrl = () => {
 };
 
 /**
+ * Admin creates a new activity. Slug must be unique.
  * @summary Create a new activity
  */
 export const createActivity = async (
@@ -3590,6 +3488,7 @@ export const getUpdateActivityUrl = (id: string) => {
 };
 
 /**
+ * Admin updates an existing activity. All fields are optional.
  * @summary Update an activity
  */
 export const updateActivity = async (
@@ -3736,6 +3635,7 @@ export const getDeleteActivityUrl = (id: string) => {
 };
 
 /**
+ * Admin deletes an existing activity.
  * @summary Delete an activity
  */
 export const deleteActivity = async (
@@ -3828,4 +3728,166 @@ export const useDeleteActivity = <
   TContext
 > => {
   return useMutation(getDeleteActivityMutationOptions(options), queryClient);
+};
+
+export type reviewEvidenceResponse200 = {
+  data: ReviewEvidence200;
+  status: 200;
+};
+
+export type reviewEvidenceResponse400 = {
+  data: BadRequestResponse;
+  status: 400;
+};
+
+export type reviewEvidenceResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type reviewEvidenceResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type reviewEvidenceResponse404 = {
+  data: NotFoundResponse;
+  status: 404;
+};
+
+export type reviewEvidenceResponse409 = {
+  data: ErrorResponse;
+  status: 409;
+};
+
+export type reviewEvidenceResponse500 = {
+  data: InternalServerErrorResponse;
+  status: 500;
+};
+
+export type reviewEvidenceResponseSuccess = reviewEvidenceResponse200 & {
+  headers: Headers;
+};
+export type reviewEvidenceResponseError = (
+  | reviewEvidenceResponse400
+  | reviewEvidenceResponse401
+  | reviewEvidenceResponse403
+  | reviewEvidenceResponse404
+  | reviewEvidenceResponse409
+  | reviewEvidenceResponse500
+) & {
+  headers: Headers;
+};
+
+export type reviewEvidenceResponse =
+  | reviewEvidenceResponseSuccess
+  | reviewEvidenceResponseError;
+
+export const getReviewEvidenceUrl = (id: string) => {
+  return `/admin/evidences/${id}/review`;
+};
+
+/**
+ * Admin reviews evidence. Can approve or reject. By default, only pending evidence can be reviewed unless forceOverride is true.
+ * @summary Review an evidence submission
+ */
+export const reviewEvidence = async (
+  id: string,
+  reviewEvidenceRequest: ReviewEvidenceRequest,
+  options?: RequestInit,
+): Promise<reviewEvidenceResponse> => {
+  return customInstance<reviewEvidenceResponse>(getReviewEvidenceUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(reviewEvidenceRequest),
+  });
+};
+
+export const getReviewEvidenceMutationOptions = <
+  TError =
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | NotFoundResponse
+    | ErrorResponse
+    | InternalServerErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof reviewEvidence>>,
+    TError,
+    { id: string; data: ReviewEvidenceRequest },
+    TContext
+  >;
+  request?: SecondParameter<typeof customInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof reviewEvidence>>,
+  TError,
+  { id: string; data: ReviewEvidenceRequest },
+  TContext
+> => {
+  const mutationKey = ["reviewEvidence"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof reviewEvidence>>,
+    { id: string; data: ReviewEvidenceRequest }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return reviewEvidence(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ReviewEvidenceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof reviewEvidence>>
+>;
+export type ReviewEvidenceMutationBody = ReviewEvidenceRequest;
+export type ReviewEvidenceMutationError =
+  | BadRequestResponse
+  | UnauthorizedResponse
+  | ForbiddenResponse
+  | NotFoundResponse
+  | ErrorResponse
+  | InternalServerErrorResponse;
+
+/**
+ * @summary Review an evidence submission
+ */
+export const useReviewEvidence = <
+  TError =
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | NotFoundResponse
+    | ErrorResponse
+    | InternalServerErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof reviewEvidence>>,
+      TError,
+      { id: string; data: ReviewEvidenceRequest },
+      TContext
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof reviewEvidence>>,
+  TError,
+  { id: string; data: ReviewEvidenceRequest },
+  TContext
+> => {
+  return useMutation(getReviewEvidenceMutationOptions(options), queryClient);
 };

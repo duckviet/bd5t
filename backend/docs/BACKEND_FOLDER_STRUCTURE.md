@@ -31,11 +31,13 @@ backend/
     openapi.yaml                ← spec entry point
     dist.yaml                   ← bundled spec (generated, do not edit manually)
     paths/
+      _index.yaml               ← route map for bundling
       auth/
         login.yaml
         register.yaml
         me.yaml
         refresh.yaml
+        logout.yaml
       activities/
         list.yaml
         detail.yaml
@@ -45,21 +47,35 @@ backend/
         delete.yaml
       admin/
         review-evidence.yaml
-        activities.yaml
+        create-activity.yaml
+        update-activity.yaml
+        delete-activity.yaml
+      profile/
+        get.yaml
+        patch.yaml
+      progress/
+        get.yaml
+      leaderboard/
+        list.yaml
+      media/
+        upload.yaml
+      health/
+        health.yaml
     components/
       schemas/
+        _index.yaml
+        _common.yaml
         user.yaml
-        activity.yaml
+        activity_detail.yaml
+        activity_item.yaml
         evidence.yaml
         progress.yaml
-        notification.yaml
         leaderboard.yaml
-        pagination.yaml
-        error.yaml
       responses/
+        _index.yaml
         error_responses.yaml
       parameters/
-        common_params.yaml
+        _index.yaml
 
   internal/
     config/
@@ -203,6 +219,8 @@ These are overwritten on every `make openapi-generator-cli` run:
 - `internal/handlers/routers.gen.go`
 - `internal/handlers/interfaces/api_*.gen.go`
 - `internal/service/interfaces/service_*.gen.go`
+
+The generator currently also refreshes the bundled route/model scaffolding under `internal/dto/` by moving the generated `model_*.go` files into the checked-in DTO package.
 
 ### Implementation files (safe to edit)
 Everything under:

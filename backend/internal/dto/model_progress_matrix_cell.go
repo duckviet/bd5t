@@ -15,7 +15,9 @@ type ProgressMatrixCell struct {
 
 	ActivityTitle string `json:"activityTitle,omitempty"`
 
+	// Sum of all approved evidence scores
 	TotalScore int32 `json:"totalScore,omitempty"`
 
+	// List of criteria that have been approved
 	CompletedCriteria []ProgressMatrixCellCompletedCriteriaInner `json:"completedCriteria,omitempty"`
 }

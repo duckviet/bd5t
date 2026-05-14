@@ -8,45 +8,38 @@ patch:
     - bearerAuth: []
     - cookieAuth: []
   parameters:
-    - name: id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-      description: Evidence ID
+    - $ref: '../../components/parameters/_index.yaml#/uuid'
   requestBody:
     required: true
     content:
       application/json:
         schema:
-          $ref: '#/components/schemas/ReviewEvidenceRequest'
+          $ref: '../../components/schemas/evidence.yaml#/ReviewEvidenceRequest'
   responses:
     '200':
       description: Evidence reviewed successfully
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: true
-              data:
-                $ref: '#/components/schemas/EvidenceItem'
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/evidence.yaml#/EvidenceItem'
     '400':
-      $ref: '#/components/responses/BadRequest'
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
     '401':
-      $ref: '#/components/responses/Unauthorized'
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
     '403':
-      $ref: '#/components/responses/Forbidden'
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
     '404':
-      $ref: '#/components/responses/NotFound'
+      $ref: '../../components/responses/error_responses.yaml#/NotFound'
     '409':
       description: Evidence already reviewed and forceOverride not set
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '../../components/schemas/_common.yaml#/ErrorResponse'
     '500':
-      $ref: '#/components/responses/InternalServerError'
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

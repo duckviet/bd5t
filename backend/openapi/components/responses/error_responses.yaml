@@ -1,54 +1,34 @@
 BadRequest:
-  description: "Bad Request. The request is invalid."
+  description: Bad Request - The request is invalid or missing required parameters
   content:
     application/json:
       schema:
-        type: object
-        properties:
-          error:
-            type: string
-            example: "Invalid request."
+        $ref: '../schemas/_common.yaml#/ErrorResponse'
 
 Unauthorized:
-  description: "Unauthorized. The provided JWT token is missing, invalid, or expired."
+  description: Unauthorized - JWT token is missing, invalid, or expired
   content:
     application/json:
       schema:
-        type: object
-        properties:
-          error:
-            type: string
-            example: "Authentication token is required."
+        $ref: '../schemas/_common.yaml#/ErrorResponse'
 
 Forbidden:
-  description: "Forbidden - You don't have permission to access this resource"
+  description: Forbidden - You don't have permission to access this resource
   content:
     application/json:
       schema:
-        type: object
-        properties:
-          error:
-            type: string
-            example: "Forbidden"
+        $ref: '../schemas/_common.yaml#/ErrorResponse'
 
 NotFound:
-  description: "Not Found. The requested resource was not found."
+  description: Not Found - The requested resource does not exist
   content:
     application/json:
       schema:
-        type: object
-        properties:
-          error:
-            type: string
-            example: "Resource not found."
+        $ref: '../schemas/_common.yaml#/ErrorResponse'
 
 InternalServerError:
-  description: "Internal Server Error. The server encountered an unexpected condition that prevented it from fulfilling the request."
+  description: Internal Server Error - An unexpected error occurred
   content:
     application/json:
       schema:
-        type: object
-        properties:
-          error:
-            type: string
-            example: "Internal server error."
+        $ref: '../schemas/_common.yaml#/ErrorResponse'
