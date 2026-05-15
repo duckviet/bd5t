@@ -9,7 +9,7 @@ export const mockUser: UserProfile = {
   className: "K56A",
   unitId: "unit_1",
   unitName: "Khoa Ngôn ngữ & Văn hóa Anh",
-  avatarUrl: null,
+  avatarUrl: undefined,
 };
 
 export const mockEvidences: EvidenceItem[] = [

@@ -14,8 +14,6 @@ CREATE TABLE IF NOT EXISTS activity_criteria (
     id UUID PRIMARY KEY,
     activity_id UUID NOT NULL REFERENCES activities(id) ON DELETE CASCADE,
     criteria_id UUID NOT NULL REFERENCES criteria(id) ON DELETE CASCADE,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
     score INTEGER NOT NULL DEFAULT 100,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -38,29 +36,25 @@ SET title = EXCLUDED.title,
 WITH criteria_map AS (
     SELECT *
     FROM (VALUES
-        ('40000000-0000-4000-8000-000000000001'::uuid, 'DAO_DUC'::varchar, 'Tiêu chí Đạo đức tốt'::varchar, 'Tiêu chí áp dụng cho hoạt động Lý tưởng Sinh viên 2026.'::text, 100::integer),
-        ('40000000-0000-4000-8000-000000000002'::uuid, 'DAO_DUC'::varchar, 'Tiêu chí Đạo đức tốt'::varchar, 'Tiêu chí áp dụng cho hoạt động Nghị quyết Đại hội XIV.'::text, 100::integer),
-        ('40000000-0000-4000-8000-000000000003'::uuid, 'TINH_NGUYEN'::varchar, 'Tiêu chí Tình nguyện tốt'::varchar, 'Tiêu chí áp dụng cho dự án Phất Quạt Họa Văn.'::text, 100::integer),
-        ('40000000-0000-4000-8000-000000000004'::uuid, 'THE_LUC'::varchar, 'Tiêu chí Thể lực tốt'::varchar, 'Tiêu chí áp dụng cho Bước chân Sinh viên - Giải chạy vRace.'::text, 100::integer),
-        ('40000000-0000-4000-8000-000000000005'::uuid, 'HOC_TAP'::varchar, 'Tiêu chí Học tập tốt'::varchar, 'Tiêu chí áp dụng cho Đại sứ Văn hóa Đọc 2025.'::text, 100::integer),
-        ('40000000-0000-4000-8000-000000000006'::uuid, 'TINH_NGUYEN'::varchar, 'Tiêu chí Tình nguyện tốt'::varchar, 'Tiêu chí phụ áp dụng cho Đại sứ Văn hóa Đọc 2025.'::text, 100::integer)
-    ) AS t(criteria_doc_id, criteria_code, title, description, score)
+        ('40000000-0000-4000-8000-000000000001'::uuid, 'DAO_DUC'::varchar, 100::integer),
+        ('40000000-0000-4000-8000-000000000002'::uuid, 'DAO_DUC'::varchar, 100::integer),
+        ('40000000-0000-4000-8000-000000000003'::uuid, 'TINH_NGUYEN'::varchar, 100::integer),
+        ('40000000-0000-4000-8000-000000000004'::uuid, 'THE_LUC'::varchar, 100::integer),
+        ('40000000-0000-4000-8000-000000000005'::uuid, 'HOC_TAP'::varchar, 100::integer),
+        ('40000000-0000-4000-8000-000000000006'::uuid, 'TINH_NGUYEN'::varchar, 100::integer)
+    ) AS t(criteria_doc_id, criteria_code, score)
 )
-INSERT INTO activity_criteria (id, activity_id, criteria_id, title, description, score)
+INSERT INTO activity_criteria (id, activity_id, criteria_id, score)
 SELECT
     cd.id,
     cd.activity_id,
     c.id,
-    m.title,
-    m.description,
     m.score
 FROM criteria_docs cd
 JOIN criteria_map m ON m.criteria_doc_id = cd.id
 JOIN criteria c ON c.code = m.criteria_code
 ON CONFLICT (activity_id, criteria_id) DO UPDATE
-SET title = EXCLUDED.title,
-    description = EXCLUDED.description,
-    score = EXCLUDED.score,
+SET score = EXCLUDED.score,
     updated_at = NOW();
 
 UPDATE evidences e

@@ -131,7 +131,18 @@ func (s *AdminService) CreateActivity(ctx context.Context, req *dto.CreateActivi
 		return nil, errors.ErrInternalError(err, "failed to create activity")
 	}
 
-	return mapper.ActivityToDetailDTO(created, nil), nil
+	if len(req.Criteria) > 0 {
+		if err := s.activityRepo.SetCriteria(ctx, created.ID, req.Criteria); err != nil {
+			return nil, errors.ErrInternalError(err, "failed to set activity criteria")
+		}
+	}
+
+	criteria, err := s.activityRepo.GetCriteriaDocsByActivityID(ctx, created.ID)
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to get activity criteria")
+	}
+
+	return mapper.ActivityToDetailDTO(created, criteria), nil
 }
 
 func (s *AdminService) UpdateActivity(ctx context.Context, id string, req *dto.UpdateActivityRequest) (*dto.ActivityDetail, error) {
@@ -188,8 +199,8 @@ func (s *AdminService) UpdateActivity(ctx context.Context, id string, req *dto.U
 			activity.EndDate = &endDate
 		}
 	}
-	if req.IsActive {
-		activity.IsActive = req.IsActive
+	if req.IsActive != nil {
+		activity.IsActive = *req.IsActive
 	}
 	if req.RegistrationUrl != nil {
 		activity.RegistrationURL = req.RegistrationUrl
@@ -206,7 +217,18 @@ func (s *AdminService) UpdateActivity(ctx context.Context, id string, req *dto.U
 		return nil, errors.ErrInternalError(err, "failed to update activity")
 	}
 
-	return mapper.ActivityToDetailDTO(updated, nil), nil
+	if req.Criteria != nil {
+		if err := s.activityRepo.SetCriteria(ctx, id, req.Criteria); err != nil {
+			return nil, errors.ErrInternalError(err, "failed to update activity criteria")
+		}
+	}
+
+	criteria, err := s.activityRepo.GetCriteriaDocsByActivityID(ctx, id)
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to get activity criteria")
+	}
+
+	return mapper.ActivityToDetailDTO(updated, criteria), nil
 }
 
 func (s *AdminService) DeleteActivity(ctx context.Context, id string) error {

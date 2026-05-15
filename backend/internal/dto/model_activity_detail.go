@@ -49,5 +49,7 @@ type ActivityDetail struct {
 
 	Organizer *string `json:"organizer,omitempty"`
 
+	Criteria []string `json:"criteria,omitempty"`
+
 	CriteriaDocs []CriteriaDoc `json:"criteriaDocs,omitempty"`
 }

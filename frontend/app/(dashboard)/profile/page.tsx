@@ -92,11 +92,9 @@ export default function ProfilePage() {
     const q = searchQuery.toLowerCase();
     const title = ev.activityTitle ?? "";
     const description = ev.description ?? "";
-    const criteriaDocTitle = ev.criteriaDocTitle ?? "";
     const matchesSearch =
       title.toLowerCase().includes(q) ||
-      description.toLowerCase().includes(q) ||
-      criteriaDocTitle.toLowerCase().includes(q);
+      description.toLowerCase().includes(q);
     const matchesStatus = filterStatus === "all" || ev.status === filterStatus;
     const matchesCriterion =
       filterCriterion === "all" || ev.criterionType === filterCriterion;

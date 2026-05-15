@@ -44,3 +44,16 @@ ActivityItem:
     isActive:
       type: boolean
       example: true
+    reviewLevel:
+      type: string
+      enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
+      example: "TRUONG"
+    criteria:
+      type: array
+      items:
+        type: string
+        enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+      example: ["DAO_DUC", "HOC_TAP"]
+    organizer:
+      type: [string, "null"]
+      example: "Ban Công tác Sinh viên"

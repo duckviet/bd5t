@@ -24,4 +24,5 @@ type ActivityRepository interface {
 	Create(ctx context.Context, activity *domain.Activity) (*domain.Activity, error)
 	Update(ctx context.Context, id string, activity *domain.Activity) (*domain.Activity, error)
 	Delete(ctx context.Context, id string) error
+	SetCriteria(ctx context.Context, activityID string, criteriaCodes []string) error
 }

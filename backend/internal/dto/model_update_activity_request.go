@@ -37,11 +37,13 @@ type UpdateActivityRequest struct {
 
 	EndDate *string `json:"endDate,omitempty"`
 
-	IsActive bool `json:"isActive,omitempty"`
+	IsActive *bool `json:"isActive,omitempty"`
 
 	RegistrationUrl *string `json:"registrationUrl,omitempty"`
 
 	ReviewLevel *string `json:"reviewLevel,omitempty"`
 
 	Organizer *string `json:"organizer,omitempty"`
+
+	Criteria []string `json:"criteria,omitempty"`
 }

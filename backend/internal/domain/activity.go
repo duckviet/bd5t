@@ -23,6 +23,7 @@ type Activity struct {
 	RegistrationURL  *string
 	ReviewLevel      *string
 	Organizer        *string
+	Criteria         []string
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }

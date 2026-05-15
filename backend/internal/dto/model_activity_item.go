@@ -40,4 +40,10 @@ type ActivityItem struct {
 	EndDate string `json:"endDate,omitempty"`
 
 	IsActive bool `json:"isActive,omitempty"`
+
+	ReviewLevel string `json:"reviewLevel,omitempty"`
+
+	Criteria []string `json:"criteria,omitempty"`
+
+	Organizer *string `json:"organizer,omitempty"`
 }

@@ -31,10 +31,11 @@ func (r *EvidenceRepository) List(ctx context.Context, userID string, filter int
 		       e.criterion_type, e.created_at, e.updated_at,
 		       a.title as activity_title,
 		       a.review_level as review_level,
-		       ac.title as criteria_doc_title
+		       c.title as criteria_doc_title
 		FROM evidences e
 		LEFT JOIN activities a ON e.activity_id = a.id
 		LEFT JOIN activity_criteria ac ON e.criteria_doc_id = ac.id
+		LEFT JOIN criteria c ON ac.criteria_id = c.id
 		WHERE e.user_id = $1`
 
 	args := []interface{}{userID}
@@ -138,10 +139,11 @@ func (r *EvidenceRepository) GetByID(ctx context.Context, id string) (*domain.Ev
 		       e.criterion_type, e.created_at, e.updated_at,
 		       a.title as activity_title,
 		       a.review_level as review_level,
-		       ac.title as criteria_doc_title
+		       c.title as criteria_doc_title
 		FROM evidences e
 		LEFT JOIN activities a ON e.activity_id = a.id
 		LEFT JOIN activity_criteria ac ON e.criteria_doc_id = ac.id
+		LEFT JOIN criteria c ON ac.criteria_id = c.id
 		WHERE e.id = $1`
 
 	var e domain.Evidence

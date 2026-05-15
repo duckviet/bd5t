@@ -45,4 +45,6 @@ type CreateActivityRequest struct {
 	ReviewLevel *string `json:"reviewLevel,omitempty"`
 
 	Organizer *string `json:"organizer,omitempty"`
+
+	Criteria []string `json:"criteria,omitempty"`
 }

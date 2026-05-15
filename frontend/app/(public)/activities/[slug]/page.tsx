@@ -14,9 +14,13 @@ import {
   Award,
   Loader2,
 } from "lucide-react";
+import { useState } from "react";
+import { UploadEvidenceDialog } from "@/components/evidence/upload-evidence-dialog";
 import {
   type ReviewLevel,
+  type CriterionType,
   REVIEW_LEVELS,
+  CRITERIA,
 } from "@/lib/constants";
 import { useGetActivityDetail } from "@/services/generated/api";
 import type { ActivityDetail } from "@/services/generated/api";
@@ -27,6 +31,7 @@ export default function ActivityDetailPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: _apiResponse, isLoading, error } = useGetActivityDetail(slug);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -70,11 +75,11 @@ export default function ActivityDetailPage() {
         <div className="mb-8 flex flex-col lg:flex-row gap-8">
           <div className="flex-1">
             <div className="flex flex-wrap gap-2 mb-4">
-              {activity?.criteriaDocs?.map((c: any) => (
-                <Badge key={c.id} variant="secondary">
-                  {c.title}
+              {activity?.criteriaDocs?.[0]?.criteriaType && (
+                <Badge variant="secondary">
+                  {CRITERIA[activity.criteriaDocs[0].criteriaType as CriterionType]}
                 </Badge>
-              ))}
+              )}
               {activity?.reviewLevel && (
                 <Badge variant="outline">
                   {REVIEW_LEVELS[activity.reviewLevel as ReviewLevel]}
@@ -223,6 +228,7 @@ export default function ActivityDetailPage() {
                     variant="outline"
                     size="lg"
                     className="w-full gap-2 mt-4"
+                    onClick={() => setIsUploadOpen(true)}
                   >
                     Nộp minh chứng
                   </Button>
@@ -243,6 +249,16 @@ export default function ActivityDetailPage() {
           </div>
         </div>
       </div>
+
+      <UploadEvidenceDialog
+        open={isUploadOpen}
+        onOpenChange={setIsUploadOpen}
+        initialActivityId={activity.id}
+        onSuccess={() => {
+          // Optional: show a success message or refresh data
+          console.log("Upload success!");
+        }}
+      />
     </div>
   );
 }

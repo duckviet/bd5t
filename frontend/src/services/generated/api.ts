@@ -161,6 +161,27 @@ export interface UnitItem {
   description?: string;
 }
 
+export type ActivityItemReviewLevel =
+  (typeof ActivityItemReviewLevel)[keyof typeof ActivityItemReviewLevel];
+
+export const ActivityItemReviewLevel = {
+  TRUONG: "TRUONG",
+  DHQGHN: "DHQGHN",
+  THANH_PHO: "THANH_PHO",
+  TRUNG_UONG: "TRUNG_UONG",
+} as const;
+
+export type ActivityItemCriteriaItem =
+  (typeof ActivityItemCriteriaItem)[keyof typeof ActivityItemCriteriaItem];
+
+export const ActivityItemCriteriaItem = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
 export interface ActivityItem {
   id?: string;
   slug?: string;
@@ -184,6 +205,10 @@ export interface ActivityItem {
   startDate?: string;
   endDate?: string;
   isActive?: boolean;
+  reviewLevel?: ActivityItemReviewLevel;
+  criteria?: ActivityItemCriteriaItem[];
+  /** @nullable */
+  organizer?: string | null;
 }
 
 export type ActivityDetailReviewLevel =
@@ -244,6 +269,7 @@ export interface ActivityDetail {
   reviewLevel?: ActivityDetailReviewLevel;
   /** @nullable */
   organizer?: string | null;
+  criteria?: string[];
   criteriaDocs?: CriteriaDoc[];
 }
 
@@ -259,6 +285,17 @@ export const CreateActivityRequestReviewLevel = {
   DHQGHN: "DHQGHN",
   THANH_PHO: "THANH_PHO",
   TRUNG_UONG: "TRUNG_UONG",
+} as const;
+
+export type CreateActivityRequestCriteriaItem =
+  (typeof CreateActivityRequestCriteriaItem)[keyof typeof CreateActivityRequestCriteriaItem];
+
+export const CreateActivityRequestCriteriaItem = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
 } as const;
 
 export interface CreateActivityRequest {
@@ -301,6 +338,7 @@ export interface CreateActivityRequest {
   reviewLevel?: CreateActivityRequestReviewLevel;
   /** @nullable */
   organizer?: string | null;
+  criteria?: CreateActivityRequestCriteriaItem[];
 }
 
 /**
@@ -315,6 +353,17 @@ export const UpdateActivityRequestReviewLevel = {
   DHQGHN: "DHQGHN",
   THANH_PHO: "THANH_PHO",
   TRUNG_UONG: "TRUNG_UONG",
+} as const;
+
+export type UpdateActivityRequestCriteriaItem =
+  (typeof UpdateActivityRequestCriteriaItem)[keyof typeof UpdateActivityRequestCriteriaItem];
+
+export const UpdateActivityRequestCriteriaItem = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
 } as const;
 
 export interface UpdateActivityRequest {
@@ -347,13 +396,15 @@ export interface UpdateActivityRequest {
   startDate?: string | null;
   /** @nullable */
   endDate?: string | null;
-  isActive?: boolean;
+  /** @nullable */
+  isActive?: boolean | null;
   /** @nullable */
   registrationUrl?: string | null;
   /** @nullable */
   reviewLevel?: UpdateActivityRequestReviewLevel;
   /** @nullable */
   organizer?: string | null;
+  criteria?: UpdateActivityRequestCriteriaItem[];
 }
 
 export type EvidenceItemStatus =

@@ -58,6 +58,10 @@ ActivityDetail:
     organizer:
       type: [string, "null"]
       example: "Ban Công tác Sinh viên"
+    criteria:
+      type: array
+      items:
+        type: string
     criteriaDocs:
       type: array
       items:
@@ -114,6 +118,11 @@ CreateActivityRequest:
       enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
     organizer:
       type: [string, "null"]
+    criteria:
+      type: array
+      items:
+        type: string
+        enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
 
 UpdateActivityRequest:
   type: object
@@ -152,7 +161,7 @@ UpdateActivityRequest:
       type: [string, "null"]
       format: date
     isActive:
-      type: boolean
+      type: [boolean, "null"]
     registrationUrl:
       type: [string, "null"]
       format: uri
@@ -161,3 +170,8 @@ UpdateActivityRequest:
       enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
     organizer:
       type: [string, "null"]
+    criteria:
+      type: array
+      items:
+        type: string
+        enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]

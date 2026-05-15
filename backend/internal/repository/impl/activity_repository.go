@@ -28,12 +28,12 @@ func (r *ActivityRepository) List(ctx context.Context, filter *interfaces.ListAc
 
 	if filter != nil {
 		if filter.UnitID != nil {
-			conditions = append(conditions, fmt.Sprintf("unit_id = $%d", argNum))
+			conditions = append(conditions, fmt.Sprintf("a.unit_id = $%d", argNum))
 			args = append(args, *filter.UnitID)
 			argNum++
 		}
 		if filter.IsActive != nil {
-			conditions = append(conditions, fmt.Sprintf("is_active = $%d", argNum))
+			conditions = append(conditions, fmt.Sprintf("a.is_active = $%d", argNum))
 			args = append(args, *filter.IsActive)
 			argNum++
 		}
@@ -44,7 +44,12 @@ func (r *ActivityRepository) List(ctx context.Context, filter *interfaces.ListAc
 		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
 
-	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM activities %s", whereClause)
+	countWhereClause := ""
+	if len(conditions) > 0 {
+		countWhereClause = "WHERE " + strings.Join(conditions, " AND ")
+	}
+
+	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM activities a %s", countWhereClause)
 	var total int64
 	err := r.pool.QueryRow(ctx, countQuery, args...).Scan(&total)
 	if err != nil {
@@ -53,13 +58,17 @@ func (r *ActivityRepository) List(ctx context.Context, filter *interfaces.ListAc
 
 	offset := (page - 1) * pageSize
 	query := fmt.Sprintf(`
-		SELECT id, title, description, slug, thumbnail_url, short_description, 
-		       location, target_audience, rules, rewards, contact_info,
-		       unit_id, start_date, end_date, is_active, registration_url, 
-		       review_level, organizer, created_at, updated_at
-		FROM activities
+		SELECT a.id, a.title, a.description, a.slug, a.thumbnail_url, a.short_description, 
+		       a.location, a.target_audience, a.rules, a.rewards, a.contact_info,
+		       a.unit_id, a.start_date, a.end_date, a.is_active, a.registration_url, 
+		       a.review_level, a.organizer, a.created_at, a.updated_at,
+		       COALESCE(array_agg(c.code) FILTER (WHERE c.code IS NOT NULL), '{}') as criteria
+		FROM activities a
+		LEFT JOIN activity_criteria ac ON a.id = ac.activity_id
+		LEFT JOIN criteria c ON ac.criteria_id = c.id
 		%s
-		ORDER BY created_at DESC
+		GROUP BY a.id
+		ORDER BY a.created_at DESC
 		LIMIT $%d OFFSET $%d`, whereClause, argNum, argNum+1)
 
 	args = append(args, pageSize, offset)
@@ -94,6 +103,7 @@ func (r *ActivityRepository) List(ctx context.Context, filter *interfaces.ListAc
 			&a.Organizer,
 			&a.CreatedAt,
 			&a.UpdatedAt,
+			&a.Criteria,
 		)
 		if err != nil {
 			return nil, err
@@ -193,7 +203,7 @@ func (r *ActivityRepository) GetByID(ctx context.Context, id string) (*domain.Ac
 
 func (r *ActivityRepository) GetCriteriaDocsByActivityID(ctx context.Context, activityID string) ([]*domain.ActivityCriteria, error) {
 	query := `
-		SELECT ac.id, ac.activity_id, ac.criteria_id, c.code, ac.title, ac.description, ac.score, c.max_score, ac.created_at, ac.updated_at
+		SELECT ac.id, ac.activity_id, ac.criteria_id, c.code, c.title, c.description, ac.score, c.max_score, ac.created_at, ac.updated_at
 		FROM activity_criteria ac
 		JOIN criteria c ON c.id = ac.criteria_id
 		WHERE ac.activity_id = $1
@@ -306,14 +316,38 @@ func (r *ActivityRepository) Update(ctx context.Context, id string, activity *do
 
 func (r *ActivityRepository) Delete(ctx context.Context, id string) error {
 	query := `DELETE FROM activities WHERE id = $1`
-	result, err := r.pool.Exec(ctx, query, id)
+	_, err := r.pool.Exec(ctx, query, id)
+	return err
+}
+
+func (r *ActivityRepository) SetCriteria(ctx context.Context, activityID string, criteriaCodes []string) error {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	// Delete existing criteria
+	_, err = tx.Exec(ctx, `DELETE FROM activity_criteria WHERE activity_id = $1`, activityID)
 	if err != nil {
 		return err
 	}
 
-	if result.RowsAffected() == 0 {
-		return nil
+	if len(criteriaCodes) == 0 {
+		return tx.Commit(ctx)
 	}
 
-	return nil
+	// Insert new criteria
+	query := `
+		INSERT INTO activity_criteria (id, activity_id, criteria_id, score)
+		SELECT gen_random_uuid(), $1, id, max_score
+		FROM criteria
+		WHERE code = ANY($2)`
+
+	_, err = tx.Exec(ctx, query, activityID, criteriaCodes)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

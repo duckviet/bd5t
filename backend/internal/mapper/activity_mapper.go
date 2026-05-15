@@ -82,6 +82,15 @@ func ActivityToItemDTO(activity *domain.Activity) *dto.ActivityItem {
 	if activity.EndDate != nil {
 		dtoItem.EndDate = formatDatePtr(activity.EndDate)
 	}
+	if activity.ReviewLevel != nil {
+		dtoItem.ReviewLevel = *activity.ReviewLevel
+	}
+	if activity.Criteria != nil {
+		dtoItem.Criteria = activity.Criteria
+	}
+	if activity.Organizer != nil {
+		dtoItem.Organizer = activity.Organizer
+	}
 
 	return dtoItem
 }
@@ -100,8 +109,9 @@ func ActivityCriteriaToDTO(c *domain.ActivityCriteria) *dto.CriteriaDoc {
 	}
 
 	dtoItem := &dto.CriteriaDoc{
-		Id:       c.ID,
-		MaxScore: int32(c.MaxScore),
+		Id:           c.ID,
+		MaxScore:     int32(c.Score),
+		CriteriaType: string(c.CriteriaType),
 	}
 	if c.Title != "" {
 		dtoItem.Title = c.Title
@@ -133,6 +143,12 @@ func ActivityToDetailDTO(activity *domain.Activity, criteria []*domain.ActivityC
 		IsActive:     activity.IsActive,
 		CriteriaDocs: ActivityCriteriaToDTOs(criteria),
 	}
+
+	codes := make([]string, len(criteria))
+	for i, c := range criteria {
+		codes[i] = string(c.CriteriaType)
+	}
+	detail.Criteria = codes
 
 	if activity.Slug != nil {
 		detail.Slug = *activity.Slug

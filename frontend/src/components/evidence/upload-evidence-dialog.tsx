@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -26,23 +26,33 @@ interface UploadEvidenceDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess?: () => void
+  initialActivityId?: string
 }
 
-export function UploadEvidenceDialog({ open, onOpenChange, onSuccess }: UploadEvidenceDialogProps) {
+export function UploadEvidenceDialog({ open, onOpenChange, onSuccess, initialActivityId }: UploadEvidenceDialogProps) {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [description, setDescription] = useState("")
-  const [activityId, setActivityId] = useState("")
+  const [activityId, setActivityId] = useState(initialActivityId || "")
   const [isDragging, setIsDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const queryClient = useQueryClient()
 
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      setFile(null)
+      setPreview(null)
+      setDescription("")
+      setActivityId(initialActivityId || "")
+    }
+  }, [open, initialActivityId])
+
   const { data: activitiesData, isLoading: activitiesLoading } = useQuery<ActivityItem[]>({
     queryKey: ["/activities"],
     queryFn: async () => {
       const res = await listActivities()
-      console.log(res)
       return (res.data ?? []) as ActivityItem[]
     },
   })
@@ -128,7 +138,7 @@ export function UploadEvidenceDialog({ open, onOpenChange, onSuccess }: UploadEv
         <div className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="activity">Hoạt động</Label>
-            <Select value={activityId} onValueChange={setActivityId} disabled={activitiesLoading}>
+            <Select value={activityId} onValueChange={setActivityId} disabled={activitiesLoading || !!initialActivityId}>
               <SelectTrigger>
                 <SelectValue placeholder={activitiesLoading ? "Đang tải..." : "Chọn hoạt động"} />
               </SelectTrigger>
