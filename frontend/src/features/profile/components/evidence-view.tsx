@@ -4,25 +4,28 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, Upload } from "lucide-react"
 import { EvidenceFilters } from "./evidence-filters"
 import { EvidenceListView, EvidenceGridView } from "./evidence-list-view"
-import type { EvidenceItem, EvidenceViewType } from "../types"
+import type { EvidenceItem } from "@/services/generated/api";
+import type { CriterionType, ReviewLevel } from "@/lib/constants";
+import type { EvidenceViewType } from "../types";
+import type { EvidenceItemStatus } from "@/services/generated/api";
 
 interface EvidenceViewProps {
-  items: EvidenceItem[]
-  totalCount: number
-  searchQuery: string
-  onSearchChange: (value: string) => void
-  filterStatus: string
-  onStatusChange: (value: string) => void
-  filterCriterion: string
-  onCriterionChange: (value: string) => void
-  filterLevel: string
-  onLevelChange: (value: string) => void
-  viewType: EvidenceViewType
-  onViewTypeChange: (value: EvidenceViewType) => void
-  onBack: () => void
-  onUpload: () => void
-  statusBadgeVariant: Record<string, "success" | "secondary" | "destructive">
-  statusIcon: Record<string, React.ComponentType<{ className?: string }>>
+  items: EvidenceItem[];
+  totalCount: number;
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
+  filterStatus: EvidenceItemStatus | "all";
+  onStatusChange: (value: EvidenceItemStatus | "all") => void;
+  filterCriterion: CriterionType | "all";
+  onCriterionChange: (value: CriterionType | "all") => void;
+  filterLevel: ReviewLevel | "all";
+  onLevelChange: (value: ReviewLevel | "all") => void;
+  viewType: EvidenceViewType;
+  onViewTypeChange: (value: EvidenceViewType) => void;
+  onBack: () => void;
+  onUpload: () => void;
+  statusBadgeVariant: Record<string, "success" | "secondary" | "destructive">;
+  statusIcon: Record<string, React.ComponentType<{ className?: string }>>;
 }
 
 export function EvidenceView({

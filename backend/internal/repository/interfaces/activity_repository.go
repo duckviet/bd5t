@@ -20,7 +20,7 @@ type ActivityRepository interface {
 	List(ctx context.Context, filter *ListActivitiesFilter, page, pageSize int) (*ListActivitiesResult, error)
 	GetBySlug(ctx context.Context, slug string) (*domain.Activity, error)
 	GetByID(ctx context.Context, id string) (*domain.Activity, error)
-	GetCriteriaDocsByActivityID(ctx context.Context, activityID string) ([]*domain.CriteriaDoc, error)
+	GetCriteriaDocsByActivityID(ctx context.Context, activityID string) ([]*domain.ActivityCriteria, error)
 	Create(ctx context.Context, activity *domain.Activity) (*domain.Activity, error)
 	Update(ctx context.Context, id string, activity *domain.Activity) (*domain.Activity, error)
 	Delete(ctx context.Context, id string) error

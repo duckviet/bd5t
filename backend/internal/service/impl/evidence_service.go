@@ -78,6 +78,8 @@ func (s *EvidenceService) CreateEvidence(ctx context.Context, userID string, req
 	fileURL := s.cdnBaseURL + "/" + req.FileKey
 
 	evidence := mapper.CreateEvidenceRequestToDomain(req, userID, fileURL)
+	evidence.ActivityTitle = activity.Title
+	evidence.ReviewLevel = activity.ReviewLevel
 
 	if err := s.evidenceRepo.Create(ctx, evidence); err != nil {
 		return nil, errors.ErrInternalError(err, "failed to create evidence")

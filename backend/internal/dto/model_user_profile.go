@@ -29,11 +29,11 @@ type UserProfile struct {
 
 	Role string `json:"role,omitempty"`
 
-	UnitId string `json:"unitId,omitempty"`
+	UnitId *string `json:"unitId,omitempty"`
 
-	UnitName string `json:"unitName,omitempty"`
+	UnitName *string `json:"unitName,omitempty"`
 
-	ClassName string `json:"className,omitempty"`
+	ClassName *string `json:"className,omitempty"`
 
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 }

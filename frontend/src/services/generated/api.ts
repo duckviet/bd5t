@@ -22,6 +22,7 @@ import type {
 } from "@tanstack/react-query";
 
 import { customInstance } from "../axios/custom-instance";
+import type { ErrorType, BodyType } from "../axios/custom-instance";
 export interface PaginationMeta {
   /** Current page number */
   page?: number;
@@ -35,13 +36,17 @@ export interface PaginationMeta {
 
 /**
  * Response data payload
+ * @nullable
  */
 export type ApiResponseData = { [key: string]: unknown } | null;
 
 export interface ApiResponse {
   /** Indicates if the request was successful */
   success?: boolean;
-  /** Response data payload */
+  /**
+   * Response data payload
+   * @nullable
+   */
   data?: ApiResponseData;
 }
 
@@ -57,6 +62,7 @@ export interface ApiResponseList {
 
 /**
  * Additional error details (optional)
+ * @nullable
  */
 export type ErrorResponseErrorDetails = { [key: string]: unknown } | null;
 
@@ -65,7 +71,10 @@ export type ErrorResponseError = {
   code?: string;
   /** Human-readable error message */
   message?: string;
-  /** Additional error details (optional) */
+  /**
+   * Additional error details (optional)
+   * @nullable
+   */
   details?: ErrorResponseErrorDetails;
 };
 
@@ -91,8 +100,11 @@ export interface UserProfile {
   fullName?: string;
   avatarUrl?: string;
   role?: UserProfileRole;
+  /** @nullable */
   unitId?: string | null;
+  /** @nullable */
   unitName?: string | null;
+  /** @nullable */
   className?: string | null;
   createdAt?: string;
 }
@@ -103,7 +115,9 @@ export interface RegisterRequest {
   password: string;
   studentId: string;
   displayName?: string;
+  /** @nullable */
   unitId?: string | null;
+  /** @nullable */
   className?: string | null;
 }
 
@@ -152,13 +166,20 @@ export interface ActivityItem {
   slug?: string;
   title?: string;
   shortDescription?: string;
+  /** @nullable */
   location?: string | null;
+  /** @nullable */
   targetAudience?: string | null;
+  /** @nullable */
   rules?: string | null;
+  /** @nullable */
   rewards?: string | null;
+  /** @nullable */
   contactInfo?: string | null;
   thumbnailUrl?: string;
+  /** @nullable */
   unitId?: string | null;
+  /** @nullable */
   unitName?: string | null;
   startDate?: string;
   endDate?: string;
@@ -175,8 +196,20 @@ export const ActivityDetailReviewLevel = {
   TRUNG_UONG: "TRUNG_UONG",
 } as const;
 
+export type CriteriaDocCriteriaType =
+  (typeof CriteriaDocCriteriaType)[keyof typeof CriteriaDocCriteriaType];
+
+export const CriteriaDocCriteriaType = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
 export interface CriteriaDoc {
   id?: string;
+  criteriaType?: CriteriaDocCriteriaType;
   title?: string;
   description?: string;
   maxScore?: number;
@@ -188,23 +221,35 @@ export interface ActivityDetail {
   title?: string;
   description?: string;
   shortDescription?: string;
+  /** @nullable */
   location?: string | null;
+  /** @nullable */
   targetAudience?: string | null;
+  /** @nullable */
   rules?: string | null;
+  /** @nullable */
   rewards?: string | null;
+  /** @nullable */
   contactInfo?: string | null;
   thumbnailUrl?: string;
+  /** @nullable */
   unitId?: string | null;
+  /** @nullable */
   unitName?: string | null;
   startDate?: string;
   endDate?: string;
   isActive?: boolean;
+  /** @nullable */
   registrationUrl?: string | null;
   reviewLevel?: ActivityDetailReviewLevel;
+  /** @nullable */
   organizer?: string | null;
   criteriaDocs?: CriteriaDoc[];
 }
 
+/**
+ * @nullable
+ */
 export type CreateActivityRequestReviewLevel =
   | (typeof CreateActivityRequestReviewLevel)[keyof typeof CreateActivityRequestReviewLevel]
   | null;
@@ -222,28 +267,45 @@ export interface CreateActivityRequest {
    * @maxLength 255
    */
   title: string;
+  /** @nullable */
   description?: string | null;
   /**
    * URL-friendly slug, must be unique
    * @pattern ^[a-z0-9-]+$
    */
   slug: string;
+  /** @nullable */
   thumbnailUrl?: string | null;
+  /** @nullable */
   shortDescription?: string | null;
+  /** @nullable */
   location?: string | null;
+  /** @nullable */
   targetAudience?: string | null;
+  /** @nullable */
   rules?: string | null;
+  /** @nullable */
   rewards?: string | null;
+  /** @nullable */
   contactInfo?: string | null;
+  /** @nullable */
   unitId?: string | null;
+  /** @nullable */
   startDate?: string | null;
+  /** @nullable */
   endDate?: string | null;
   isActive?: boolean;
+  /** @nullable */
   registrationUrl?: string | null;
+  /** @nullable */
   reviewLevel?: CreateActivityRequestReviewLevel;
+  /** @nullable */
   organizer?: string | null;
 }
 
+/**
+ * @nullable
+ */
 export type UpdateActivityRequestReviewLevel =
   | (typeof UpdateActivityRequestReviewLevel)[keyof typeof UpdateActivityRequestReviewLevel]
   | null;
@@ -261,22 +323,36 @@ export interface UpdateActivityRequest {
    * @maxLength 255
    */
   title?: string;
+  /** @nullable */
   description?: string | null;
   /** @pattern ^[a-z0-9-]+$ */
   slug?: string;
+  /** @nullable */
   thumbnailUrl?: string | null;
+  /** @nullable */
   shortDescription?: string | null;
+  /** @nullable */
   location?: string | null;
+  /** @nullable */
   targetAudience?: string | null;
+  /** @nullable */
   rules?: string | null;
+  /** @nullable */
   rewards?: string | null;
+  /** @nullable */
   contactInfo?: string | null;
+  /** @nullable */
   unitId?: string | null;
+  /** @nullable */
   startDate?: string | null;
+  /** @nullable */
   endDate?: string | null;
   isActive?: boolean;
+  /** @nullable */
   registrationUrl?: string | null;
+  /** @nullable */
   reviewLevel?: UpdateActivityRequestReviewLevel;
+  /** @nullable */
   organizer?: string | null;
 }
 
@@ -289,18 +365,66 @@ export const EvidenceItemStatus = {
   rejected: "rejected",
 } as const;
 
+/**
+ * Criterion category used for filtering and progress views
+ * @nullable
+ */
+export type EvidenceItemCriterionType =
+  | (typeof EvidenceItemCriterionType)[keyof typeof EvidenceItemCriterionType]
+  | null;
+
+export const EvidenceItemCriterionType = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
+/**
+ * Activity review level associated with the evidence
+ * @nullable
+ */
+export type EvidenceItemReviewLevel =
+  | (typeof EvidenceItemReviewLevel)[keyof typeof EvidenceItemReviewLevel]
+  | null;
+
+export const EvidenceItemReviewLevel = {
+  TRUONG: "TRUONG",
+  DHQGHN: "DHQGHN",
+  THANH_PHO: "THANH_PHO",
+  TRUNG_UONG: "TRUNG_UONG",
+} as const;
+
 export interface EvidenceItem {
   id?: string;
   activityId?: string;
   activityTitle?: string;
+  /** @nullable */
   criteriaDocId?: string | null;
+  /** @nullable */
   criteriaDocTitle?: string | null;
   fileUrl?: string;
   description?: string;
   status?: EvidenceItemStatus;
-  /** Note from reviewer */
+  /**
+   * Criterion category used for filtering and progress views
+   * @nullable
+   */
+  criterionType?: EvidenceItemCriterionType;
+  /**
+   * Activity review level associated with the evidence
+   * @nullable
+   */
+  reviewLevel?: EvidenceItemReviewLevel;
+  /**
+   * Note from reviewer
+   * @nullable
+   */
   reviewNote?: string | null;
+  /** @nullable */
   reviewedBy?: string | null;
+  /** @nullable */
   reviewedAt?: string | null;
   createdAt?: string;
 }
@@ -308,7 +432,10 @@ export interface EvidenceItem {
 export interface CreateEvidenceRequest {
   /** Target activity ID */
   activityId: string;
-  /** Optional criteria document this evidence is for */
+  /**
+   * Optional criteria document this evidence is for
+   * @nullable
+   */
   criteriaDocId?: string | null;
   /** R2 object key for the uploaded file */
   fileKey: string;
@@ -336,14 +463,27 @@ export interface ReviewEvidenceRequest {
   /**
    * Optional feedback for the student
    * @maxLength 500
+   * @nullable
    */
   reviewNote?: string | null;
   /** Allow re-reviewing already reviewed evidence */
   forceOverride?: boolean;
 }
 
+export type ProgressMatrixCellCompletedCriteriaItemCriteriaType =
+  (typeof ProgressMatrixCellCompletedCriteriaItemCriteriaType)[keyof typeof ProgressMatrixCellCompletedCriteriaItemCriteriaType];
+
+export const ProgressMatrixCellCompletedCriteriaItemCriteriaType = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
 export type ProgressMatrixCellCompletedCriteriaItem = {
   criteriaDocId?: string;
+  criteriaType?: ProgressMatrixCellCompletedCriteriaItemCriteriaType;
   criteriaDocTitle?: string;
   score?: number;
   /** Number of approved evidence items */
@@ -370,7 +510,9 @@ export interface LeaderboardItem {
   userId?: string;
   /** Display name of the user */
   userName?: string;
+  /** @nullable */
   unitId?: string | null;
+  /** @nullable */
   unitName?: string | null;
   /** Number of approved evidence submissions */
   totalApproved?: number;
@@ -595,31 +737,18 @@ export type ReviewEvidence200 = ApiResponse & {
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-export type healthzResponse200 = {
-  data: Healthz200;
-  status: 200;
-};
-
-export type healthzResponseSuccess = healthzResponse200 & {
-  headers: Headers;
-};
-export type healthzResponse = healthzResponseSuccess;
-
-export const getHealthzUrl = () => {
-  return `/healthz`;
-};
-
 /**
  * Returns 200 if the service is running. Use this for Kubernetes liveness probes.
  * @summary Liveness check
  */
-export const healthz = async (
-  options?: RequestInit,
-): Promise<healthzResponse> => {
-  return customInstance<healthzResponse>(getHealthzUrl(), {
-    ...options,
-    method: "GET",
-  });
+export const healthz = (
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<Healthz200>(
+    { url: `/healthz`, method: "GET", signal },
+    options,
+  );
 };
 
 export const getHealthzQueryKey = () => {
@@ -628,7 +757,7 @@ export const getHealthzQueryKey = () => {
 
 export const getHealthzQueryOptions = <
   TData = Awaited<ReturnType<typeof healthz>>,
-  TError = unknown,
+  TError = ErrorType<unknown>,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof healthz>>, TError, TData>
@@ -641,7 +770,7 @@ export const getHealthzQueryOptions = <
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof healthz>>> = ({
     signal,
-  }) => healthz({ signal, ...requestOptions });
+  }) => healthz(requestOptions, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof healthz>>,
@@ -653,11 +782,11 @@ export const getHealthzQueryOptions = <
 export type HealthzQueryResult = NonNullable<
   Awaited<ReturnType<typeof healthz>>
 >;
-export type HealthzQueryError = unknown;
+export type HealthzQueryError = ErrorType<unknown>;
 
 export function useHealthz<
   TData = Awaited<ReturnType<typeof healthz>>,
-  TError = unknown,
+  TError = ErrorType<unknown>,
 >(
   options: {
     query: Partial<
@@ -679,7 +808,7 @@ export function useHealthz<
 };
 export function useHealthz<
   TData = Awaited<ReturnType<typeof healthz>>,
-  TError = unknown,
+  TError = ErrorType<unknown>,
 >(
   options?: {
     query?: Partial<
@@ -701,7 +830,7 @@ export function useHealthz<
 };
 export function useHealthz<
   TData = Awaited<ReturnType<typeof healthz>>,
-  TError = unknown,
+  TError = ErrorType<unknown>,
 >(
   options?: {
     query?: Partial<
@@ -719,7 +848,7 @@ export function useHealthz<
 
 export function useHealthz<
   TData = Awaited<ReturnType<typeof healthz>>,
-  TError = unknown,
+  TError = ErrorType<unknown>,
 >(
   options?: {
     query?: Partial<
@@ -741,40 +870,18 @@ export function useHealthz<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type readyzResponse200 = {
-  data: Readyz200;
-  status: 200;
-};
-
-export type readyzResponse503 = {
-  data: Readyz503;
-  status: 503;
-};
-
-export type readyzResponseSuccess = readyzResponse200 & {
-  headers: Headers;
-};
-export type readyzResponseError = readyzResponse503 & {
-  headers: Headers;
-};
-
-export type readyzResponse = readyzResponseSuccess | readyzResponseError;
-
-export const getReadyzUrl = () => {
-  return `/readyz`;
-};
-
 /**
  * Returns 200 if the service is ready to accept traffic. Use for Kubernetes readiness probes.
  * @summary Readiness check
  */
-export const readyz = async (
-  options?: RequestInit,
-): Promise<readyzResponse> => {
-  return customInstance<readyzResponse>(getReadyzUrl(), {
-    ...options,
-    method: "GET",
-  });
+export const readyz = (
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<Readyz200>(
+    { url: `/readyz`, method: "GET", signal },
+    options,
+  );
 };
 
 export const getReadyzQueryKey = () => {
@@ -783,7 +890,7 @@ export const getReadyzQueryKey = () => {
 
 export const getReadyzQueryOptions = <
   TData = Awaited<ReturnType<typeof readyz>>,
-  TError = Readyz503,
+  TError = ErrorType<Readyz503>,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof readyz>>, TError, TData>
@@ -796,7 +903,7 @@ export const getReadyzQueryOptions = <
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof readyz>>> = ({
     signal,
-  }) => readyz({ signal, ...requestOptions });
+  }) => readyz(requestOptions, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof readyz>>,
@@ -806,11 +913,11 @@ export const getReadyzQueryOptions = <
 };
 
 export type ReadyzQueryResult = NonNullable<Awaited<ReturnType<typeof readyz>>>;
-export type ReadyzQueryError = Readyz503;
+export type ReadyzQueryError = ErrorType<Readyz503>;
 
 export function useReadyz<
   TData = Awaited<ReturnType<typeof readyz>>,
-  TError = Readyz503,
+  TError = ErrorType<Readyz503>,
 >(
   options: {
     query: Partial<
@@ -832,7 +939,7 @@ export function useReadyz<
 };
 export function useReadyz<
   TData = Awaited<ReturnType<typeof readyz>>,
-  TError = Readyz503,
+  TError = ErrorType<Readyz503>,
 >(
   options?: {
     query?: Partial<
@@ -854,7 +961,7 @@ export function useReadyz<
 };
 export function useReadyz<
   TData = Awaited<ReturnType<typeof readyz>>,
-  TError = Readyz503,
+  TError = ErrorType<Readyz503>,
 >(
   options?: {
     query?: Partial<
@@ -872,7 +979,7 @@ export function useReadyz<
 
 export function useReadyz<
   TData = Awaited<ReturnType<typeof readyz>>,
-  TError = Readyz503,
+  TError = ErrorType<Readyz503>,
 >(
   options?: {
     query?: Partial<
@@ -894,67 +1001,41 @@ export function useReadyz<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type registerResponse201 = {
-  data: Register201;
-  status: 201;
-};
-
-export type registerResponse400 = {
-  data: BadRequestResponse;
-  status: 400;
-};
-
-export type registerResponse409 = {
-  data: ErrorResponse;
-  status: 409;
-};
-
-export type registerResponseSuccess = registerResponse201 & {
-  headers: Headers;
-};
-export type registerResponseError = (
-  | registerResponse400
-  | registerResponse409
-) & {
-  headers: Headers;
-};
-
-export type registerResponse = registerResponseSuccess | registerResponseError;
-
-export const getRegisterUrl = () => {
-  return `/auth/register`;
-};
-
 /**
  * @summary Register a new user
  */
-export const register = async (
-  registerRequest: RegisterRequest,
-  options?: RequestInit,
-): Promise<registerResponse> => {
-  return customInstance<registerResponse>(getRegisterUrl(), {
-    ...options,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(registerRequest),
-  });
+export const register = (
+  registerRequest: BodyType<RegisterRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<Register201>(
+    {
+      url: `/auth/register`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: registerRequest,
+      signal,
+    },
+    options,
+  );
 };
 
 export const getRegisterMutationOptions = <
-  TError = BadRequestResponse | ErrorResponse,
+  TError = ErrorType<BadRequestResponse | ErrorResponse>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof register>>,
     TError,
-    { data: RegisterRequest },
+    { data: BodyType<RegisterRequest> },
     TContext
   >;
   request?: SecondParameter<typeof customInstance>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof register>>,
   TError,
-  { data: RegisterRequest },
+  { data: BodyType<RegisterRequest> },
   TContext
 > => {
   const mutationKey = ["register"];
@@ -968,7 +1049,7 @@ export const getRegisterMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof register>>,
-    { data: RegisterRequest }
+    { data: BodyType<RegisterRequest> }
   > = (props) => {
     const { data } = props ?? {};
 
@@ -981,21 +1062,23 @@ export const getRegisterMutationOptions = <
 export type RegisterMutationResult = NonNullable<
   Awaited<ReturnType<typeof register>>
 >;
-export type RegisterMutationBody = RegisterRequest;
-export type RegisterMutationError = BadRequestResponse | ErrorResponse;
+export type RegisterMutationBody = BodyType<RegisterRequest>;
+export type RegisterMutationError = ErrorType<
+  BadRequestResponse | ErrorResponse
+>;
 
 /**
  * @summary Register a new user
  */
 export const useRegister = <
-  TError = BadRequestResponse | ErrorResponse,
+  TError = ErrorType<BadRequestResponse | ErrorResponse>,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof register>>,
       TError,
-      { data: RegisterRequest },
+      { data: BodyType<RegisterRequest> },
       TContext
     >;
     request?: SecondParameter<typeof customInstance>;
@@ -1004,65 +1087,47 @@ export const useRegister = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof register>>,
   TError,
-  { data: RegisterRequest },
+  { data: BodyType<RegisterRequest> },
   TContext
 > => {
   return useMutation(getRegisterMutationOptions(options), queryClient);
 };
 
-export type loginResponse200 = {
-  data: Login200;
-  status: 200;
-};
-
-export type loginResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type loginResponseSuccess = loginResponse200 & {
-  headers: Headers;
-};
-export type loginResponseError = loginResponse401 & {
-  headers: Headers;
-};
-
-export type loginResponse = loginResponseSuccess | loginResponseError;
-
-export const getLoginUrl = () => {
-  return `/auth/login`;
-};
-
 /**
  * @summary Login user
  */
-export const login = async (
-  loginRequest: LoginRequest,
-  options?: RequestInit,
-): Promise<loginResponse> => {
-  return customInstance<loginResponse>(getLoginUrl(), {
-    ...options,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(loginRequest),
-  });
+export const login = (
+  loginRequest: BodyType<LoginRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<Login200>(
+    {
+      url: `/auth/login`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: loginRequest,
+      signal,
+    },
+    options,
+  );
 };
 
 export const getLoginMutationOptions = <
-  TError = UnauthorizedResponse,
+  TError = ErrorType<UnauthorizedResponse>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof login>>,
     TError,
-    { data: LoginRequest },
+    { data: BodyType<LoginRequest> },
     TContext
   >;
   request?: SecondParameter<typeof customInstance>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof login>>,
   TError,
-  { data: LoginRequest },
+  { data: BodyType<LoginRequest> },
   TContext
 > => {
   const mutationKey = ["login"];
@@ -1076,7 +1141,7 @@ export const getLoginMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof login>>,
-    { data: LoginRequest }
+    { data: BodyType<LoginRequest> }
   > = (props) => {
     const { data } = props ?? {};
 
@@ -1089,18 +1154,21 @@ export const getLoginMutationOptions = <
 export type LoginMutationResult = NonNullable<
   Awaited<ReturnType<typeof login>>
 >;
-export type LoginMutationBody = LoginRequest;
-export type LoginMutationError = UnauthorizedResponse;
+export type LoginMutationBody = BodyType<LoginRequest>;
+export type LoginMutationError = ErrorType<UnauthorizedResponse>;
 
 /**
  * @summary Login user
  */
-export const useLogin = <TError = UnauthorizedResponse, TContext = unknown>(
+export const useLogin = <
+  TError = ErrorType<UnauthorizedResponse>,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof login>>,
       TError,
-      { data: LoginRequest },
+      { data: BodyType<LoginRequest> },
       TContext
     >;
     request?: SecondParameter<typeof customInstance>;
@@ -1109,49 +1177,27 @@ export const useLogin = <TError = UnauthorizedResponse, TContext = unknown>(
 ): UseMutationResult<
   Awaited<ReturnType<typeof login>>,
   TError,
-  { data: LoginRequest },
+  { data: BodyType<LoginRequest> },
   TContext
 > => {
   return useMutation(getLoginMutationOptions(options), queryClient);
 };
 
-export type logoutResponse200 = {
-  data: void;
-  status: 200;
-};
-
-export type logoutResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type logoutResponseSuccess = logoutResponse200 & {
-  headers: Headers;
-};
-export type logoutResponseError = logoutResponse401 & {
-  headers: Headers;
-};
-
-export type logoutResponse = logoutResponseSuccess | logoutResponseError;
-
-export const getLogoutUrl = () => {
-  return `/auth/logout`;
-};
-
 /**
  * @summary Logout user
  */
-export const logout = async (
-  options?: RequestInit,
-): Promise<logoutResponse> => {
-  return customInstance<logoutResponse>(getLogoutUrl(), {
-    ...options,
-    method: "POST",
-  });
+export const logout = (
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<void>(
+    { url: `/auth/logout`, method: "POST", signal },
+    options,
+  );
 };
 
 export const getLogoutMutationOptions = <
-  TError = UnauthorizedResponse,
+  TError = ErrorType<UnauthorizedResponse>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -1190,12 +1236,15 @@ export type LogoutMutationResult = NonNullable<
   Awaited<ReturnType<typeof logout>>
 >;
 
-export type LogoutMutationError = UnauthorizedResponse;
+export type LogoutMutationError = ErrorType<UnauthorizedResponse>;
 
 /**
  * @summary Logout user
  */
-export const useLogout = <TError = UnauthorizedResponse, TContext = unknown>(
+export const useLogout = <
+  TError = ErrorType<UnauthorizedResponse>,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof logout>>,
@@ -1215,37 +1264,17 @@ export const useLogout = <TError = UnauthorizedResponse, TContext = unknown>(
   return useMutation(getLogoutMutationOptions(options), queryClient);
 };
 
-export type meResponse200 = {
-  data: Me200;
-  status: 200;
-};
-
-export type meResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type meResponseSuccess = meResponse200 & {
-  headers: Headers;
-};
-export type meResponseError = meResponse401 & {
-  headers: Headers;
-};
-
-export type meResponse = meResponseSuccess | meResponseError;
-
-export const getMeUrl = () => {
-  return `/auth/me`;
-};
-
 /**
  * @summary Get current user
  */
-export const me = async (options?: RequestInit): Promise<meResponse> => {
-  return customInstance<meResponse>(getMeUrl(), {
-    ...options,
-    method: "GET",
-  });
+export const me = (
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<Me200>(
+    { url: `/auth/me`, method: "GET", signal },
+    options,
+  );
 };
 
 export const getMeQueryKey = () => {
@@ -1254,7 +1283,7 @@ export const getMeQueryKey = () => {
 
 export const getMeQueryOptions = <
   TData = Awaited<ReturnType<typeof me>>,
-  TError = UnauthorizedResponse,
+  TError = ErrorType<UnauthorizedResponse>,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof me>>, TError, TData>
@@ -1266,7 +1295,7 @@ export const getMeQueryOptions = <
   const queryKey = queryOptions?.queryKey ?? getMeQueryKey();
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof me>>> = ({ signal }) =>
-    me({ signal, ...requestOptions });
+    me(requestOptions, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof me>>,
@@ -1276,11 +1305,11 @@ export const getMeQueryOptions = <
 };
 
 export type MeQueryResult = NonNullable<Awaited<ReturnType<typeof me>>>;
-export type MeQueryError = UnauthorizedResponse;
+export type MeQueryError = ErrorType<UnauthorizedResponse>;
 
 export function useMe<
   TData = Awaited<ReturnType<typeof me>>,
-  TError = UnauthorizedResponse,
+  TError = ErrorType<UnauthorizedResponse>,
 >(
   options: {
     query: Partial<
@@ -1302,7 +1331,7 @@ export function useMe<
 };
 export function useMe<
   TData = Awaited<ReturnType<typeof me>>,
-  TError = UnauthorizedResponse,
+  TError = ErrorType<UnauthorizedResponse>,
 >(
   options?: {
     query?: Partial<
@@ -1324,7 +1353,7 @@ export function useMe<
 };
 export function useMe<
   TData = Awaited<ReturnType<typeof me>>,
-  TError = UnauthorizedResponse,
+  TError = ErrorType<UnauthorizedResponse>,
 >(
   options?: {
     query?: Partial<
@@ -1342,7 +1371,7 @@ export function useMe<
 
 export function useMe<
   TData = Awaited<ReturnType<typeof me>>,
-  TError = UnauthorizedResponse,
+  TError = ErrorType<UnauthorizedResponse>,
 >(
   options?: {
     query?: Partial<
@@ -1364,59 +1393,41 @@ export function useMe<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type refreshResponse200 = {
-  data: Refresh200;
-  status: 200;
-};
-
-export type refreshResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type refreshResponseSuccess = refreshResponse200 & {
-  headers: Headers;
-};
-export type refreshResponseError = refreshResponse401 & {
-  headers: Headers;
-};
-
-export type refreshResponse = refreshResponseSuccess | refreshResponseError;
-
-export const getRefreshUrl = () => {
-  return `/auth/refresh`;
-};
-
 /**
  * @summary Refresh access token
  */
-export const refresh = async (
-  refreshRequest?: RefreshRequest,
-  options?: RequestInit,
-): Promise<refreshResponse> => {
-  return customInstance<refreshResponse>(getRefreshUrl(), {
-    ...options,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(refreshRequest),
-  });
+export const refresh = (
+  refreshRequest?: BodyType<RefreshRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<Refresh200>(
+    {
+      url: `/auth/refresh`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: refreshRequest,
+      signal,
+    },
+    options,
+  );
 };
 
 export const getRefreshMutationOptions = <
-  TError = UnauthorizedResponse,
+  TError = ErrorType<UnauthorizedResponse>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof refresh>>,
     TError,
-    { data?: RefreshRequest },
+    { data?: BodyType<RefreshRequest> },
     TContext
   >;
   request?: SecondParameter<typeof customInstance>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof refresh>>,
   TError,
-  { data?: RefreshRequest },
+  { data?: BodyType<RefreshRequest> },
   TContext
 > => {
   const mutationKey = ["refresh"];
@@ -1430,7 +1441,7 @@ export const getRefreshMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof refresh>>,
-    { data?: RefreshRequest }
+    { data?: BodyType<RefreshRequest> }
   > = (props) => {
     const { data } = props ?? {};
 
@@ -1443,18 +1454,21 @@ export const getRefreshMutationOptions = <
 export type RefreshMutationResult = NonNullable<
   Awaited<ReturnType<typeof refresh>>
 >;
-export type RefreshMutationBody = RefreshRequest | undefined;
-export type RefreshMutationError = UnauthorizedResponse;
+export type RefreshMutationBody = BodyType<RefreshRequest> | undefined;
+export type RefreshMutationError = ErrorType<UnauthorizedResponse>;
 
 /**
  * @summary Refresh access token
  */
-export const useRefresh = <TError = UnauthorizedResponse, TContext = unknown>(
+export const useRefresh = <
+  TError = ErrorType<UnauthorizedResponse>,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof refresh>>,
       TError,
-      { data?: RefreshRequest },
+      { data?: BodyType<RefreshRequest> },
       TContext
     >;
     request?: SecondParameter<typeof customInstance>;
@@ -1463,48 +1477,24 @@ export const useRefresh = <TError = UnauthorizedResponse, TContext = unknown>(
 ): UseMutationResult<
   Awaited<ReturnType<typeof refresh>>,
   TError,
-  { data?: RefreshRequest },
+  { data?: BodyType<RefreshRequest> },
   TContext
 > => {
   return useMutation(getRefreshMutationOptions(options), queryClient);
-};
-
-export type listUnitsResponse200 = {
-  data: ListUnits200;
-  status: 200;
-};
-
-export type listUnitsResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type listUnitsResponseSuccess = listUnitsResponse200 & {
-  headers: Headers;
-};
-export type listUnitsResponseError = listUnitsResponse500 & {
-  headers: Headers;
-};
-
-export type listUnitsResponse =
-  | listUnitsResponseSuccess
-  | listUnitsResponseError;
-
-export const getListUnitsUrl = () => {
-  return `/units`;
 };
 
 /**
  * Get a list of all organizational units (faculties/departments)
  * @summary List all units
  */
-export const listUnits = async (
-  options?: RequestInit,
-): Promise<listUnitsResponse> => {
-  return customInstance<listUnitsResponse>(getListUnitsUrl(), {
-    ...options,
-    method: "GET",
-  });
+export const listUnits = (
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<ListUnits200>(
+    { url: `/units`, method: "GET", signal },
+    options,
+  );
 };
 
 export const getListUnitsQueryKey = () => {
@@ -1513,7 +1503,7 @@ export const getListUnitsQueryKey = () => {
 
 export const getListUnitsQueryOptions = <
   TData = Awaited<ReturnType<typeof listUnits>>,
-  TError = InternalServerErrorResponse,
+  TError = ErrorType<InternalServerErrorResponse>,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof listUnits>>, TError, TData>
@@ -1526,7 +1516,7 @@ export const getListUnitsQueryOptions = <
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listUnits>>> = ({
     signal,
-  }) => listUnits({ signal, ...requestOptions });
+  }) => listUnits(requestOptions, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof listUnits>>,
@@ -1538,11 +1528,11 @@ export const getListUnitsQueryOptions = <
 export type ListUnitsQueryResult = NonNullable<
   Awaited<ReturnType<typeof listUnits>>
 >;
-export type ListUnitsQueryError = InternalServerErrorResponse;
+export type ListUnitsQueryError = ErrorType<InternalServerErrorResponse>;
 
 export function useListUnits<
   TData = Awaited<ReturnType<typeof listUnits>>,
-  TError = InternalServerErrorResponse,
+  TError = ErrorType<InternalServerErrorResponse>,
 >(
   options: {
     query: Partial<
@@ -1564,7 +1554,7 @@ export function useListUnits<
 };
 export function useListUnits<
   TData = Awaited<ReturnType<typeof listUnits>>,
-  TError = InternalServerErrorResponse,
+  TError = ErrorType<InternalServerErrorResponse>,
 >(
   options?: {
     query?: Partial<
@@ -1586,7 +1576,7 @@ export function useListUnits<
 };
 export function useListUnits<
   TData = Awaited<ReturnType<typeof listUnits>>,
-  TError = InternalServerErrorResponse,
+  TError = ErrorType<InternalServerErrorResponse>,
 >(
   options?: {
     query?: Partial<
@@ -1604,7 +1594,7 @@ export function useListUnits<
 
 export function useListUnits<
   TData = Awaited<ReturnType<typeof listUnits>>,
-  TError = InternalServerErrorResponse,
+  TError = ErrorType<InternalServerErrorResponse>,
 >(
   options?: {
     query?: Partial<
@@ -1626,63 +1616,19 @@ export function useListUnits<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type listActivitiesResponse200 = {
-  data: ListActivities200;
-  status: 200;
-};
-
-export type listActivitiesResponse400 = {
-  data: BadRequestResponse;
-  status: 400;
-};
-
-export type listActivitiesResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type listActivitiesResponseSuccess = listActivitiesResponse200 & {
-  headers: Headers;
-};
-export type listActivitiesResponseError = (
-  | listActivitiesResponse400
-  | listActivitiesResponse500
-) & {
-  headers: Headers;
-};
-
-export type listActivitiesResponse =
-  | listActivitiesResponseSuccess
-  | listActivitiesResponseError;
-
-export const getListActivitiesUrl = (params?: ListActivitiesParams) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/activities?${stringifiedParams}`
-    : `/activities`;
-};
-
 /**
  * Get a paginated list of active activities
  * @summary List activities
  */
-export const listActivities = async (
+export const listActivities = (
   params?: ListActivitiesParams,
-  options?: RequestInit,
-): Promise<listActivitiesResponse> => {
-  return customInstance<listActivitiesResponse>(getListActivitiesUrl(params), {
-    ...options,
-    method: "GET",
-  });
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<ListActivities200>(
+    { url: `/activities`, method: "GET", params, signal },
+    options,
+  );
 };
 
 export const getListActivitiesQueryKey = (params?: ListActivitiesParams) => {
@@ -1691,7 +1637,7 @@ export const getListActivitiesQueryKey = (params?: ListActivitiesParams) => {
 
 export const getListActivitiesQueryOptions = <
   TData = Awaited<ReturnType<typeof listActivities>>,
-  TError = BadRequestResponse | InternalServerErrorResponse,
+  TError = ErrorType<BadRequestResponse | InternalServerErrorResponse>,
 >(
   params?: ListActivitiesParams,
   options?: {
@@ -1707,7 +1653,7 @@ export const getListActivitiesQueryOptions = <
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listActivities>>> = ({
     signal,
-  }) => listActivities(params, { signal, ...requestOptions });
+  }) => listActivities(params, requestOptions, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof listActivities>>,
@@ -1719,13 +1665,13 @@ export const getListActivitiesQueryOptions = <
 export type ListActivitiesQueryResult = NonNullable<
   Awaited<ReturnType<typeof listActivities>>
 >;
-export type ListActivitiesQueryError =
-  | BadRequestResponse
-  | InternalServerErrorResponse;
+export type ListActivitiesQueryError = ErrorType<
+  BadRequestResponse | InternalServerErrorResponse
+>;
 
 export function useListActivities<
   TData = Awaited<ReturnType<typeof listActivities>>,
-  TError = BadRequestResponse | InternalServerErrorResponse,
+  TError = ErrorType<BadRequestResponse | InternalServerErrorResponse>,
 >(
   params: undefined | ListActivitiesParams,
   options: {
@@ -1748,7 +1694,7 @@ export function useListActivities<
 };
 export function useListActivities<
   TData = Awaited<ReturnType<typeof listActivities>>,
-  TError = BadRequestResponse | InternalServerErrorResponse,
+  TError = ErrorType<BadRequestResponse | InternalServerErrorResponse>,
 >(
   params?: ListActivitiesParams,
   options?: {
@@ -1771,7 +1717,7 @@ export function useListActivities<
 };
 export function useListActivities<
   TData = Awaited<ReturnType<typeof listActivities>>,
-  TError = BadRequestResponse | InternalServerErrorResponse,
+  TError = ErrorType<BadRequestResponse | InternalServerErrorResponse>,
 >(
   params?: ListActivitiesParams,
   options?: {
@@ -1790,7 +1736,7 @@ export function useListActivities<
 
 export function useListActivities<
   TData = Awaited<ReturnType<typeof listActivities>>,
-  TError = BadRequestResponse | InternalServerErrorResponse,
+  TError = ErrorType<BadRequestResponse | InternalServerErrorResponse>,
 >(
   params?: ListActivitiesParams,
   options?: {
@@ -1813,53 +1759,18 @@ export function useListActivities<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type getActivityDetailResponse200 = {
-  data: GetActivityDetail200;
-  status: 200;
-};
-
-export type getActivityDetailResponse404 = {
-  data: NotFoundResponse;
-  status: 404;
-};
-
-export type getActivityDetailResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type getActivityDetailResponseSuccess = getActivityDetailResponse200 & {
-  headers: Headers;
-};
-export type getActivityDetailResponseError = (
-  | getActivityDetailResponse404
-  | getActivityDetailResponse500
-) & {
-  headers: Headers;
-};
-
-export type getActivityDetailResponse =
-  | getActivityDetailResponseSuccess
-  | getActivityDetailResponseError;
-
-export const getGetActivityDetailUrl = (slug: string) => {
-  return `/activities/${slug}`;
-};
-
 /**
  * Get detailed information about an activity by slug
  * @summary Get activity detail
  */
-export const getActivityDetail = async (
+export const getActivityDetail = (
   slug: string,
-  options?: RequestInit,
-): Promise<getActivityDetailResponse> => {
-  return customInstance<getActivityDetailResponse>(
-    getGetActivityDetailUrl(slug),
-    {
-      ...options,
-      method: "GET",
-    },
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<GetActivityDetail200>(
+    { url: `/activities/${slug}`, method: "GET", signal },
+    options,
   );
 };
 
@@ -1869,7 +1780,7 @@ export const getGetActivityDetailQueryKey = (slug: string) => {
 
 export const getGetActivityDetailQueryOptions = <
   TData = Awaited<ReturnType<typeof getActivityDetail>>,
-  TError = NotFoundResponse | InternalServerErrorResponse,
+  TError = ErrorType<NotFoundResponse | InternalServerErrorResponse>,
 >(
   slug: string,
   options?: {
@@ -1889,7 +1800,7 @@ export const getGetActivityDetailQueryOptions = <
 
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof getActivityDetail>>
-  > = ({ signal }) => getActivityDetail(slug, { signal, ...requestOptions });
+  > = ({ signal }) => getActivityDetail(slug, requestOptions, signal);
 
   return {
     queryKey,
@@ -1906,13 +1817,13 @@ export const getGetActivityDetailQueryOptions = <
 export type GetActivityDetailQueryResult = NonNullable<
   Awaited<ReturnType<typeof getActivityDetail>>
 >;
-export type GetActivityDetailQueryError =
-  | NotFoundResponse
-  | InternalServerErrorResponse;
+export type GetActivityDetailQueryError = ErrorType<
+  NotFoundResponse | InternalServerErrorResponse
+>;
 
 export function useGetActivityDetail<
   TData = Awaited<ReturnType<typeof getActivityDetail>>,
-  TError = NotFoundResponse | InternalServerErrorResponse,
+  TError = ErrorType<NotFoundResponse | InternalServerErrorResponse>,
 >(
   slug: string,
   options: {
@@ -1939,7 +1850,7 @@ export function useGetActivityDetail<
 };
 export function useGetActivityDetail<
   TData = Awaited<ReturnType<typeof getActivityDetail>>,
-  TError = NotFoundResponse | InternalServerErrorResponse,
+  TError = ErrorType<NotFoundResponse | InternalServerErrorResponse>,
 >(
   slug: string,
   options?: {
@@ -1966,7 +1877,7 @@ export function useGetActivityDetail<
 };
 export function useGetActivityDetail<
   TData = Awaited<ReturnType<typeof getActivityDetail>>,
-  TError = NotFoundResponse | InternalServerErrorResponse,
+  TError = ErrorType<NotFoundResponse | InternalServerErrorResponse>,
 >(
   slug: string,
   options?: {
@@ -1989,7 +1900,7 @@ export function useGetActivityDetail<
 
 export function useGetActivityDetail<
   TData = Awaited<ReturnType<typeof getActivityDetail>>,
-  TError = NotFoundResponse | InternalServerErrorResponse,
+  TError = ErrorType<NotFoundResponse | InternalServerErrorResponse>,
 >(
   slug: string,
   options?: {
@@ -2016,49 +1927,17 @@ export function useGetActivityDetail<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type getProfileResponse200 = {
-  data: GetProfile200;
-  status: 200;
-};
-
-export type getProfileResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type getProfileResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type getProfileResponseSuccess = getProfileResponse200 & {
-  headers: Headers;
-};
-export type getProfileResponseError = (
-  | getProfileResponse401
-  | getProfileResponse500
-) & {
-  headers: Headers;
-};
-
-export type getProfileResponse =
-  | getProfileResponseSuccess
-  | getProfileResponseError;
-
-export const getGetProfileUrl = () => {
-  return `/profile`;
-};
-
 /**
  * @summary Get current user profile
  */
-export const getProfile = async (
-  options?: RequestInit,
-): Promise<getProfileResponse> => {
-  return customInstance<getProfileResponse>(getGetProfileUrl(), {
-    ...options,
-    method: "GET",
-  });
+export const getProfile = (
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<GetProfile200>(
+    { url: `/profile`, method: "GET", signal },
+    options,
+  );
 };
 
 export const getGetProfileQueryKey = () => {
@@ -2067,7 +1946,7 @@ export const getGetProfileQueryKey = () => {
 
 export const getGetProfileQueryOptions = <
   TData = Awaited<ReturnType<typeof getProfile>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getProfile>>, TError, TData>
@@ -2080,7 +1959,7 @@ export const getGetProfileQueryOptions = <
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getProfile>>> = ({
     signal,
-  }) => getProfile({ signal, ...requestOptions });
+  }) => getProfile(requestOptions, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getProfile>>,
@@ -2092,13 +1971,13 @@ export const getGetProfileQueryOptions = <
 export type GetProfileQueryResult = NonNullable<
   Awaited<ReturnType<typeof getProfile>>
 >;
-export type GetProfileQueryError =
-  | UnauthorizedResponse
-  | InternalServerErrorResponse;
+export type GetProfileQueryError = ErrorType<
+  UnauthorizedResponse | InternalServerErrorResponse
+>;
 
 export function useGetProfile<
   TData = Awaited<ReturnType<typeof getProfile>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   options: {
     query: Partial<
@@ -2120,7 +1999,7 @@ export function useGetProfile<
 };
 export function useGetProfile<
   TData = Awaited<ReturnType<typeof getProfile>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   options?: {
     query?: Partial<
@@ -2142,7 +2021,7 @@ export function useGetProfile<
 };
 export function useGetProfile<
   TData = Awaited<ReturnType<typeof getProfile>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   options?: {
     query?: Partial<
@@ -2160,7 +2039,7 @@ export function useGetProfile<
 
 export function useGetProfile<
   TData = Awaited<ReturnType<typeof getProfile>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   options?: {
     query?: Partial<
@@ -2182,78 +2061,43 @@ export function useGetProfile<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type updateProfileResponse200 = {
-  data: UpdateProfile200;
-  status: 200;
-};
-
-export type updateProfileResponse400 = {
-  data: BadRequestResponse;
-  status: 400;
-};
-
-export type updateProfileResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type updateProfileResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type updateProfileResponseSuccess = updateProfileResponse200 & {
-  headers: Headers;
-};
-export type updateProfileResponseError = (
-  | updateProfileResponse400
-  | updateProfileResponse401
-  | updateProfileResponse500
-) & {
-  headers: Headers;
-};
-
-export type updateProfileResponse =
-  | updateProfileResponseSuccess
-  | updateProfileResponseError;
-
-export const getUpdateProfileUrl = () => {
-  return `/profile`;
-};
-
 /**
  * @summary Update current user profile
  */
-export const updateProfile = async (
-  updateProfileRequest: UpdateProfileRequest,
-  options?: RequestInit,
-): Promise<updateProfileResponse> => {
-  return customInstance<updateProfileResponse>(getUpdateProfileUrl(), {
-    ...options,
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(updateProfileRequest),
-  });
+export const updateProfile = (
+  updateProfileRequest: BodyType<UpdateProfileRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<UpdateProfile200>(
+    {
+      url: `/profile`,
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      data: updateProfileRequest,
+      signal,
+    },
+    options,
+  );
 };
 
 export const getUpdateProfileMutationOptions = <
-  TError =
-    | BadRequestResponse
-    | UnauthorizedResponse
-    | InternalServerErrorResponse,
+  TError = ErrorType<
+    BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateProfile>>,
     TError,
-    { data: UpdateProfileRequest },
+    { data: BodyType<UpdateProfileRequest> },
     TContext
   >;
   request?: SecondParameter<typeof customInstance>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateProfile>>,
   TError,
-  { data: UpdateProfileRequest },
+  { data: BodyType<UpdateProfileRequest> },
   TContext
 > => {
   const mutationKey = ["updateProfile"];
@@ -2267,7 +2111,7 @@ export const getUpdateProfileMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateProfile>>,
-    { data: UpdateProfileRequest }
+    { data: BodyType<UpdateProfileRequest> }
   > = (props) => {
     const { data } = props ?? {};
 
@@ -2280,27 +2124,25 @@ export const getUpdateProfileMutationOptions = <
 export type UpdateProfileMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateProfile>>
 >;
-export type UpdateProfileMutationBody = UpdateProfileRequest;
-export type UpdateProfileMutationError =
-  | BadRequestResponse
-  | UnauthorizedResponse
-  | InternalServerErrorResponse;
+export type UpdateProfileMutationBody = BodyType<UpdateProfileRequest>;
+export type UpdateProfileMutationError = ErrorType<
+  BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+>;
 
 /**
  * @summary Update current user profile
  */
 export const useUpdateProfile = <
-  TError =
-    | BadRequestResponse
-    | UnauthorizedResponse
-    | InternalServerErrorResponse,
+  TError = ErrorType<
+    BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateProfile>>,
       TError,
-      { data: UpdateProfileRequest },
+      { data: BodyType<UpdateProfileRequest> },
       TContext
     >;
     request?: SecondParameter<typeof customInstance>;
@@ -2309,94 +2151,56 @@ export const useUpdateProfile = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof updateProfile>>,
   TError,
-  { data: UpdateProfileRequest },
+  { data: BodyType<UpdateProfileRequest> },
   TContext
 > => {
   return useMutation(getUpdateProfileMutationOptions(options), queryClient);
 };
 
-export type uploadMediaResponse200 = {
-  data: UploadMedia200;
-  status: 200;
-};
-
-export type uploadMediaResponse400 = {
-  data: BadRequestResponse;
-  status: 400;
-};
-
-export type uploadMediaResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type uploadMediaResponse413 = {
-  data: ErrorResponse;
-  status: 413;
-};
-
-export type uploadMediaResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type uploadMediaResponseSuccess = uploadMediaResponse200 & {
-  headers: Headers;
-};
-export type uploadMediaResponseError = (
-  | uploadMediaResponse400
-  | uploadMediaResponse401
-  | uploadMediaResponse413
-  | uploadMediaResponse500
-) & {
-  headers: Headers;
-};
-
-export type uploadMediaResponse =
-  | uploadMediaResponseSuccess
-  | uploadMediaResponseError;
-
-export const getUploadMediaUrl = () => {
-  return `/media/upload`;
-};
-
 /**
  * @summary Upload media file
  */
-export const uploadMedia = async (
-  uploadMediaBody: UploadMediaBody,
-  options?: RequestInit,
-): Promise<uploadMediaResponse> => {
+export const uploadMedia = (
+  uploadMediaBody: BodyType<UploadMediaBody>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
   const formData = new FormData();
   formData.append(`file`, uploadMediaBody.file);
   formData.append(`type`, uploadMediaBody.type);
 
-  return customInstance<uploadMediaResponse>(getUploadMediaUrl(), {
-    ...options,
-    method: "POST",
-    body: formData,
-  });
+  return customInstance<UploadMedia200>(
+    {
+      url: `/media/upload`,
+      method: "POST",
+      headers: { "Content-Type": "multipart/form-data" },
+      data: formData,
+      signal,
+    },
+    options,
+  );
 };
 
 export const getUploadMediaMutationOptions = <
-  TError =
+  TError = ErrorType<
     | BadRequestResponse
     | UnauthorizedResponse
     | ErrorResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof uploadMedia>>,
     TError,
-    { data: UploadMediaBody },
+    { data: BodyType<UploadMediaBody> },
     TContext
   >;
   request?: SecondParameter<typeof customInstance>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof uploadMedia>>,
   TError,
-  { data: UploadMediaBody },
+  { data: BodyType<UploadMediaBody> },
   TContext
 > => {
   const mutationKey = ["uploadMedia"];
@@ -2410,7 +2214,7 @@ export const getUploadMediaMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof uploadMedia>>,
-    { data: UploadMediaBody }
+    { data: BodyType<UploadMediaBody> }
   > = (props) => {
     const { data } = props ?? {};
 
@@ -2423,29 +2227,31 @@ export const getUploadMediaMutationOptions = <
 export type UploadMediaMutationResult = NonNullable<
   Awaited<ReturnType<typeof uploadMedia>>
 >;
-export type UploadMediaMutationBody = UploadMediaBody;
-export type UploadMediaMutationError =
+export type UploadMediaMutationBody = BodyType<UploadMediaBody>;
+export type UploadMediaMutationError = ErrorType<
   | BadRequestResponse
   | UnauthorizedResponse
   | ErrorResponse
-  | InternalServerErrorResponse;
+  | InternalServerErrorResponse
+>;
 
 /**
  * @summary Upload media file
  */
 export const useUploadMedia = <
-  TError =
+  TError = ErrorType<
     | BadRequestResponse
     | UnauthorizedResponse
     | ErrorResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof uploadMedia>>,
       TError,
-      { data: UploadMediaBody },
+      { data: BodyType<UploadMediaBody> },
       TContext
     >;
     request?: SecondParameter<typeof customInstance>;
@@ -2454,68 +2260,24 @@ export const useUploadMedia = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof uploadMedia>>,
   TError,
-  { data: UploadMediaBody },
+  { data: BodyType<UploadMediaBody> },
   TContext
 > => {
   return useMutation(getUploadMediaMutationOptions(options), queryClient);
 };
 
-export type listEvidencesResponse200 = {
-  data: ListEvidences200;
-  status: 200;
-};
-
-export type listEvidencesResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type listEvidencesResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type listEvidencesResponseSuccess = listEvidencesResponse200 & {
-  headers: Headers;
-};
-export type listEvidencesResponseError = (
-  | listEvidencesResponse401
-  | listEvidencesResponse500
-) & {
-  headers: Headers;
-};
-
-export type listEvidencesResponse =
-  | listEvidencesResponseSuccess
-  | listEvidencesResponseError;
-
-export const getListEvidencesUrl = (params?: ListEvidencesParams) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/evidences?${stringifiedParams}`
-    : `/evidences`;
-};
-
 /**
  * @summary List evidences for current user
  */
-export const listEvidences = async (
+export const listEvidences = (
   params?: ListEvidencesParams,
-  options?: RequestInit,
-): Promise<listEvidencesResponse> => {
-  return customInstance<listEvidencesResponse>(getListEvidencesUrl(params), {
-    ...options,
-    method: "GET",
-  });
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<ListEvidences200>(
+    { url: `/evidences`, method: "GET", params, signal },
+    options,
+  );
 };
 
 export const getListEvidencesQueryKey = (params?: ListEvidencesParams) => {
@@ -2524,7 +2286,7 @@ export const getListEvidencesQueryKey = (params?: ListEvidencesParams) => {
 
 export const getListEvidencesQueryOptions = <
   TData = Awaited<ReturnType<typeof listEvidences>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   params?: ListEvidencesParams,
   options?: {
@@ -2540,7 +2302,7 @@ export const getListEvidencesQueryOptions = <
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listEvidences>>> = ({
     signal,
-  }) => listEvidences(params, { signal, ...requestOptions });
+  }) => listEvidences(params, requestOptions, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof listEvidences>>,
@@ -2552,13 +2314,13 @@ export const getListEvidencesQueryOptions = <
 export type ListEvidencesQueryResult = NonNullable<
   Awaited<ReturnType<typeof listEvidences>>
 >;
-export type ListEvidencesQueryError =
-  | UnauthorizedResponse
-  | InternalServerErrorResponse;
+export type ListEvidencesQueryError = ErrorType<
+  UnauthorizedResponse | InternalServerErrorResponse
+>;
 
 export function useListEvidences<
   TData = Awaited<ReturnType<typeof listEvidences>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   params: undefined | ListEvidencesParams,
   options: {
@@ -2581,7 +2343,7 @@ export function useListEvidences<
 };
 export function useListEvidences<
   TData = Awaited<ReturnType<typeof listEvidences>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   params?: ListEvidencesParams,
   options?: {
@@ -2604,7 +2366,7 @@ export function useListEvidences<
 };
 export function useListEvidences<
   TData = Awaited<ReturnType<typeof listEvidences>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   params?: ListEvidencesParams,
   options?: {
@@ -2623,7 +2385,7 @@ export function useListEvidences<
 
 export function useListEvidences<
   TData = Awaited<ReturnType<typeof listEvidences>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   params?: ListEvidencesParams,
   options?: {
@@ -2646,78 +2408,43 @@ export function useListEvidences<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type createEvidenceResponse201 = {
-  data: CreateEvidence201;
-  status: 201;
-};
-
-export type createEvidenceResponse400 = {
-  data: BadRequestResponse;
-  status: 400;
-};
-
-export type createEvidenceResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type createEvidenceResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type createEvidenceResponseSuccess = createEvidenceResponse201 & {
-  headers: Headers;
-};
-export type createEvidenceResponseError = (
-  | createEvidenceResponse400
-  | createEvidenceResponse401
-  | createEvidenceResponse500
-) & {
-  headers: Headers;
-};
-
-export type createEvidenceResponse =
-  | createEvidenceResponseSuccess
-  | createEvidenceResponseError;
-
-export const getCreateEvidenceUrl = () => {
-  return `/evidences`;
-};
-
 /**
- * @summary Create a new evidence
+ * @summary Submit a new evidence
  */
-export const createEvidence = async (
-  createEvidenceRequest: CreateEvidenceRequest,
-  options?: RequestInit,
-): Promise<createEvidenceResponse> => {
-  return customInstance<createEvidenceResponse>(getCreateEvidenceUrl(), {
-    ...options,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(createEvidenceRequest),
-  });
+export const createEvidence = (
+  createEvidenceRequest: BodyType<CreateEvidenceRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<CreateEvidence201>(
+    {
+      url: `/evidences`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createEvidenceRequest,
+      signal,
+    },
+    options,
+  );
 };
 
 export const getCreateEvidenceMutationOptions = <
-  TError =
-    | BadRequestResponse
-    | UnauthorizedResponse
-    | InternalServerErrorResponse,
+  TError = ErrorType<
+    BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof createEvidence>>,
     TError,
-    { data: CreateEvidenceRequest },
+    { data: BodyType<CreateEvidenceRequest> },
     TContext
   >;
   request?: SecondParameter<typeof customInstance>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof createEvidence>>,
   TError,
-  { data: CreateEvidenceRequest },
+  { data: BodyType<CreateEvidenceRequest> },
   TContext
 > => {
   const mutationKey = ["createEvidence"];
@@ -2731,7 +2458,7 @@ export const getCreateEvidenceMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof createEvidence>>,
-    { data: CreateEvidenceRequest }
+    { data: BodyType<CreateEvidenceRequest> }
   > = (props) => {
     const { data } = props ?? {};
 
@@ -2744,27 +2471,25 @@ export const getCreateEvidenceMutationOptions = <
 export type CreateEvidenceMutationResult = NonNullable<
   Awaited<ReturnType<typeof createEvidence>>
 >;
-export type CreateEvidenceMutationBody = CreateEvidenceRequest;
-export type CreateEvidenceMutationError =
-  | BadRequestResponse
-  | UnauthorizedResponse
-  | InternalServerErrorResponse;
+export type CreateEvidenceMutationBody = BodyType<CreateEvidenceRequest>;
+export type CreateEvidenceMutationError = ErrorType<
+  BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+>;
 
 /**
- * @summary Create a new evidence
+ * @summary Submit a new evidence
  */
 export const useCreateEvidence = <
-  TError =
-    | BadRequestResponse
-    | UnauthorizedResponse
-    | InternalServerErrorResponse,
+  TError = ErrorType<
+    BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof createEvidence>>,
       TError,
-      { data: CreateEvidenceRequest },
+      { data: BodyType<CreateEvidenceRequest> },
       TContext
     >;
     request?: SecondParameter<typeof customInstance>;
@@ -2773,76 +2498,33 @@ export const useCreateEvidence = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof createEvidence>>,
   TError,
-  { data: CreateEvidenceRequest },
+  { data: BodyType<CreateEvidenceRequest> },
   TContext
 > => {
   return useMutation(getCreateEvidenceMutationOptions(options), queryClient);
 };
 
-export type deleteEvidenceResponse200 = {
-  data: void;
-  status: 200;
-};
-
-export type deleteEvidenceResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type deleteEvidenceResponse403 = {
-  data: ForbiddenResponse;
-  status: 403;
-};
-
-export type deleteEvidenceResponse404 = {
-  data: NotFoundResponse;
-  status: 404;
-};
-
-export type deleteEvidenceResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type deleteEvidenceResponseSuccess = deleteEvidenceResponse200 & {
-  headers: Headers;
-};
-export type deleteEvidenceResponseError = (
-  | deleteEvidenceResponse401
-  | deleteEvidenceResponse403
-  | deleteEvidenceResponse404
-  | deleteEvidenceResponse500
-) & {
-  headers: Headers;
-};
-
-export type deleteEvidenceResponse =
-  | deleteEvidenceResponseSuccess
-  | deleteEvidenceResponseError;
-
-export const getDeleteEvidenceUrl = (id: string) => {
-  return `/evidences/${id}`;
-};
-
 /**
  * @summary Delete an evidence
  */
-export const deleteEvidence = async (
+export const deleteEvidence = (
   id: string,
-  options?: RequestInit,
-): Promise<deleteEvidenceResponse> => {
-  return customInstance<deleteEvidenceResponse>(getDeleteEvidenceUrl(id), {
-    ...options,
-    method: "DELETE",
-  });
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<void>(
+    { url: `/evidences/${id}`, method: "DELETE", signal },
+    options,
+  );
 };
 
 export const getDeleteEvidenceMutationOptions = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -2883,21 +2565,23 @@ export type DeleteEvidenceMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteEvidence>>
 >;
 
-export type DeleteEvidenceMutationError =
+export type DeleteEvidenceMutationError = ErrorType<
   | UnauthorizedResponse
   | ForbiddenResponse
   | NotFoundResponse
-  | InternalServerErrorResponse;
+  | InternalServerErrorResponse
+>;
 
 /**
  * @summary Delete an evidence
  */
 export const useDeleteEvidence = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
@@ -2919,49 +2603,17 @@ export const useDeleteEvidence = <
   return useMutation(getDeleteEvidenceMutationOptions(options), queryClient);
 };
 
-export type getProgressResponse200 = {
-  data: GetProgress200;
-  status: 200;
-};
-
-export type getProgressResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type getProgressResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type getProgressResponseSuccess = getProgressResponse200 & {
-  headers: Headers;
-};
-export type getProgressResponseError = (
-  | getProgressResponse401
-  | getProgressResponse500
-) & {
-  headers: Headers;
-};
-
-export type getProgressResponse =
-  | getProgressResponseSuccess
-  | getProgressResponseError;
-
-export const getGetProgressUrl = () => {
-  return `/progress`;
-};
-
 /**
  * @summary Get current user progress matrix
  */
-export const getProgress = async (
-  options?: RequestInit,
-): Promise<getProgressResponse> => {
-  return customInstance<getProgressResponse>(getGetProgressUrl(), {
-    ...options,
-    method: "GET",
-  });
+export const getProgress = (
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<GetProgress200>(
+    { url: `/progress`, method: "GET", signal },
+    options,
+  );
 };
 
 export const getGetProgressQueryKey = () => {
@@ -2970,7 +2622,7 @@ export const getGetProgressQueryKey = () => {
 
 export const getGetProgressQueryOptions = <
   TData = Awaited<ReturnType<typeof getProgress>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getProgress>>, TError, TData>
@@ -2983,7 +2635,7 @@ export const getGetProgressQueryOptions = <
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getProgress>>> = ({
     signal,
-  }) => getProgress({ signal, ...requestOptions });
+  }) => getProgress(requestOptions, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getProgress>>,
@@ -2995,13 +2647,13 @@ export const getGetProgressQueryOptions = <
 export type GetProgressQueryResult = NonNullable<
   Awaited<ReturnType<typeof getProgress>>
 >;
-export type GetProgressQueryError =
-  | UnauthorizedResponse
-  | InternalServerErrorResponse;
+export type GetProgressQueryError = ErrorType<
+  UnauthorizedResponse | InternalServerErrorResponse
+>;
 
 export function useGetProgress<
   TData = Awaited<ReturnType<typeof getProgress>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   options: {
     query: Partial<
@@ -3023,7 +2675,7 @@ export function useGetProgress<
 };
 export function useGetProgress<
   TData = Awaited<ReturnType<typeof getProgress>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   options?: {
     query?: Partial<
@@ -3045,7 +2697,7 @@ export function useGetProgress<
 };
 export function useGetProgress<
   TData = Awaited<ReturnType<typeof getProgress>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   options?: {
     query?: Partial<
@@ -3063,7 +2715,7 @@ export function useGetProgress<
 
 export function useGetProgress<
   TData = Awaited<ReturnType<typeof getProgress>>,
-  TError = UnauthorizedResponse | InternalServerErrorResponse,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
   options?: {
     query?: Partial<
@@ -3085,56 +2737,17 @@ export function useGetProgress<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type listLeaderboardResponse200 = {
-  data: ListLeaderboard200;
-  status: 200;
-};
-
-export type listLeaderboardResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type listLeaderboardResponseSuccess = listLeaderboardResponse200 & {
-  headers: Headers;
-};
-export type listLeaderboardResponseError = listLeaderboardResponse500 & {
-  headers: Headers;
-};
-
-export type listLeaderboardResponse =
-  | listLeaderboardResponseSuccess
-  | listLeaderboardResponseError;
-
-export const getListLeaderboardUrl = (params?: ListLeaderboardParams) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/leaderboard?${stringifiedParams}`
-    : `/leaderboard`;
-};
-
 /**
  * @summary Get leaderboard
  */
-export const listLeaderboard = async (
+export const listLeaderboard = (
   params?: ListLeaderboardParams,
-  options?: RequestInit,
-): Promise<listLeaderboardResponse> => {
-  return customInstance<listLeaderboardResponse>(
-    getListLeaderboardUrl(params),
-    {
-      ...options,
-      method: "GET",
-    },
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<ListLeaderboard200>(
+    { url: `/leaderboard`, method: "GET", params, signal },
+    options,
   );
 };
 
@@ -3144,7 +2757,7 @@ export const getListLeaderboardQueryKey = (params?: ListLeaderboardParams) => {
 
 export const getListLeaderboardQueryOptions = <
   TData = Awaited<ReturnType<typeof listLeaderboard>>,
-  TError = InternalServerErrorResponse,
+  TError = ErrorType<InternalServerErrorResponse>,
 >(
   params?: ListLeaderboardParams,
   options?: {
@@ -3164,7 +2777,7 @@ export const getListLeaderboardQueryOptions = <
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listLeaderboard>>> = ({
     signal,
-  }) => listLeaderboard(params, { signal, ...requestOptions });
+  }) => listLeaderboard(params, requestOptions, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof listLeaderboard>>,
@@ -3176,11 +2789,11 @@ export const getListLeaderboardQueryOptions = <
 export type ListLeaderboardQueryResult = NonNullable<
   Awaited<ReturnType<typeof listLeaderboard>>
 >;
-export type ListLeaderboardQueryError = InternalServerErrorResponse;
+export type ListLeaderboardQueryError = ErrorType<InternalServerErrorResponse>;
 
 export function useListLeaderboard<
   TData = Awaited<ReturnType<typeof listLeaderboard>>,
-  TError = InternalServerErrorResponse,
+  TError = ErrorType<InternalServerErrorResponse>,
 >(
   params: undefined | ListLeaderboardParams,
   options: {
@@ -3207,7 +2820,7 @@ export function useListLeaderboard<
 };
 export function useListLeaderboard<
   TData = Awaited<ReturnType<typeof listLeaderboard>>,
-  TError = InternalServerErrorResponse,
+  TError = ErrorType<InternalServerErrorResponse>,
 >(
   params?: ListLeaderboardParams,
   options?: {
@@ -3234,7 +2847,7 @@ export function useListLeaderboard<
 };
 export function useListLeaderboard<
   TData = Awaited<ReturnType<typeof listLeaderboard>>,
-  TError = InternalServerErrorResponse,
+  TError = ErrorType<InternalServerErrorResponse>,
 >(
   params?: ListLeaderboardParams,
   options?: {
@@ -3257,7 +2870,7 @@ export function useListLeaderboard<
 
 export function useListLeaderboard<
   TData = Awaited<ReturnType<typeof listLeaderboard>>,
-  TError = InternalServerErrorResponse,
+  TError = ErrorType<InternalServerErrorResponse>,
 >(
   params?: ListLeaderboardParams,
   options?: {
@@ -3284,93 +2897,48 @@ export function useListLeaderboard<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type createActivityResponse201 = {
-  data: CreateActivity201;
-  status: 201;
-};
-
-export type createActivityResponse400 = {
-  data: BadRequestResponse;
-  status: 400;
-};
-
-export type createActivityResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type createActivityResponse403 = {
-  data: ForbiddenResponse;
-  status: 403;
-};
-
-export type createActivityResponse409 = {
-  data: ErrorResponse;
-  status: 409;
-};
-
-export type createActivityResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type createActivityResponseSuccess = createActivityResponse201 & {
-  headers: Headers;
-};
-export type createActivityResponseError = (
-  | createActivityResponse400
-  | createActivityResponse401
-  | createActivityResponse403
-  | createActivityResponse409
-  | createActivityResponse500
-) & {
-  headers: Headers;
-};
-
-export type createActivityResponse =
-  | createActivityResponseSuccess
-  | createActivityResponseError;
-
-export const getCreateActivityUrl = () => {
-  return `/admin/activities`;
-};
-
 /**
  * Admin creates a new activity. Slug must be unique.
  * @summary Create a new activity
  */
-export const createActivity = async (
-  createActivityRequest: CreateActivityRequest,
-  options?: RequestInit,
-): Promise<createActivityResponse> => {
-  return customInstance<createActivityResponse>(getCreateActivityUrl(), {
-    ...options,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(createActivityRequest),
-  });
+export const createActivity = (
+  createActivityRequest: BodyType<CreateActivityRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<CreateActivity201>(
+    {
+      url: `/admin/activities`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createActivityRequest,
+      signal,
+    },
+    options,
+  );
 };
 
 export const getCreateActivityMutationOptions = <
-  TError =
+  TError = ErrorType<
     | BadRequestResponse
     | UnauthorizedResponse
     | ForbiddenResponse
     | ErrorResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof createActivity>>,
     TError,
-    { data: CreateActivityRequest },
+    { data: BodyType<CreateActivityRequest> },
     TContext
   >;
   request?: SecondParameter<typeof customInstance>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof createActivity>>,
   TError,
-  { data: CreateActivityRequest },
+  { data: BodyType<CreateActivityRequest> },
   TContext
 > => {
   const mutationKey = ["createActivity"];
@@ -3384,7 +2952,7 @@ export const getCreateActivityMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof createActivity>>,
-    { data: CreateActivityRequest }
+    { data: BodyType<CreateActivityRequest> }
   > = (props) => {
     const { data } = props ?? {};
 
@@ -3397,31 +2965,33 @@ export const getCreateActivityMutationOptions = <
 export type CreateActivityMutationResult = NonNullable<
   Awaited<ReturnType<typeof createActivity>>
 >;
-export type CreateActivityMutationBody = CreateActivityRequest;
-export type CreateActivityMutationError =
+export type CreateActivityMutationBody = BodyType<CreateActivityRequest>;
+export type CreateActivityMutationError = ErrorType<
   | BadRequestResponse
   | UnauthorizedResponse
   | ForbiddenResponse
   | ErrorResponse
-  | InternalServerErrorResponse;
+  | InternalServerErrorResponse
+>;
 
 /**
  * @summary Create a new activity
  */
 export const useCreateActivity = <
-  TError =
+  TError = ErrorType<
     | BadRequestResponse
     | UnauthorizedResponse
     | ForbiddenResponse
     | ErrorResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof createActivity>>,
       TError,
-      { data: CreateActivityRequest },
+      { data: BodyType<CreateActivityRequest> },
       TContext
     >;
     request?: SecondParameter<typeof customInstance>;
@@ -3430,100 +3000,55 @@ export const useCreateActivity = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof createActivity>>,
   TError,
-  { data: CreateActivityRequest },
+  { data: BodyType<CreateActivityRequest> },
   TContext
 > => {
   return useMutation(getCreateActivityMutationOptions(options), queryClient);
-};
-
-export type updateActivityResponse200 = {
-  data: UpdateActivity200;
-  status: 200;
-};
-
-export type updateActivityResponse400 = {
-  data: BadRequestResponse;
-  status: 400;
-};
-
-export type updateActivityResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type updateActivityResponse403 = {
-  data: ForbiddenResponse;
-  status: 403;
-};
-
-export type updateActivityResponse404 = {
-  data: NotFoundResponse;
-  status: 404;
-};
-
-export type updateActivityResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type updateActivityResponseSuccess = updateActivityResponse200 & {
-  headers: Headers;
-};
-export type updateActivityResponseError = (
-  | updateActivityResponse400
-  | updateActivityResponse401
-  | updateActivityResponse403
-  | updateActivityResponse404
-  | updateActivityResponse500
-) & {
-  headers: Headers;
-};
-
-export type updateActivityResponse =
-  | updateActivityResponseSuccess
-  | updateActivityResponseError;
-
-export const getUpdateActivityUrl = (id: string) => {
-  return `/admin/activities/${id}`;
 };
 
 /**
  * Admin updates an existing activity. All fields are optional.
  * @summary Update an activity
  */
-export const updateActivity = async (
+export const updateActivity = (
   id: string,
-  updateActivityRequest: UpdateActivityRequest,
-  options?: RequestInit,
-): Promise<updateActivityResponse> => {
-  return customInstance<updateActivityResponse>(getUpdateActivityUrl(id), {
-    ...options,
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(updateActivityRequest),
-  });
+  updateActivityRequest: BodyType<UpdateActivityRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<UpdateActivity200>(
+    {
+      url: `/admin/activities/${id}`,
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      data: updateActivityRequest,
+      signal,
+    },
+    options,
+  );
 };
 
 export const getUpdateActivityMutationOptions = <
-  TError =
+  TError = ErrorType<
     | BadRequestResponse
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateActivity>>,
     TError,
-    { id: string; data: UpdateActivityRequest },
+    { id: string; data: BodyType<UpdateActivityRequest> },
     TContext
   >;
   request?: SecondParameter<typeof customInstance>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateActivity>>,
   TError,
-  { id: string; data: UpdateActivityRequest },
+  { id: string; data: BodyType<UpdateActivityRequest> },
   TContext
 > => {
   const mutationKey = ["updateActivity"];
@@ -3537,7 +3062,7 @@ export const getUpdateActivityMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateActivity>>,
-    { id: string; data: UpdateActivityRequest }
+    { id: string; data: BodyType<UpdateActivityRequest> }
   > = (props) => {
     const { id, data } = props ?? {};
 
@@ -3550,31 +3075,33 @@ export const getUpdateActivityMutationOptions = <
 export type UpdateActivityMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateActivity>>
 >;
-export type UpdateActivityMutationBody = UpdateActivityRequest;
-export type UpdateActivityMutationError =
+export type UpdateActivityMutationBody = BodyType<UpdateActivityRequest>;
+export type UpdateActivityMutationError = ErrorType<
   | BadRequestResponse
   | UnauthorizedResponse
   | ForbiddenResponse
   | NotFoundResponse
-  | InternalServerErrorResponse;
+  | InternalServerErrorResponse
+>;
 
 /**
  * @summary Update an activity
  */
 export const useUpdateActivity = <
-  TError =
+  TError = ErrorType<
     | BadRequestResponse
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateActivity>>,
       TError,
-      { id: string; data: UpdateActivityRequest },
+      { id: string; data: BodyType<UpdateActivityRequest> },
       TContext
     >;
     request?: SecondParameter<typeof customInstance>;
@@ -3583,77 +3110,34 @@ export const useUpdateActivity = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof updateActivity>>,
   TError,
-  { id: string; data: UpdateActivityRequest },
+  { id: string; data: BodyType<UpdateActivityRequest> },
   TContext
 > => {
   return useMutation(getUpdateActivityMutationOptions(options), queryClient);
-};
-
-export type deleteActivityResponse200 = {
-  data: void;
-  status: 200;
-};
-
-export type deleteActivityResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type deleteActivityResponse403 = {
-  data: ForbiddenResponse;
-  status: 403;
-};
-
-export type deleteActivityResponse404 = {
-  data: NotFoundResponse;
-  status: 404;
-};
-
-export type deleteActivityResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type deleteActivityResponseSuccess = deleteActivityResponse200 & {
-  headers: Headers;
-};
-export type deleteActivityResponseError = (
-  | deleteActivityResponse401
-  | deleteActivityResponse403
-  | deleteActivityResponse404
-  | deleteActivityResponse500
-) & {
-  headers: Headers;
-};
-
-export type deleteActivityResponse =
-  | deleteActivityResponseSuccess
-  | deleteActivityResponseError;
-
-export const getDeleteActivityUrl = (id: string) => {
-  return `/admin/activities/${id}`;
 };
 
 /**
  * Admin deletes an existing activity.
  * @summary Delete an activity
  */
-export const deleteActivity = async (
+export const deleteActivity = (
   id: string,
-  options?: RequestInit,
-): Promise<deleteActivityResponse> => {
-  return customInstance<deleteActivityResponse>(getDeleteActivityUrl(id), {
-    ...options,
-    method: "DELETE",
-  });
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<void>(
+    { url: `/admin/activities/${id}`, method: "DELETE", signal },
+    options,
+  );
 };
 
 export const getDeleteActivityMutationOptions = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -3694,21 +3178,23 @@ export type DeleteActivityMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteActivity>>
 >;
 
-export type DeleteActivityMutationError =
+export type DeleteActivityMutationError = ErrorType<
   | UnauthorizedResponse
   | ForbiddenResponse
   | NotFoundResponse
-  | InternalServerErrorResponse;
+  | InternalServerErrorResponse
+>;
 
 /**
  * @summary Delete an activity
  */
 export const useDeleteActivity = <
-  TError =
+  TError = ErrorType<
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
@@ -3730,101 +3216,50 @@ export const useDeleteActivity = <
   return useMutation(getDeleteActivityMutationOptions(options), queryClient);
 };
 
-export type reviewEvidenceResponse200 = {
-  data: ReviewEvidence200;
-  status: 200;
-};
-
-export type reviewEvidenceResponse400 = {
-  data: BadRequestResponse;
-  status: 400;
-};
-
-export type reviewEvidenceResponse401 = {
-  data: UnauthorizedResponse;
-  status: 401;
-};
-
-export type reviewEvidenceResponse403 = {
-  data: ForbiddenResponse;
-  status: 403;
-};
-
-export type reviewEvidenceResponse404 = {
-  data: NotFoundResponse;
-  status: 404;
-};
-
-export type reviewEvidenceResponse409 = {
-  data: ErrorResponse;
-  status: 409;
-};
-
-export type reviewEvidenceResponse500 = {
-  data: InternalServerErrorResponse;
-  status: 500;
-};
-
-export type reviewEvidenceResponseSuccess = reviewEvidenceResponse200 & {
-  headers: Headers;
-};
-export type reviewEvidenceResponseError = (
-  | reviewEvidenceResponse400
-  | reviewEvidenceResponse401
-  | reviewEvidenceResponse403
-  | reviewEvidenceResponse404
-  | reviewEvidenceResponse409
-  | reviewEvidenceResponse500
-) & {
-  headers: Headers;
-};
-
-export type reviewEvidenceResponse =
-  | reviewEvidenceResponseSuccess
-  | reviewEvidenceResponseError;
-
-export const getReviewEvidenceUrl = (id: string) => {
-  return `/admin/evidences/${id}/review`;
-};
-
 /**
  * Admin reviews evidence. Can approve or reject. By default, only pending evidence can be reviewed unless forceOverride is true.
  * @summary Review an evidence submission
  */
-export const reviewEvidence = async (
+export const reviewEvidence = (
   id: string,
-  reviewEvidenceRequest: ReviewEvidenceRequest,
-  options?: RequestInit,
-): Promise<reviewEvidenceResponse> => {
-  return customInstance<reviewEvidenceResponse>(getReviewEvidenceUrl(id), {
-    ...options,
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(reviewEvidenceRequest),
-  });
+  reviewEvidenceRequest: BodyType<ReviewEvidenceRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<ReviewEvidence200>(
+    {
+      url: `/admin/evidences/${id}/review`,
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      data: reviewEvidenceRequest,
+      signal,
+    },
+    options,
+  );
 };
 
 export const getReviewEvidenceMutationOptions = <
-  TError =
+  TError = ErrorType<
     | BadRequestResponse
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | ErrorResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof reviewEvidence>>,
     TError,
-    { id: string; data: ReviewEvidenceRequest },
+    { id: string; data: BodyType<ReviewEvidenceRequest> },
     TContext
   >;
   request?: SecondParameter<typeof customInstance>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof reviewEvidence>>,
   TError,
-  { id: string; data: ReviewEvidenceRequest },
+  { id: string; data: BodyType<ReviewEvidenceRequest> },
   TContext
 > => {
   const mutationKey = ["reviewEvidence"];
@@ -3838,7 +3273,7 @@ export const getReviewEvidenceMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof reviewEvidence>>,
-    { id: string; data: ReviewEvidenceRequest }
+    { id: string; data: BodyType<ReviewEvidenceRequest> }
   > = (props) => {
     const { id, data } = props ?? {};
 
@@ -3851,33 +3286,35 @@ export const getReviewEvidenceMutationOptions = <
 export type ReviewEvidenceMutationResult = NonNullable<
   Awaited<ReturnType<typeof reviewEvidence>>
 >;
-export type ReviewEvidenceMutationBody = ReviewEvidenceRequest;
-export type ReviewEvidenceMutationError =
+export type ReviewEvidenceMutationBody = BodyType<ReviewEvidenceRequest>;
+export type ReviewEvidenceMutationError = ErrorType<
   | BadRequestResponse
   | UnauthorizedResponse
   | ForbiddenResponse
   | NotFoundResponse
   | ErrorResponse
-  | InternalServerErrorResponse;
+  | InternalServerErrorResponse
+>;
 
 /**
  * @summary Review an evidence submission
  */
 export const useReviewEvidence = <
-  TError =
+  TError = ErrorType<
     | BadRequestResponse
     | UnauthorizedResponse
     | ForbiddenResponse
     | NotFoundResponse
     | ErrorResponse
-    | InternalServerErrorResponse,
+    | InternalServerErrorResponse
+  >,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof reviewEvidence>>,
       TError,
-      { id: string; data: ReviewEvidenceRequest },
+      { id: string; data: BodyType<ReviewEvidenceRequest> },
       TContext
     >;
     request?: SecondParameter<typeof customInstance>;
@@ -3886,7 +3323,7 @@ export const useReviewEvidence = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof reviewEvidence>>,
   TError,
-  { id: string; data: ReviewEvidenceRequest },
+  { id: string; data: BodyType<ReviewEvidenceRequest> },
   TContext
 > => {
   return useMutation(getReviewEvidenceMutationOptions(options), queryClient);

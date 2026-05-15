@@ -31,6 +31,10 @@ ProgressMatrixCell:
           criteriaDocId:
             type: string
             format: uuid
+          criteriaType:
+            type: string
+            enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+            example: "TINH_NGUYEN"
           criteriaDocTitle:
             type: string
             example: "Tham gia đầy đủ các buổi sinh hoạt"

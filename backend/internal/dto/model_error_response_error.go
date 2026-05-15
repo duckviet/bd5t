@@ -18,5 +18,5 @@ type ErrorResponseError struct {
 	Message string `json:"message,omitempty"`
 
 	// Additional error details (optional)
-	Details map[string]interface{} `json:"details,omitempty"`
+	Details *map[string]interface{} `json:"details,omitempty"`
 }

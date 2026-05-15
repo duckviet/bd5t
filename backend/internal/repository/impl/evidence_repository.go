@@ -30,10 +30,11 @@ func (r *EvidenceRepository) List(ctx context.Context, userID string, filter int
 		       e.description, e.status, e.review_note, e.reviewed_by, e.reviewed_at, 
 		       e.criterion_type, e.created_at, e.updated_at,
 		       a.title as activity_title,
-		       cd.title as criteria_doc_title
+		       a.review_level as review_level,
+		       ac.title as criteria_doc_title
 		FROM evidences e
 		LEFT JOIN activities a ON e.activity_id = a.id
-		LEFT JOIN criteria_docs cd ON e.criteria_doc_id = cd.id
+		LEFT JOIN activity_criteria ac ON e.criteria_doc_id = ac.id
 		WHERE e.user_id = $1`
 
 	args := []interface{}{userID}
@@ -83,7 +84,7 @@ func (r *EvidenceRepository) List(ctx context.Context, userID string, filter int
 	var evidences []*domain.Evidence
 	for rows.Next() {
 		var e domain.Evidence
-		var criteriaDocID, description, reviewNote, reviewedBy, criterionType, activityTitle, criteriaDocTitle *string
+		var criteriaDocID, description, reviewNote, reviewedBy, criterionType, activityTitle, reviewLevel, criteriaDocTitle *string
 		var reviewedAt sql.NullTime
 
 		err := rows.Scan(
@@ -102,6 +103,7 @@ func (r *EvidenceRepository) List(ctx context.Context, userID string, filter int
 			&e.CreatedAt,
 			&e.UpdatedAt,
 			&activityTitle,
+			&reviewLevel,
 			&criteriaDocTitle,
 		)
 		if err != nil {
@@ -113,6 +115,9 @@ func (r *EvidenceRepository) List(ctx context.Context, userID string, filter int
 		e.ReviewNote = reviewNote
 		e.ReviewedBy = reviewedBy
 		e.CriterionType = criterionType
+		e.ActivityTitle = derefString(activityTitle)
+		e.ReviewLevel = reviewLevel
+		e.CriteriaDocTitle = criteriaDocTitle
 		if reviewedAt.Valid {
 			e.ReviewedAt = &reviewedAt.Time
 		}
@@ -128,13 +133,19 @@ func (r *EvidenceRepository) List(ctx context.Context, userID string, filter int
 
 func (r *EvidenceRepository) GetByID(ctx context.Context, id string) (*domain.Evidence, error) {
 	query := `
-		SELECT id, user_id, activity_id, criteria_doc_id, file_url, file_key, 
-		       description, status, review_note, reviewed_by, reviewed_at, 
-		       criterion_type, created_at, updated_at
-		FROM evidences WHERE id = $1`
+		SELECT e.id, e.user_id, e.activity_id, e.criteria_doc_id, e.file_url, e.file_key, 
+		       e.description, e.status, e.review_note, e.reviewed_by, e.reviewed_at, 
+		       e.criterion_type, e.created_at, e.updated_at,
+		       a.title as activity_title,
+		       a.review_level as review_level,
+		       ac.title as criteria_doc_title
+		FROM evidences e
+		LEFT JOIN activities a ON e.activity_id = a.id
+		LEFT JOIN activity_criteria ac ON e.criteria_doc_id = ac.id
+		WHERE e.id = $1`
 
 	var e domain.Evidence
-	var criteriaDocID, description, reviewNote, reviewedBy, criterionType *string
+	var criteriaDocID, description, reviewNote, reviewedBy, criterionType, activityTitle, reviewLevel, criteriaDocTitle *string
 	var reviewedAt sql.NullTime
 
 	err := r.pool.QueryRow(ctx, query, id).Scan(
@@ -152,6 +163,9 @@ func (r *EvidenceRepository) GetByID(ctx context.Context, id string) (*domain.Ev
 		&criterionType,
 		&e.CreatedAt,
 		&e.UpdatedAt,
+		&activityTitle,
+		&reviewLevel,
+		&criteriaDocTitle,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
@@ -165,6 +179,9 @@ func (r *EvidenceRepository) GetByID(ctx context.Context, id string) (*domain.Ev
 	e.ReviewNote = reviewNote
 	e.ReviewedBy = reviewedBy
 	e.CriterionType = criterionType
+	e.ActivityTitle = derefString(activityTitle)
+	e.ReviewLevel = reviewLevel
+	e.CriteriaDocTitle = criteriaDocTitle
 	if reviewedAt.Valid {
 		e.ReviewedAt = &reviewedAt.Time
 	}
@@ -219,4 +236,11 @@ func (r *EvidenceRepository) UpdateStatus(ctx context.Context, id string, status
 
 	_, err := r.pool.Exec(ctx, query, status, reviewNote, reviewedBy, id)
 	return err
+}
+
+func derefString(value *string) string {
+	if value == nil {
+		return ""
+	}
+	return *value
 }

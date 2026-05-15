@@ -22,6 +22,10 @@ export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   const isJustLoggedOut = searchParams.get("logout") === "true";
 
+  if (pathname.startsWith("/.well-known")) {
+    return NextResponse.next();
+  }
+
   const accessToken = request.cookies.get("access_token")?.value;
   const refreshToken = request.cookies.get("refresh_token")?.value;
 
@@ -63,5 +67,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|\.well-known).*)"],
 };

@@ -12,6 +12,7 @@ module.exports = {
       target: "./src/services/generated/api.ts", // Tạo ra một file duy nhất
       client: "react-query", // Chỉ định chúng ta muốn dùng TanStack/React Query
       mode: "single", // Chế độ file đơn
+      httpClient: "axios",
       prettier: true, // Tự động format code bằng Prettier
       override: {
         mutator: {

@@ -11,43 +11,55 @@ func DomainToEvidenceItem(e *domain.Evidence) *dto.EvidenceItem {
 	}
 
 	item := &dto.EvidenceItem{
-		Id:         e.ID,
-		ActivityId: e.ActivityID,
-		FileUrl:    e.FileURL,
-		Status:     e.Status,
-		CreatedAt:  e.CreatedAt,
+		Id:            e.ID,
+		ActivityId:    e.ActivityID,
+		ActivityTitle: e.ActivityTitle,
+		FileUrl:       e.FileURL,
+		Status:        e.Status,
+		CreatedAt:     e.CreatedAt,
 	}
 
 	if e.CriteriaDocID != nil {
-		item.CriteriaDocId = *e.CriteriaDocID
+		item.CriteriaDocId = e.CriteriaDocID
+	}
+	if e.CriteriaDocTitle != nil {
+		item.CriteriaDocTitle = e.CriteriaDocTitle
 	}
 	if e.Description != nil {
 		item.Description = *e.Description
 	}
+	if e.CriterionType != nil {
+		item.CriterionType = e.CriterionType
+	}
+	if e.ReviewLevel != nil {
+		item.ReviewLevel = e.ReviewLevel
+	}
 	if e.ReviewNote != nil {
-		item.ReviewNote = *e.ReviewNote
+		item.ReviewNote = e.ReviewNote
 	}
 	if e.ReviewedBy != nil {
-		item.ReviewedBy = *e.ReviewedBy
+		item.ReviewedBy = e.ReviewedBy
 	}
 	if e.ReviewedAt != nil {
-		item.ReviewedAt = *e.ReviewedAt
+		item.ReviewedAt = e.ReviewedAt
 	}
 
 	return item
 }
 
 func CreateEvidenceRequestToDomain(req *dto.CreateEvidenceRequest, userID string, fileURL string) *domain.Evidence {
+	criterionType := domain.CriterionTypeHocTap
 	evidence := &domain.Evidence{
-		UserID:     userID,
-		ActivityID: req.ActivityId,
-		FileURL:    fileURL,
-		FileKey:    req.FileKey,
-		Status:     domain.StatusPending,
+		UserID:        userID,
+		ActivityID:    req.ActivityId,
+		FileURL:       fileURL,
+		FileKey:       req.FileKey,
+		Status:        domain.StatusPending,
+		CriterionType: &criterionType,
 	}
 
-	if req.CriteriaDocId != "" {
-		evidence.CriteriaDocID = &req.CriteriaDocId
+	if req.CriteriaDocId != nil {
+		evidence.CriteriaDocID = req.CriteriaDocId
 	}
 	if req.Description != "" {
 		evidence.Description = &req.Description

@@ -4,6 +4,10 @@ CriteriaDoc:
     id:
       type: string
       format: uuid
+    criteriaType:
+      type: string
+      enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+      example: "DAO_DUC"
     title:
       type: string
       example: "Tham gia đầy đủ các buổi sinh hoạt"

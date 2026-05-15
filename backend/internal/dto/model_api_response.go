@@ -15,5 +15,5 @@ type ApiResponse struct {
 	Success bool `json:"success,omitempty"`
 
 	// Response data payload
-	Data map[string]interface{} `json:"data,omitempty"`
+	Data *map[string]interface{} `json:"data,omitempty"`
 }

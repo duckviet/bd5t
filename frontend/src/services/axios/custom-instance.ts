@@ -1,56 +1,44 @@
-import { AxiosRequestConfig, AxiosResponse } from "axios";
+import type { AxiosError, AxiosRequestConfig } from "axios";
 import {
   ClientRequest,
   type StreamEvent,
   type StreamRequestConfig,
 } from "./ClientRequest";
 
-// Orval expects (url, config), while some manual calls might use (config)
+// Hàm xử lý Request cho Orval
 export const customInstance = <T>(
-  urlOrConfig: string | AxiosRequestConfig,
-  config?: any,
+  config: AxiosRequestConfig,
+  options?: AxiosRequestConfig, // Đề phòng trường hợp bạn truyền thêm options từ component
 ): Promise<T> => {
-  const clientInstance = ClientRequest.getInstance();
-  const axiosInstance = clientInstance.getAxiosInstance();
+  const axiosInstance = ClientRequest.getInstance().getAxiosInstance();
 
-  let finalConfig: any;
-
-  if (typeof urlOrConfig === "string") {
-    // Trường hợp Orval gọi: customInstance(url, config)
-    const { body, data: configData, ...restConfig } = config || {};
-    const data = configData || body;
-
-    finalConfig = {
-      url: urlOrConfig,
-      ...restConfig,
-      data,
-    };
-
-    // Nếu data là FormData, xoá Content-Type để Axios/browser tự set boundary cho multipart
-    // Cần set thành undefined để override default header 'application/json' của axios instance
-    if (data instanceof FormData) {
-      finalConfig.headers = {
-        ...finalConfig.headers,
-        "Content-Type": undefined,
-      };
-      console.log(`[CustomInstance] Sending FormData to ${urlOrConfig}`);
-    }
-  } else {
-    // Trường hợp gọi thủ công: customInstance({ url, ... })
-    finalConfig = urlOrConfig;
-  }
+  // Merge config do Orval sinh ra và options (nếu có)
+  const finalConfig: AxiosRequestConfig = {
+    ...config,
+    ...options,
+    headers: {
+      ...(config.headers ?? {}),
+      ...(options?.headers ?? {}),
+    },
+    params: {
+      ...(config.params ?? {}),
+      ...(options?.params ?? {}),
+    },
+  };
 
   return axiosInstance
     .request<T>(finalConfig)
-    .then((response: AxiosResponse<T>) => {
-      return response.data;
-    });
+    .then((response) => response.data);
 };
 
+// Hàm xử lý Stream (giữ nguyên của bạn)
 export const streamInstance = (config: StreamRequestConfig): Promise<void> => {
   return ClientRequest.getInstance().stream(config);
 };
 
+// Khai báo các Type bắt buộc mà Orval cần để generate
+export type ErrorType<Error> = AxiosError<Error>;
+export type BodyType<BodyData> = BodyData;
 export type { StreamEvent, StreamRequestConfig };
 
 export default customInstance;

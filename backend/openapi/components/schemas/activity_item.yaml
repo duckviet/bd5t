@@ -14,31 +14,24 @@ ActivityItem:
       type: string
       example: "Hoạt động tập hợp toàn trường"
     location:
-      type: string
-      nullable: true
+      type: [string, "null"]
     targetAudience:
-      type: string
-      nullable: true
+      type: [string, "null"]
     rules:
-      type: string
-      nullable: true
+      type: [string, "null"]
     rewards:
-      type: string
-      nullable: true
+      type: [string, "null"]
     contactInfo:
-      type: string
-      nullable: true
+      type: [string, "null"]
     thumbnailUrl:
       type: string
       format: uri
       example: "https://cdn.example.com/activities/tap-hop-2025.jpg"
     unitId:
-      type: string
+      type: [string, "null"]
       format: uuid
-      nullable: true
     unitName:
-      type: string
-      nullable: true
+      type: [string, "null"]
       example: "Khoa Công nghệ Thông tin"
     startDate:
       type: string

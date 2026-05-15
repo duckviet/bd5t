@@ -44,8 +44,8 @@ func (s *AdminService) ReviewEvidence(ctx context.Context, adminID, evidenceID s
 	}
 
 	var reviewNote *string
-	if req.ReviewNote != "" {
-		reviewNote = pointer.ToPtr(req.ReviewNote)
+	if req.ReviewNote != nil {
+		reviewNote = req.ReviewNote
 	}
 
 	if err := s.evidenceRepo.UpdateStatus(ctx, evidenceID, req.Status, reviewNote, adminID); err != nil {
@@ -71,56 +71,56 @@ func (s *AdminService) CreateActivity(ctx context.Context, req *dto.CreateActivi
 	}
 
 	activity := &domain.Activity{
-		Title:            req.Title,
-		IsActive:         true,
+		Title:    req.Title,
+		IsActive: true,
 	}
 
-	if req.Description != "" {
-		activity.Description = pointer.ToPtr(req.Description)
+	if req.Description != nil {
+		activity.Description = req.Description
 	}
 	activity.Slug = pointer.ToPtr(req.Slug)
-	if req.ThumbnailUrl != "" {
-		activity.ThumbnailURL = pointer.ToPtr(req.ThumbnailUrl)
+	if req.ThumbnailUrl != nil {
+		activity.ThumbnailURL = req.ThumbnailUrl
 	}
-	if req.ShortDescription != "" {
-		activity.ShortDescription = pointer.ToPtr(req.ShortDescription)
+	if req.ShortDescription != nil {
+		activity.ShortDescription = req.ShortDescription
 	}
-	if req.Location != "" {
-		activity.Location = pointer.ToPtr(req.Location)
+	if req.Location != nil {
+		activity.Location = req.Location
 	}
-	if req.TargetAudience != "" {
-		activity.TargetAudience = pointer.ToPtr(req.TargetAudience)
+	if req.TargetAudience != nil {
+		activity.TargetAudience = req.TargetAudience
 	}
-	if req.Rules != "" {
-		activity.Rules = pointer.ToPtr(req.Rules)
+	if req.Rules != nil {
+		activity.Rules = req.Rules
 	}
-	if req.Rewards != "" {
-		activity.Rewards = pointer.ToPtr(req.Rewards)
+	if req.Rewards != nil {
+		activity.Rewards = req.Rewards
 	}
-	if req.ContactInfo != "" {
-		activity.ContactInfo = pointer.ToPtr(req.ContactInfo)
+	if req.ContactInfo != nil {
+		activity.ContactInfo = req.ContactInfo
 	}
-	if req.UnitId != "" {
-		activity.UnitID = pointer.ToPtr(req.UnitId)
+	if req.UnitId != nil {
+		activity.UnitID = req.UnitId
 	}
-	if req.RegistrationUrl != "" {
-		activity.RegistrationURL = pointer.ToPtr(req.RegistrationUrl)
+	if req.RegistrationUrl != nil {
+		activity.RegistrationURL = req.RegistrationUrl
 	}
-	if req.ReviewLevel != "" {
-		activity.ReviewLevel = pointer.ToPtr(req.ReviewLevel)
+	if req.ReviewLevel != nil {
+		activity.ReviewLevel = req.ReviewLevel
 	}
-	if req.Organizer != "" {
-		activity.Organizer = pointer.ToPtr(req.Organizer)
+	if req.Organizer != nil {
+		activity.Organizer = req.Organizer
 	}
 
-	if req.StartDate != "" {
-		startDate, err := time.Parse("2006-01-02", req.StartDate)
+	if req.StartDate != nil {
+		startDate, err := time.Parse("2006-01-02", *req.StartDate)
 		if err == nil {
 			activity.StartDate = &startDate
 		}
 	}
-	if req.EndDate != "" {
-		endDate, err := time.Parse("2006-01-02", req.EndDate)
+	if req.EndDate != nil {
+		endDate, err := time.Parse("2006-01-02", *req.EndDate)
 		if err == nil {
 			activity.EndDate = &endDate
 		}
@@ -146,44 +146,44 @@ func (s *AdminService) UpdateActivity(ctx context.Context, id string, req *dto.U
 	if req.Title != "" {
 		activity.Title = req.Title
 	}
-	if req.Description != "" {
-		activity.Description = pointer.ToPtr(req.Description)
+	if req.Description != nil {
+		activity.Description = req.Description
 	}
 	if req.Slug != "" {
 		activity.Slug = pointer.ToPtr(req.Slug)
 	}
-	if req.ThumbnailUrl != "" {
-		activity.ThumbnailURL = pointer.ToPtr(req.ThumbnailUrl)
+	if req.ThumbnailUrl != nil {
+		activity.ThumbnailURL = req.ThumbnailUrl
 	}
-	if req.ShortDescription != "" {
-		activity.ShortDescription = pointer.ToPtr(req.ShortDescription)
+	if req.ShortDescription != nil {
+		activity.ShortDescription = req.ShortDescription
 	}
-	if req.Location != "" {
-		activity.Location = pointer.ToPtr(req.Location)
+	if req.Location != nil {
+		activity.Location = req.Location
 	}
-	if req.TargetAudience != "" {
-		activity.TargetAudience = pointer.ToPtr(req.TargetAudience)
+	if req.TargetAudience != nil {
+		activity.TargetAudience = req.TargetAudience
 	}
-	if req.Rules != "" {
-		activity.Rules = pointer.ToPtr(req.Rules)
+	if req.Rules != nil {
+		activity.Rules = req.Rules
 	}
-	if req.Rewards != "" {
-		activity.Rewards = pointer.ToPtr(req.Rewards)
+	if req.Rewards != nil {
+		activity.Rewards = req.Rewards
 	}
-	if req.ContactInfo != "" {
-		activity.ContactInfo = pointer.ToPtr(req.ContactInfo)
+	if req.ContactInfo != nil {
+		activity.ContactInfo = req.ContactInfo
 	}
-	if req.UnitId != "" {
-		activity.UnitID = pointer.ToPtr(req.UnitId)
+	if req.UnitId != nil {
+		activity.UnitID = req.UnitId
 	}
-	if req.StartDate != "" {
-		startDate, err := time.Parse("2006-01-02", req.StartDate)
+	if req.StartDate != nil {
+		startDate, err := time.Parse("2006-01-02", *req.StartDate)
 		if err == nil {
 			activity.StartDate = &startDate
 		}
 	}
-	if req.EndDate != "" {
-		endDate, err := time.Parse("2006-01-02", req.EndDate)
+	if req.EndDate != nil {
+		endDate, err := time.Parse("2006-01-02", *req.EndDate)
 		if err == nil {
 			activity.EndDate = &endDate
 		}
@@ -191,14 +191,14 @@ func (s *AdminService) UpdateActivity(ctx context.Context, id string, req *dto.U
 	if req.IsActive {
 		activity.IsActive = req.IsActive
 	}
-	if req.RegistrationUrl != "" {
-		activity.RegistrationURL = pointer.ToPtr(req.RegistrationUrl)
+	if req.RegistrationUrl != nil {
+		activity.RegistrationURL = req.RegistrationUrl
 	}
-	if req.ReviewLevel != "" {
-		activity.ReviewLevel = pointer.ToPtr(req.ReviewLevel)
+	if req.ReviewLevel != nil {
+		activity.ReviewLevel = req.ReviewLevel
 	}
-	if req.Organizer != "" {
-		activity.Organizer = pointer.ToPtr(req.Organizer)
+	if req.Organizer != nil {
+		activity.Organizer = req.Organizer
 	}
 
 	updated, err := s.activityRepo.Update(ctx, id, activity)

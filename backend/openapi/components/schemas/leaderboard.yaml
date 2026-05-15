@@ -13,12 +13,10 @@ LeaderboardItem:
       description: Display name of the user
       example: "Nguyễn Văn A"
     unitId:
-      type: string
+      type: [string, "null"]
       format: uuid
-      nullable: true
     unitName:
-      type: string
-      nullable: true
+      type: [string, "null"]
       example: "Khoa Công nghệ Thông tin"
     totalApproved:
       type: integer

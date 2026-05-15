@@ -5,20 +5,23 @@ import (
 )
 
 type Evidence struct {
-	ID            string
-	UserID        string
-	ActivityID    string
-	CriteriaDocID *string
-	FileURL       string
-	FileKey       string
-	Description   *string
-	Status        string
-	ReviewNote    *string
-	ReviewedBy    *string
-	ReviewedAt    *time.Time
-	CriterionType *string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID               string
+	UserID           string
+	ActivityID       string
+	ActivityTitle    string
+	CriteriaDocID    *string
+	CriteriaDocTitle *string
+	FileURL          string
+	FileKey          string
+	Description      *string
+	Status           string
+	ReviewNote       *string
+	ReviewedBy       *string
+	ReviewedAt       *time.Time
+	CriterionType    *string
+	ReviewLevel      *string
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 const (
@@ -28,11 +31,11 @@ const (
 )
 
 const (
-	CriterionTypeDaoDuc = "DAO_DUC"
-	CriterionTypeHocTap = "HOC_TAP"
-	CriterionTypeTheLuc = "THE_LUC"
-	CriterionTypeThiDua = "THI_DUA"
-	CriterionTypeCone   = "CON_E"
+	CriterionTypeDaoDuc     = "DAO_DUC"
+	CriterionTypeHocTap     = "HOC_TAP"
+	CriterionTypeTheLuc     = "THE_LUC"
+	CriterionTypeTinhNguyen = "TINH_NGUYEN"
+	CriterionTypeHoiNhap    = "HOI_NHAP"
 )
 
 func (e *Evidence) IsPending() bool {

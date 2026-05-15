@@ -17,31 +17,24 @@ ActivityDetail:
       type: string
       example: "Hoạt động tập hợp toàn trường"
     location:
-      type: string
-      nullable: true
+      type: [string, "null"]
     targetAudience:
-      type: string
-      nullable: true
+      type: [string, "null"]
     rules:
-      type: string
-      nullable: true
+      type: [string, "null"]
     rewards:
-      type: string
-      nullable: true
+      type: [string, "null"]
     contactInfo:
-      type: string
-      nullable: true
+      type: [string, "null"]
     thumbnailUrl:
       type: string
       format: uri
       example: "https://cdn.example.com/activities/tap-hop-2025.jpg"
     unitId:
-      type: string
+      type: [string, "null"]
       format: uuid
-      nullable: true
     unitName:
-      type: string
-      nullable: true
+      type: [string, "null"]
       example: "Khoa Công nghệ Thông tin"
     startDate:
       type: string
@@ -55,17 +48,15 @@ ActivityDetail:
       type: boolean
       example: true
     registrationUrl:
-      type: string
+      type: [string, "null"]
       format: uri
-      nullable: true
       example: "https://forms.example.com/register"
     reviewLevel:
       type: string
       enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
       example: "TRUONG"
     organizer:
-      type: string
-      nullable: true
+      type: [string, "null"]
       example: "Ban Công tác Sinh viên"
     criteriaDocs:
       type: array
@@ -83,60 +74,46 @@ CreateActivityRequest:
       minLength: 1
       maxLength: 255
     description:
-      type: string
-      nullable: true
+      type: [string, "null"]
     slug:
       type: string
       pattern: '^[a-z0-9-]+$'
       description: URL-friendly slug, must be unique
     thumbnailUrl:
-      type: string
+      type: [string, "null"]
       format: uri
-      nullable: true
     shortDescription:
-      type: string
-      nullable: true
+      type: [string, "null"]
     location:
-      type: string
-      nullable: true
+      type: [string, "null"]
     targetAudience:
-      type: string
-      nullable: true
+      type: [string, "null"]
     rules:
-      type: string
-      nullable: true
+      type: [string, "null"]
     rewards:
-      type: string
-      nullable: true
+      type: [string, "null"]
     contactInfo:
-      type: string
-      nullable: true
+      type: [string, "null"]
     unitId:
-      type: string
+      type: [string, "null"]
       format: uuid
-      nullable: true
     startDate:
-      type: string
+      type: [string, "null"]
       format: date
-      nullable: true
     endDate:
-      type: string
+      type: [string, "null"]
       format: date
-      nullable: true
     isActive:
       type: boolean
       default: true
     registrationUrl:
-      type: string
+      type: [string, "null"]
       format: uri
-      nullable: true
     reviewLevel:
-      type: string
+      type: [string, "null"]
       enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
-      nullable: true
     organizer:
-      type: string
-      nullable: true
+      type: [string, "null"]
 
 UpdateActivityRequest:
   type: object
@@ -146,55 +123,41 @@ UpdateActivityRequest:
       minLength: 1
       maxLength: 255
     description:
-      type: string
-      nullable: true
+      type: [string, "null"]
     slug:
       type: string
       pattern: '^[a-z0-9-]+$'
     thumbnailUrl:
-      type: string
+      type: [string, "null"]
       format: uri
-      nullable: true
     shortDescription:
-      type: string
-      nullable: true
+      type: [string, "null"]
     location:
-      type: string
-      nullable: true
+      type: [string, "null"]
     targetAudience:
-      type: string
-      nullable: true
+      type: [string, "null"]
     rules:
-      type: string
-      nullable: true
+      type: [string, "null"]
     rewards:
-      type: string
-      nullable: true
+      type: [string, "null"]
     contactInfo:
-      type: string
-      nullable: true
+      type: [string, "null"]
     unitId:
-      type: string
+      type: [string, "null"]
       format: uuid
-      nullable: true
     startDate:
-      type: string
+      type: [string, "null"]
       format: date
-      nullable: true
     endDate:
-      type: string
+      type: [string, "null"]
       format: date
-      nullable: true
     isActive:
       type: boolean
     registrationUrl:
-      type: string
+      type: [string, "null"]
       format: uri
-      nullable: true
     reviewLevel:
-      type: string
+      type: [string, "null"]
       enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
-      nullable: true
     organizer:
-      type: string
-      nullable: true
+      type: [string, "null"]

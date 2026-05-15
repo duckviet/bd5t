@@ -13,6 +13,8 @@ type ProgressMatrixCellCompletedCriteriaInner struct {
 
 	CriteriaDocId string `json:"criteriaDocId,omitempty"`
 
+	CriteriaType string `json:"criteriaType,omitempty"`
+
 	CriteriaDocTitle string `json:"criteriaDocTitle,omitempty"`
 
 	Score int32 `json:"score,omitempty"`

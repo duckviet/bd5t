@@ -27,64 +27,19 @@ components:
 
   parameters:
     page:
-      name: page
-      in: query
-      schema:
-        type: integer
-        default: 1
-        minimum: 1
-      description: Page number for pagination
-
+      $ref: "./components/parameters/_index.yaml#/page"
     pageSize:
-      name: pageSize
-      in: query
-      schema:
-        type: integer
-        default: 20
-        minimum: 1
-        maximum: 100
-      description: Number of items per page
-
+      $ref: "./components/parameters/_index.yaml#/pageSize"
     unitId:
-      name: unitId
-      in: query
-      schema:
-        type: string
-        format: uuid
-      description: Filter by unit/organization ID
-
+      $ref: "./components/parameters/_index.yaml#/unitId"
     activityId:
-      name: activityId
-      in: query
-      schema:
-        type: string
-        format: uuid
-      description: Filter by activity ID
-
+      $ref: "./components/parameters/_index.yaml#/activityId"
     evidenceStatus:
-      name: status
-      in: query
-      schema:
-        type: string
-        enum: [pending, approved, rejected]
-      description: Filter by evidence status
-
+      $ref: "./components/parameters/_index.yaml#/evidenceStatus"
     slug:
-      name: slug
-      in: path
-      required: true
-      schema:
-        type: string
-      description: URL-friendly identifier for the resource
-
+      $ref: "./components/parameters/_index.yaml#/slug"
     uuid:
-      name: id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-      description: Unique identifier of the resource
+      $ref: "./components/parameters/_index.yaml#/uuid"
 
   responses:
     BadRequest:

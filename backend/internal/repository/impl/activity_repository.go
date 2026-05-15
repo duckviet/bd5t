@@ -191,12 +191,13 @@ func (r *ActivityRepository) GetByID(ctx context.Context, id string) (*domain.Ac
 	return &a, nil
 }
 
-func (r *ActivityRepository) GetCriteriaDocsByActivityID(ctx context.Context, activityID string) ([]*domain.CriteriaDoc, error) {
+func (r *ActivityRepository) GetCriteriaDocsByActivityID(ctx context.Context, activityID string) ([]*domain.ActivityCriteria, error) {
 	query := `
-		SELECT id, activity_id, title, description, max_score, created_at, updated_at
-		FROM criteria_docs
-		WHERE activity_id = $1
-		ORDER BY created_at ASC`
+		SELECT ac.id, ac.activity_id, ac.criteria_id, c.code, ac.title, ac.description, ac.score, c.max_score, ac.created_at, ac.updated_at
+		FROM activity_criteria ac
+		JOIN criteria c ON c.id = ac.criteria_id
+		WHERE ac.activity_id = $1
+		ORDER BY ac.created_at ASC`
 
 	rows, err := r.pool.Query(ctx, query, activityID)
 	if err != nil {
@@ -204,14 +205,17 @@ func (r *ActivityRepository) GetCriteriaDocsByActivityID(ctx context.Context, ac
 	}
 	defer rows.Close()
 
-	var criteria []*domain.CriteriaDoc
+	var criteria []*domain.ActivityCriteria
 	for rows.Next() {
-		var c domain.CriteriaDoc
+		var c domain.ActivityCriteria
 		err := rows.Scan(
 			&c.ID,
 			&c.ActivityID,
+			&c.CriteriaID,
+			&c.CriteriaType,
 			&c.Title,
 			&c.Description,
+			&c.Score,
 			&c.MaxScore,
 			&c.CreatedAt,
 			&c.UpdatedAt,

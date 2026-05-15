@@ -52,9 +52,17 @@ func (s *ProgressService) GetProgress(ctx context.Context, userID string) (*dto.
 		}
 
 		for _, c := range p.CompletedCriteria {
+			criteriaID := c.CriteriaDocID
+			if criteriaID == "" {
+				criteriaID = c.CriteriaID
+			}
+			criteriaTitle := c.CriteriaDocTitle
+			if criteriaTitle == "" {
+				criteriaTitle = c.CriteriaTitle
+			}
 			cell.CompletedCriteria = append(cell.CompletedCriteria, dto.ProgressMatrixCellCompletedCriteriaInner{
-				CriteriaDocId:    c.CriteriaDocID,
-				CriteriaDocTitle: c.CriteriaDocTitle,
+				CriteriaDocId:    criteriaID,
+				CriteriaDocTitle: criteriaTitle,
 				Score:            int32(c.Score),
 				EvidenceCount:    int32(c.EvidenceCount),
 			})
@@ -88,6 +96,9 @@ func (s *ProgressService) RecalculateProgress(ctx context.Context, userID string
 			}
 
 			completedCriteria = append(completedCriteria, domain.CompletedCriteria{
+				CriteriaID:       cd.CriteriaID,
+				CriteriaType:     string(cd.CriteriaType),
+				CriteriaTitle:    cd.Title,
 				CriteriaDocID:    cd.ID,
 				CriteriaDocTitle: cd.Title,
 				Score:            cd.MaxScore,

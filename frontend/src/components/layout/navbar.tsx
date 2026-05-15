@@ -27,8 +27,8 @@ const navItems = [
 export function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { isAuth, user } = useAuthStore()
-
+  const { isAuth, user, isInitialized } = useAuthStore();
+  const isAuthenticated = isAuth === true;
   const handleLogout = async () => {
     await authAction.logout()
   }
@@ -46,10 +46,10 @@ export function Navbar() {
                 Bản đồ 5 Tốt
               </span>
             </Link>
-            
+
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => {
-                const isActive = pathname === item.href
+                const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.href}
@@ -58,19 +58,24 @@ export function Navbar() {
                       "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                       isActive
                         ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted",
                     )}
                   >
                     <item.icon className="h-4 w-4" />
                     {item.label}
                   </Link>
-                )
+                );
               })}
             </nav>
           </div>
 
           <div className="flex items-center gap-3">
-            {!isAuth ? (
+            {!isInitialized ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="h-9 w-20 rounded-md bg-muted/60" />
+                <div className="h-9 w-20 rounded-md bg-muted/60" />
+              </div>
+            ) : !isAuthenticated ? (
               <div className="hidden sm:flex items-center gap-2">
                 <Link href="/login">
                   <Button variant="ghost" size="sm">
@@ -78,33 +83,44 @@ export function Navbar() {
                   </Button>
                 </Link>
                 <Link href="/register">
-                  <Button size="sm">
-                    Đăng ký
-                  </Button>
+                  <Button size="sm">Đăng ký</Button>
                 </Link>
               </div>
             ) : (
               <div className="hidden sm:flex items-center gap-3">
-                <Link href="/notifications" className="relative p-2 rounded-full hover:bg-muted transition-colors">
+                <Link
+                  href="/notifications"
+                  className="relative p-2 rounded-full hover:bg-muted transition-colors"
+                >
                   <Bell className="h-5 w-5 text-muted-foreground" />
                   <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
                     3
                   </span>
                 </Link>
-                <Link href="/profile" className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-muted transition-colors">
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-muted transition-colors"
+                >
                   <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium border border-primary/20">
-                    {user?.displayName?.charAt(0) || <User className="h-4 w-4" />}
+                    {user?.displayName?.charAt(0) || (
+                      <User className="h-4 w-4" />
+                    )}
                   </div>
                   <span className="text-sm font-medium text-foreground max-w-[120px] truncate">
                     {user?.displayName}
                   </span>
                 </Link>
-                <Button variant="ghost" size="icon" onClick={handleLogout} title="Đăng xuất">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLogout}
+                  title="Đăng xuất"
+                >
                   <LogOut className="h-5 w-5 text-muted-foreground hover:text-destructive transition-colors" />
                 </Button>
               </div>
             )}
-            
+
             <button
               className="md:hidden p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -122,7 +138,7 @@ export function Navbar() {
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col gap-2">
               {navItems.map((item) => {
-                const isActive = pathname === item.href
+                const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.href}
@@ -131,23 +147,31 @@ export function Navbar() {
                       "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                       isActive
                         ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted",
                     )}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <item.icon className="h-4 w-4" />
                     {item.label}
                   </Link>
-                )
+                );
               })}
-              {!isAuth ? (
+              {!isInitialized ? null : !isAuthenticated ? (
                 <div className="flex gap-2 mt-2 pt-2 border-t border-border">
-                  <Link href="/login" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                  <Link
+                    href="/login"
+                    className="flex-1"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
                     <Button variant="outline" className="w-full" size="sm">
                       Đăng nhập
                     </Button>
                   </Link>
-                  <Link href="/register" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                  <Link
+                    href="/register"
+                    className="flex-1"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
                     <Button className="w-full" size="sm">
                       Đăng ký
                     </Button>
@@ -155,15 +179,23 @@ export function Navbar() {
                 </div>
               ) : (
                 <div className="mt-2 pt-2 border-t border-border flex flex-col gap-2">
-                  <Link href="/notifications" className="flex items-center gap-2 px-3 py-2" onClick={() => setMobileMenuOpen(false)}>
+                  <Link
+                    href="/notifications"
+                    className="flex items-center gap-2 px-3 py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
                     <Bell className="h-4 w-4" />
                     <span>Thông báo</span>
                   </Link>
-                  <Link href="/profile" className="flex items-center gap-2 px-3 py-2" onClick={() => setMobileMenuOpen(false)}>
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-2 px-3 py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
                     <User className="h-4 w-4" />
                     <span>Trang cá nhân ({user?.displayName})</span>
                   </Link>
-                  <button 
+                  <button
                     onClick={() => {
                       handleLogout();
                       setMobileMenuOpen(false);
@@ -180,5 +212,5 @@ export function Navbar() {
         )}
       </div>
     </header>
-  )
+  );
 }

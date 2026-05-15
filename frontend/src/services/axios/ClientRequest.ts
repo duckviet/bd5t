@@ -4,12 +4,11 @@ import axios, {
   InternalAxiosRequestConfig,
   AxiosResponse,
 } from "axios";
-import Cookies from "js-cookie";
 import { useEditTokenStore } from "@/stores/editTokenStore";
 
 interface FailedRequestQueueItem {
-  resolve: (value: string) => void;
-  reject: (reason: any) => void;
+  resolve: () => void;
+  reject: (reason: unknown) => void;
 }
 
 export interface StreamEvent {
@@ -29,24 +28,29 @@ export interface StreamRequestConfig {
 
 // Hàm logout dọn dẹp cơ bản khi Refresh Token thất bại
 export const triggerLogout = () => {
-  const cookieOptions = {
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
-  };
-  Cookies.remove("access_token", cookieOptions);
-  Cookies.remove("refresh_token", cookieOptions);
-  // Thêm custom event để authStore hoặc component nào đó nghe và set lại state
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("auth:logout"));
-    window.location.href = "/login?logout=true";
+
+    const currentUrl = new URL(window.location.href);
+    const alreadyOnLogoutLoginPage =
+      currentUrl.pathname === "/login" &&
+      currentUrl.searchParams.get("logout") === "true";
+
+    if (!alreadyOnLogoutLoginPage) {
+      window.location.replace("/login?logout=true");
+    }
   }
 };
 
 export class ClientRequest {
   private static instance: ClientRequest | null = null;
+  private static authLogoutListenerAttached = false;
   private axiosInstance: AxiosInstance;
   private isRefreshing = false;
   private failedQueue: FailedRequestQueueItem[] = [];
+  private readonly handleAuthLogout = () => {
+    this.cancelRefresh();
+  };
 
   public static getInstance(): ClientRequest {
     if (!ClientRequest.instance) {
@@ -70,10 +74,6 @@ export class ClientRequest {
         if (editToken) {
           config.headers["X-Edit-Token"] = editToken;
         }
-        const token = Cookies.get("access_token");
-        if (token) {
-          config.headers["Authorization"] = `Bearer ${token}`;
-        }
         return config;
       },
       (error) => Promise.reject(error),
@@ -93,14 +93,10 @@ export class ClientRequest {
           !originalRequest._retry &&
           !originalRequest.skipAuthInterceptor
         ) {
-          const refreshToken = Cookies.get("refresh_token");
-          if (!refreshToken) return Promise.reject(error);
-
           originalRequest._retry = true;
 
           try {
-            const token = await this.waitForRefresh(refreshToken);
-            originalRequest.headers["Authorization"] = `Bearer ${token}`;
+            await this.waitForRefresh();
             return this.axiosInstance(originalRequest);
           } catch (refreshError) {
             return Promise.reject(refreshError);
@@ -109,9 +105,17 @@ export class ClientRequest {
         return Promise.reject(error);
       },
     );
+
+    if (
+      typeof window !== "undefined" &&
+      !ClientRequest.authLogoutListenerAttached
+    ) {
+      window.addEventListener("auth:logout", this.handleAuthLogout);
+      ClientRequest.authLogoutListenerAttached = true;
+    }
   }
 
-  private async waitForRefresh(refreshToken: string): Promise<string> {
+  private async waitForRefresh(): Promise<void> {
     if (this.isRefreshing) {
       return new Promise((resolve, reject) => {
         this.failedQueue.push({ resolve, reject });
@@ -124,37 +128,17 @@ export class ClientRequest {
     }
 
     try {
-      // Dùng axios fetch riêng để không vướng vào interceptor hiện tại
-      const response = await axios.post<{
-        data: { accessToken: string; refreshToken?: string };
-      }>(
-        `${this.axiosInstance.defaults.baseURL}/auth/refresh-token`,
-        { refresh_token: refreshToken },
-        { headers: { "Content-Type": "application/json" } },
+      await axios.post(
+        `${this.axiosInstance.defaults.baseURL}/auth/refresh`,
+        {},
+        { withCredentials: true },
       );
 
-      const newAccessToken = response.data?.data?.accessToken;
-      if (!newAccessToken) throw new Error("No access token returned");
-
-      Cookies.set("access_token", newAccessToken, {
-        expires: 1,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      });
-
-      const newRefreshToken = response.data?.data?.refreshToken;
-      if (newRefreshToken) {
-        Cookies.set("refresh_token", newRefreshToken, {
-          expires: 7,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-        });
-      }
-
-      this.processQueue(null, newAccessToken);
-      return newAccessToken;
+      this.processQueue(null);
     } catch (error) {
-      this.processQueue(error as Error, null);
+      this.processQueue(
+        error instanceof Error ? error : new Error("Refresh failed"),
+      );
       triggerLogout();
       throw error;
     } finally {
@@ -165,14 +149,12 @@ export class ClientRequest {
     }
   }
 
-  private processQueue(error: Error | null, token: string | null = null) {
+  private processQueue(error: Error | null) {
     this.failedQueue.forEach((prom) => {
       if (error) {
         prom.reject(error);
-      } else if (token) {
-        prom.resolve(token);
       } else {
-        prom.reject(new Error("Refresh failed: No token provided"));
+        prom.resolve();
       }
     });
     this.failedQueue = [];
@@ -182,8 +164,6 @@ export class ClientRequest {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
-    const token = Cookies.get("access_token");
-    if (token) headers["Authorization"] = `Bearer ${token}`;
 
     const editToken = useEditTokenStore.getState().editToken;
     if (editToken) headers["X-Edit-Token"] = editToken;
@@ -198,7 +178,7 @@ export class ClientRequest {
     const url = `${this.axiosInstance.defaults.baseURL}${normalizedUrl}`;
 
     const method = config.method || "POST";
-    let headers: Record<string, string> = {
+    const headers: Record<string, string> = {
       ...this.getCommonHeaders(),
       Accept: "text/event-stream",
       ...(config.headers || {}),
@@ -217,15 +197,11 @@ export class ClientRequest {
     let response = await executeRequest(headers);
 
     if (response.status === 401 && !config.skipAuthInterceptor) {
-      const refreshToken = Cookies.get("refresh_token");
-      if (refreshToken) {
-        try {
-          const newToken = await this.waitForRefresh(refreshToken);
-          headers["Authorization"] = `Bearer ${newToken}`;
-          response = await executeRequest(headers);
-        } catch (error) {
-          throw new Error("Session expired");
-        }
+      try {
+        await this.waitForRefresh();
+        response = await executeRequest(headers);
+      } catch {
+        throw new Error("Session expired");
       }
     }
 
@@ -284,6 +260,6 @@ export class ClientRequest {
 
   public cancelRefresh() {
     this.isRefreshing = false;
-    this.processQueue(new Error("Refresh cancelled"), null);
+    this.processQueue(new Error("Refresh cancelled"));
   }
 }

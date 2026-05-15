@@ -4,14 +4,14 @@ import { useEffect } from "react";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
 export function AuthInitializer({ children }: { children: React.ReactNode }) {
-  const { fetchMe, setInitialized, isInitialized, logout } = useAuthStore();
+  const { fetchMe, setInitialized, isInitialized, clearAuth } = useAuthStore();
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         await fetchMe();
       } catch (error) {
-        useAuthStore.setState({ isAuth: false, user: null });
+        clearAuth();
         console.error("[AuthInitializer] Failed to fetch user profile", error);
       } finally {
         setInitialized(true);
@@ -21,17 +21,7 @@ export function AuthInitializer({ children }: { children: React.ReactNode }) {
     if (!isInitialized) {
       initializeAuth();
     }
-  }, [fetchMe, setInitialized, isInitialized]);
-
-  useEffect(() => {
-    // Lắng nghe sự kiện auth:logout từ ClientRequest
-    const handleLogoutEvent = () => {
-      logout();
-    };
-
-    window.addEventListener("auth:logout", handleLogoutEvent);
-    return () => window.removeEventListener("auth:logout", handleLogoutEvent);
-  }, [logout]);
+  }, [clearAuth, fetchMe, setInitialized, isInitialized]);
 
   return <>{children}</>;
 }

@@ -12,12 +12,10 @@ EvidenceItem:
       type: string
       example: "Tập hợp trường 2025"
     criteriaDocId:
-      type: string
+      type: [string, "null"]
       format: uuid
-      nullable: true
     criteriaDocTitle:
-      type: string
-      nullable: true
+      type: [string, "null"]
       example: "Tham gia đầy đủ các buổi sinh hoạt"
     fileUrl:
       type: string
@@ -30,18 +28,23 @@ EvidenceItem:
       type: string
       enum: [pending, approved, rejected]
       example: pending
+    criterionType:
+      type: [string, "null"]
+      enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+      description: Criterion category used for filtering and progress views
+    reviewLevel:
+      type: [string, "null"]
+      enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
+      description: Activity review level associated with the evidence
     reviewNote:
-      type: string
-      nullable: true
+      type: [string, "null"]
       description: Note from reviewer
     reviewedBy:
-      type: string
+      type: [string, "null"]
       format: uuid
-      nullable: true
     reviewedAt:
-      type: string
+      type: [string, "null"]
       format: date-time
-      nullable: true
     createdAt:
       type: string
       format: date-time
@@ -58,9 +61,8 @@ CreateEvidenceRequest:
       format: uuid
       description: Target activity ID
     criteriaDocId:
-      type: string
+      type: [string, "null"]
       format: uuid
-      nullable: true
       description: Optional criteria document this evidence is for
     fileKey:
       type: string
@@ -80,8 +82,7 @@ ReviewEvidenceRequest:
       enum: [approved, rejected]
       description: Review decision
     reviewNote:
-      type: string
-      nullable: true
+      type: [string, "null"]
       maxLength: 500
       description: Optional feedback for the student
     forceOverride:

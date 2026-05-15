@@ -42,10 +42,10 @@ func (s *LeaderboardService) ListLeaderboard(ctx context.Context, unitID *string
 			TotalScore:    int32(item.TotalScore),
 		}
 		if item.UnitID != nil {
-			row.UnitId = *item.UnitID
+			row.UnitId = item.UnitID
 		}
 		if item.UnitName != nil {
-			row.UnitName = *item.UnitName
+			row.UnitName = item.UnitName
 		}
 		items[i] = row
 	}

@@ -15,7 +15,7 @@ type ReviewEvidenceRequest struct {
 	Status string `json:"status"`
 
 	// Optional feedback for the student
-	ReviewNote string `json:"reviewNote,omitempty"`
+	ReviewNote *string `json:"reviewNote,omitempty"`
 
 	// Allow re-reviewing already reviewed evidence
 	ForceOverride bool `json:"forceOverride,omitempty"`

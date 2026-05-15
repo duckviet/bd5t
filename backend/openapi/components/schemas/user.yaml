@@ -21,12 +21,10 @@ RegisterRequest:
       type: string
       example: "John Doe"
     unitId:
-      type: string
-      nullable: true
+      type: [string, "null"]
       example: "unit_1"
     className:
-      type: string
-      nullable: true
+      type: [string, "null"]
       example: "K56A1"
 
 LoginRequest:
@@ -104,14 +102,11 @@ UserProfile:
       enum: [student, admin]
       default: student
     unitId:
-      type: string
-      nullable: true
+      type: [string, "null"]
     unitName:
-      type: string
-      nullable: true
+      type: [string, "null"]
     className:
-      type: string
-      nullable: true
+      type: [string, "null"]
     createdAt:
       type: string
       format: date-time

@@ -26,9 +26,8 @@ ApiResponse:
       description: Indicates if the request was successful
       example: true
     data:
-      type: object
+      type: [object, "null"]
       description: Response data payload
-      nullable: true
 
 ApiResponseList:
   type: object
@@ -64,6 +63,5 @@ ErrorResponse:
           description: Human-readable error message
           example: Authentication token is required
         details:
-          type: object
+          type: [object, "null"]
           description: Additional error details (optional)
-          nullable: true

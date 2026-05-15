@@ -19,9 +19,9 @@ type LeaderboardItem struct {
 	// Display name of the user
 	UserName string `json:"userName,omitempty"`
 
-	UnitId string `json:"unitId,omitempty"`
+	UnitId *string `json:"unitId,omitempty"`
 
-	UnitName string `json:"unitName,omitempty"`
+	UnitName *string `json:"unitName,omitempty"`
 
 	// Number of approved evidence submissions
 	TotalApproved int32 `json:"totalApproved,omitempty"`

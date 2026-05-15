@@ -14,6 +14,9 @@ type Progress struct {
 }
 
 type CompletedCriteria struct {
+	CriteriaID       string
+	CriteriaType     string
+	CriteriaTitle    string
 	CriteriaDocID    string
 	CriteriaDocTitle string
 	Score            int

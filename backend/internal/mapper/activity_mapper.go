@@ -53,25 +53,25 @@ func ActivityToItemDTO(activity *domain.Activity) *dto.ActivityItem {
 		dtoItem.Slug = *activity.Slug
 	}
 	if activity.UnitID != nil {
-		dtoItem.UnitId = *activity.UnitID
+		dtoItem.UnitId = activity.UnitID
 	}
 	if activity.ShortDescription != nil {
 		dtoItem.ShortDescription = *activity.ShortDescription
 	}
 	if activity.Location != nil {
-		dtoItem.Location = *activity.Location
+		dtoItem.Location = activity.Location
 	}
 	if activity.TargetAudience != nil {
-		dtoItem.TargetAudience = *activity.TargetAudience
+		dtoItem.TargetAudience = activity.TargetAudience
 	}
 	if activity.Rules != nil {
-		dtoItem.Rules = *activity.Rules
+		dtoItem.Rules = activity.Rules
 	}
 	if activity.Rewards != nil {
-		dtoItem.Rewards = *activity.Rewards
+		dtoItem.Rewards = activity.Rewards
 	}
 	if activity.ContactInfo != nil {
-		dtoItem.ContactInfo = *activity.ContactInfo
+		dtoItem.ContactInfo = activity.ContactInfo
 	}
 	if activity.ThumbnailURL != nil {
 		dtoItem.ThumbnailUrl = *activity.ThumbnailURL
@@ -94,7 +94,7 @@ func ActivitiesToItemDTO(activities []*domain.Activity) []*dto.ActivityItem {
 	return result
 }
 
-func CriteriaDocToDTO(c *domain.CriteriaDoc) *dto.CriteriaDoc {
+func ActivityCriteriaToDTO(c *domain.ActivityCriteria) *dto.CriteriaDoc {
 	if c == nil {
 		return nil
 	}
@@ -112,10 +112,10 @@ func CriteriaDocToDTO(c *domain.CriteriaDoc) *dto.CriteriaDoc {
 	return dtoItem
 }
 
-func CriteriaDocsToDTO(criteria []*domain.CriteriaDoc) []dto.CriteriaDoc {
+func ActivityCriteriaToDTOs(criteria []*domain.ActivityCriteria) []dto.CriteriaDoc {
 	result := make([]dto.CriteriaDoc, 0, len(criteria))
 	for _, c := range criteria {
-		dto := CriteriaDocToDTO(c)
+		dto := ActivityCriteriaToDTO(c)
 		if dto != nil {
 			result = append(result, *dto)
 		}
@@ -123,7 +123,7 @@ func CriteriaDocsToDTO(criteria []*domain.CriteriaDoc) []dto.CriteriaDoc {
 	return result
 }
 
-func ActivityToDetailDTO(activity *domain.Activity, criteria []*domain.CriteriaDoc) *dto.ActivityDetail {
+func ActivityToDetailDTO(activity *domain.Activity, criteria []*domain.ActivityCriteria) *dto.ActivityDetail {
 	if activity == nil {
 		return nil
 	}
@@ -131,14 +131,14 @@ func ActivityToDetailDTO(activity *domain.Activity, criteria []*domain.CriteriaD
 	detail := &dto.ActivityDetail{
 		Id:           activity.ID,
 		IsActive:     activity.IsActive,
-		CriteriaDocs: CriteriaDocsToDTO(criteria),
+		CriteriaDocs: ActivityCriteriaToDTOs(criteria),
 	}
 
 	if activity.Slug != nil {
 		detail.Slug = *activity.Slug
 	}
 	if activity.UnitID != nil {
-		detail.UnitId = *activity.UnitID
+		detail.UnitId = activity.UnitID
 	}
 	if activity.Title != "" {
 		detail.Title = activity.Title
@@ -150,19 +150,19 @@ func ActivityToDetailDTO(activity *domain.Activity, criteria []*domain.CriteriaD
 		detail.ShortDescription = *activity.ShortDescription
 	}
 	if activity.Location != nil {
-		detail.Location = *activity.Location
+		detail.Location = activity.Location
 	}
 	if activity.TargetAudience != nil {
-		detail.TargetAudience = *activity.TargetAudience
+		detail.TargetAudience = activity.TargetAudience
 	}
 	if activity.Rules != nil {
-		detail.Rules = *activity.Rules
+		detail.Rules = activity.Rules
 	}
 	if activity.Rewards != nil {
-		detail.Rewards = *activity.Rewards
+		detail.Rewards = activity.Rewards
 	}
 	if activity.ContactInfo != nil {
-		detail.ContactInfo = *activity.ContactInfo
+		detail.ContactInfo = activity.ContactInfo
 	}
 	if activity.ThumbnailURL != nil {
 		detail.ThumbnailUrl = *activity.ThumbnailURL
@@ -174,13 +174,13 @@ func ActivityToDetailDTO(activity *domain.Activity, criteria []*domain.CriteriaD
 		detail.EndDate = formatDatePtr(activity.EndDate)
 	}
 	if activity.RegistrationURL != nil {
-		detail.RegistrationUrl = *activity.RegistrationURL
+		detail.RegistrationUrl = activity.RegistrationURL
 	}
 	if activity.ReviewLevel != nil {
 		detail.ReviewLevel = *activity.ReviewLevel
 	}
 	if activity.Organizer != nil {
-		detail.Organizer = *activity.Organizer
+		detail.Organizer = activity.Organizer
 	}
 
 	return detail

@@ -5,13 +5,19 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Calendar, Download, Trash2, Upload } from "lucide-react"
 import { CRITERIA, REVIEW_LEVELS, EVIDENCE_STATUS } from "@/lib/constants"
-import type { EvidenceItem } from "../types"
+import type {
+  EvidenceItem,
+  EvidenceItemStatus,
+} from "@/services/generated/api";
 
 interface EvidenceListViewProps {
-  items: EvidenceItem[]
-  onUpload: () => void
-  statusBadgeVariant: Record<string, "success" | "secondary" | "destructive">
-  statusIcon: Record<string, React.ComponentType<{ className?: string }>>
+  items: EvidenceItem[];
+  onUpload: () => void;
+  statusBadgeVariant: Record<
+    NonNullable<EvidenceItemStatus>,
+    "success" | "secondary" | "destructive"
+  >;
+  statusIcon: Record<string, React.ComponentType<{ className?: string }>>;
 }
 
 export function EvidenceListView({ items, onUpload, statusBadgeVariant, statusIcon: statusIconMap }: EvidenceListViewProps) {
@@ -38,7 +44,8 @@ export function EvidenceListView({ items, onUpload, statusBadgeVariant, statusIc
   return (
     <div className="space-y-3">
       {items.map((ev) => {
-        const StatusIcon = statusIconMap[ev.status]
+        const status = (ev.status ?? "pending") as EvidenceItemStatus;
+        const StatusIcon = statusIconMap[status];
         return (
           <div
             key={ev.id}
@@ -48,35 +55,49 @@ export function EvidenceListView({ items, onUpload, statusBadgeVariant, statusIc
               <FileText className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-sm truncate">{ev.title}</div>
+              <div className="font-medium text-sm truncate">
+                {ev.activityTitle || ev.description || "Minh chứng"}
+              </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
-                <span>{CRITERIA[ev.criterion]}</span>
+                <span>{CRITERIA[ev.criterionType || "HOC_TAP"]}</span>
                 <span>•</span>
-                <span>{REVIEW_LEVELS[ev.reviewLevel]}</span>
+                <span>{REVIEW_LEVELS[ev.reviewLevel || "TRUONG"]}</span>
                 <span>•</span>
-                <span>{ev.activityTitle}</span>
+                <span>{ev.activityTitle || "Hoạt động"}</span>
               </div>
               <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  {ev.createdAt}
+                  {ev.createdAt || ""}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <Badge variant={statusBadgeVariant[ev.status]}>
+              <Badge variant={statusBadgeVariant[status]}>
                 <StatusIcon className="h-3 w-3 mr-1" />
-                {EVIDENCE_STATUS[ev.status]}
+                {
+                  EVIDENCE_STATUS[
+                    status.toUpperCase() as keyof typeof EVIDENCE_STATUS
+                  ]
+                }
               </Badge>
-              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
                 <Download className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+              >
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           </div>
-        )
+        );
       })}
     </div>
   )
@@ -106,7 +127,8 @@ export function EvidenceGridView({ items, onUpload, statusBadgeVariant, statusIc
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {items.map((ev) => {
-        const StatusIcon = statusIconMap[ev.status]
+        const status = (ev.status ?? "pending") as EvidenceItemStatus;
+        const StatusIcon = statusIconMap[status];
         return (
           <div
             key={ev.id}
@@ -117,37 +139,49 @@ export function EvidenceGridView({ items, onUpload, statusBadgeVariant, statusIc
                 <FileText className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm truncate">{ev.title}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{ev.activityTitle}</div>
+                <div className="font-medium text-sm truncate">
+                  {ev.activityTitle || ev.description || "Minh chứng"}
+                </div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  {ev.activityTitle || "Hoạt động"}
+                </div>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mb-3">
-              <span>{CRITERIA[ev.criterion]}</span>
+              <span>{CRITERIA[ev.criterionType || "HOC_TAP"]}</span>
               <span>•</span>
-              <span>{REVIEW_LEVELS[ev.reviewLevel]}</span>
+              <span>{REVIEW_LEVELS[ev.reviewLevel || "TRUONG"]}</span>
             </div>
             <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Calendar className="h-3 w-3" />
-                {ev.createdAt}
+                {ev.createdAt || ""}
               </span>
               <div className="flex items-center gap-2">
-                <Badge variant={statusBadgeVariant[ev.status]}>
+                <Badge variant={statusBadgeVariant[status]}>
                   <StatusIcon className="h-3 w-3 mr-1" />
-                  {EVIDENCE_STATUS[ev.status]}
+                  {
+                    EVIDENCE_STATUS[
+                      status.toUpperCase() as keyof typeof EVIDENCE_STATUS
+                    ]
+                  }
                 </Badge>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button variant="ghost" size="icon" className="h-7 w-7">
                     <Download className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-destructive hover:text-destructive"
+                  >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </div>
             </div>
           </div>
-        )
+        );
       })}
     </div>
   )

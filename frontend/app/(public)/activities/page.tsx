@@ -60,7 +60,7 @@ export default function ActivitiesPage() {
 
   const filteredActivities = useMemo(() => {
     const now = new Date();
-    return activities.filter((activity) => {
+    return activities?.filter((activity) => {
       const matchesSearch = activity.title
         ?.toLowerCase()
         .includes(debouncedSearchQuery.toLowerCase());
@@ -83,7 +83,7 @@ export default function ActivitiesPage() {
       const matchesCriterion = selectedCriterion === "all";
 
       return matchesSearch && matchesCriterion && matchesLevel && matchesStatus;
-    });
+    }) || [];
   }, [activities, debouncedSearchQuery, selectedCriterion, selectedLevel, selectedStatus]);
 
   const statusOptions = [
@@ -253,7 +253,7 @@ export default function ActivitiesPage() {
           <p className="text-sm text-slate-500">
             Tìm thấy{" "}
             <span className="font-semibold text-slate-900">
-              {filteredActivities.length}
+              {filteredActivities?.length}
             </span>{" "}
             hoạt động
           </p>
@@ -300,7 +300,7 @@ export default function ActivitiesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredActivities.map((activity) => (
+            {filteredActivities?.map((activity) => (
               <Card
                 key={activity.id}
                 className="overflow-hidden border-slate-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-2xl group"

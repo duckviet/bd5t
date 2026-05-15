@@ -11,19 +11,20 @@ import {
 } from "@/components/ui/select"
 import { Search, LayoutGrid, List } from "lucide-react"
 import { CRITERIA, REVIEW_LEVELS, type CriterionType, type ReviewLevel } from "@/lib/constants"
+import type { EvidenceItemStatus } from "@/services/generated/api";
 import type { EvidenceViewType } from "../types"
 
 interface EvidenceFiltersProps {
-  searchQuery: string
-  onSearchChange: (value: string) => void
-  filterStatus: string
-  onStatusChange: (value: string) => void
-  filterCriterion: string
-  onCriterionChange: (value: string) => void
-  filterLevel: string
-  onLevelChange: (value: string) => void
-  viewType: EvidenceViewType
-  onViewTypeChange: (value: EvidenceViewType) => void
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
+  filterStatus: EvidenceItemStatus | "all";
+  onStatusChange: (value: EvidenceItemStatus | "all") => void;
+  filterCriterion: CriterionType | "all";
+  onCriterionChange: (value: CriterionType | "all") => void;
+  filterLevel: ReviewLevel | "all";
+  onLevelChange: (value: ReviewLevel | "all") => void;
+  viewType: EvidenceViewType;
+  onViewTypeChange: (value: EvidenceViewType) => void;
 }
 
 const criteriaKeys = Object.keys(CRITERIA) as CriterionType[]
@@ -58,9 +59,9 @@ export function EvidenceFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Tất cả</SelectItem>
-          <SelectItem value="APPROVED">Đã duyệt</SelectItem>
-          <SelectItem value="PENDING">Chờ duyệt</SelectItem>
-          <SelectItem value="REJECTED">Bị từ chối</SelectItem>
+          <SelectItem value="approved">Đã duyệt</SelectItem>
+          <SelectItem value="pending">Chờ duyệt</SelectItem>
+          <SelectItem value="rejected">Bị từ chối</SelectItem>
         </SelectContent>
       </Select>
       <Select value={filterCriterion} onValueChange={onCriterionChange}>
@@ -70,7 +71,9 @@ export function EvidenceFilters({
         <SelectContent>
           <SelectItem value="all">Tất cả tiêu chí</SelectItem>
           {criteriaKeys.map((key) => (
-            <SelectItem key={key} value={key}>{CRITERIA[key]}</SelectItem>
+            <SelectItem key={key} value={key}>
+              {CRITERIA[key]}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
@@ -81,7 +84,9 @@ export function EvidenceFilters({
         <SelectContent>
           <SelectItem value="all">Tất cả cấp độ</SelectItem>
           {reviewLevelKeys.map((key) => (
-            <SelectItem key={key} value={key}>{REVIEW_LEVELS[key]}</SelectItem>
+            <SelectItem key={key} value={key}>
+              {REVIEW_LEVELS[key]}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
@@ -104,5 +109,5 @@ export function EvidenceFilters({
         </Button>
       </div>
     </div>
-  )
+  );
 }
