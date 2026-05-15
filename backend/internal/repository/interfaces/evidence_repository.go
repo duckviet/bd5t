@@ -21,5 +21,5 @@ type EvidenceRepository interface {
 	GetByID(ctx context.Context, id string) (*domain.Evidence, error)
 	Create(ctx context.Context, evidence *domain.Evidence) error
 	Delete(ctx context.Context, id string) error
-	UpdateStatus(ctx context.Context, id string, status string, reviewNote *string, reviewedBy string) error
+	UpdateStatus(ctx context.Context, id string, status string, reviewNote *string, reviewedBy string, score *int) error
 }

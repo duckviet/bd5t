@@ -26,15 +26,15 @@ func (r *EvidenceRepository) List(ctx context.Context, userID string, filter int
 	offset := (page - 1) * pageSize
 
 	baseQuery := `
-		SELECT e.id, e.user_id, e.activity_id, e.criteria_doc_id, e.file_url, e.file_key, 
-		       e.description, e.status, e.review_note, e.reviewed_by, e.reviewed_at, 
-		       e.criterion_type, e.created_at, e.updated_at,
-		       a.title as activity_title,
-		       a.review_level as review_level,
-		       c.title as criteria_doc_title
+		SELECT e.id, e.user_id, e.activity_id, e.activity_criteria_id, e.score, e.file_url, e.file_key, 
+			   e.description, e.status, e.review_note, e.reviewed_by, e.reviewed_at, 
+			   e.criterion_type, e.created_at, e.updated_at,
+			   a.title as activity_title,
+			   a.review_level as review_level,
+			   c.title as criteria_title
 		FROM evidences e
 		LEFT JOIN activities a ON e.activity_id = a.id
-		LEFT JOIN activity_criteria ac ON e.criteria_doc_id = ac.id
+		LEFT JOIN activity_criteria ac ON e.activity_criteria_id = ac.id
 		LEFT JOIN criteria c ON ac.criteria_id = c.id
 		WHERE e.user_id = $1`
 
@@ -85,14 +85,16 @@ func (r *EvidenceRepository) List(ctx context.Context, userID string, filter int
 	var evidences []*domain.Evidence
 	for rows.Next() {
 		var e domain.Evidence
-		var criteriaDocID, description, reviewNote, reviewedBy, criterionType, activityTitle, reviewLevel, criteriaDocTitle *string
+		var activityCriteriaID, description, reviewNote, reviewedBy, criterionType, activityTitle, reviewLevel, criteriaTitle *string
+		var score sql.NullInt64
 		var reviewedAt sql.NullTime
 
 		err := rows.Scan(
 			&e.ID,
 			&e.UserID,
 			&e.ActivityID,
-			&criteriaDocID,
+			&activityCriteriaID,
+			&score,
 			&e.FileURL,
 			&e.FileKey,
 			&description,
@@ -105,20 +107,23 @@ func (r *EvidenceRepository) List(ctx context.Context, userID string, filter int
 			&e.UpdatedAt,
 			&activityTitle,
 			&reviewLevel,
-			&criteriaDocTitle,
+			&criteriaTitle,
 		)
 		if err != nil {
 			return nil, err
 		}
-
-		e.CriteriaDocID = criteriaDocID
+		e.ActivityCriteriaID = activityCriteriaID
+		if score.Valid {
+			v := int(score.Int64)
+			e.Score = &v
+		}
 		e.Description = description
 		e.ReviewNote = reviewNote
 		e.ReviewedBy = reviewedBy
 		e.CriterionType = criterionType
 		e.ActivityTitle = derefString(activityTitle)
 		e.ReviewLevel = reviewLevel
-		e.CriteriaDocTitle = criteriaDocTitle
+		_ = criteriaTitle
 		if reviewedAt.Valid {
 			e.ReviewedAt = &reviewedAt.Time
 		}
@@ -134,27 +139,29 @@ func (r *EvidenceRepository) List(ctx context.Context, userID string, filter int
 
 func (r *EvidenceRepository) GetByID(ctx context.Context, id string) (*domain.Evidence, error) {
 	query := `
-		SELECT e.id, e.user_id, e.activity_id, e.criteria_doc_id, e.file_url, e.file_key, 
-		       e.description, e.status, e.review_note, e.reviewed_by, e.reviewed_at, 
-		       e.criterion_type, e.created_at, e.updated_at,
-		       a.title as activity_title,
-		       a.review_level as review_level,
-		       c.title as criteria_doc_title
+		SELECT e.id, e.user_id, e.activity_id, e.activity_criteria_id, e.score, e.file_url, e.file_key, 
+			   e.description, e.status, e.review_note, e.reviewed_by, e.reviewed_at, 
+			   e.criterion_type, e.created_at, e.updated_at,
+			   a.title as activity_title,
+			   a.review_level as review_level,
+			   c.title as criteria_title
 		FROM evidences e
 		LEFT JOIN activities a ON e.activity_id = a.id
-		LEFT JOIN activity_criteria ac ON e.criteria_doc_id = ac.id
+		LEFT JOIN activity_criteria ac ON e.activity_criteria_id = ac.id
 		LEFT JOIN criteria c ON ac.criteria_id = c.id
 		WHERE e.id = $1`
 
 	var e domain.Evidence
-	var criteriaDocID, description, reviewNote, reviewedBy, criterionType, activityTitle, reviewLevel, criteriaDocTitle *string
+	var activityCriteriaID, description, reviewNote, reviewedBy, criterionType, activityTitle, reviewLevel, criteriaTitle *string
+	var score sql.NullInt64
 	var reviewedAt sql.NullTime
 
 	err := r.pool.QueryRow(ctx, query, id).Scan(
 		&e.ID,
 		&e.UserID,
 		&e.ActivityID,
-		&criteriaDocID,
+		&activityCriteriaID,
+		&score,
 		&e.FileURL,
 		&e.FileKey,
 		&description,
@@ -167,7 +174,7 @@ func (r *EvidenceRepository) GetByID(ctx context.Context, id string) (*domain.Ev
 		&e.UpdatedAt,
 		&activityTitle,
 		&reviewLevel,
-		&criteriaDocTitle,
+		&criteriaTitle,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
@@ -176,14 +183,18 @@ func (r *EvidenceRepository) GetByID(ctx context.Context, id string) (*domain.Ev
 		return nil, err
 	}
 
-	e.CriteriaDocID = criteriaDocID
+	e.ActivityCriteriaID = activityCriteriaID
+	if score.Valid {
+		v := int(score.Int64)
+		e.Score = &v
+	}
 	e.Description = description
 	e.ReviewNote = reviewNote
 	e.ReviewedBy = reviewedBy
 	e.CriterionType = criterionType
 	e.ActivityTitle = derefString(activityTitle)
 	e.ReviewLevel = reviewLevel
-	e.CriteriaDocTitle = criteriaDocTitle
+	_ = criteriaTitle
 	if reviewedAt.Valid {
 		e.ReviewedAt = &reviewedAt.Time
 	}
@@ -193,13 +204,13 @@ func (r *EvidenceRepository) GetByID(ctx context.Context, id string) (*domain.Ev
 
 func (r *EvidenceRepository) Create(ctx context.Context, evidence *domain.Evidence) error {
 	query := `
-		INSERT INTO evidences (user_id, activity_id, criteria_doc_id, file_url, file_key, description, criterion_type)
+		INSERT INTO evidences (user_id, activity_id, activity_criteria_id, file_url, file_key, description, criterion_type)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at, updated_at`
 
-	var criteriaDocID, description, criterionType *string
-	if evidence.CriteriaDocID != nil {
-		criteriaDocID = evidence.CriteriaDocID
+	var activityCriteriaID, description, criterionType *string
+	if evidence.ActivityCriteriaID != nil {
+		activityCriteriaID = evidence.ActivityCriteriaID
 	}
 	if evidence.Description != nil {
 		description = evidence.Description
@@ -211,7 +222,7 @@ func (r *EvidenceRepository) Create(ctx context.Context, evidence *domain.Eviden
 	return r.pool.QueryRow(ctx, query,
 		evidence.UserID,
 		evidence.ActivityID,
-		criteriaDocID,
+		activityCriteriaID,
 		evidence.FileURL,
 		evidence.FileKey,
 		description,
@@ -230,13 +241,13 @@ func (r *EvidenceRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (r *EvidenceRepository) UpdateStatus(ctx context.Context, id string, status string, reviewNote *string, reviewedBy string) error {
+func (r *EvidenceRepository) UpdateStatus(ctx context.Context, id string, status string, reviewNote *string, reviewedBy string, score *int) error {
 	query := `
 		UPDATE evidences
-		SET status = $1, review_note = $2, reviewed_by = $3, reviewed_at = NOW(), updated_at = NOW()
-		WHERE id = $4`
+		SET status = $1, review_note = $2, reviewed_by = $3, reviewed_at = NOW(), updated_at = NOW(), score = $4
+		WHERE id = $5`
 
-	_, err := r.pool.Exec(ctx, query, status, reviewNote, reviewedBy, id)
+	_, err := r.pool.Exec(ctx, query, status, reviewNote, reviewedBy, score, id)
 	return err
 }
 

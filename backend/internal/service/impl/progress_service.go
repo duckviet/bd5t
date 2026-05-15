@@ -124,3 +124,33 @@ func (s *ProgressService) RecalculateProgress(ctx context.Context, userID string
 
 	return nil
 }
+
+// RecalculateForUserActivity recalculates total score for a specific user and activity
+// by summing approved evidence scores.
+func (s *ProgressService) RecalculateForUserActivity(ctx context.Context, userID, activityID string) error {
+	// Use evidenceRepo.List to fetch approved evidences for the user and activity
+	filter := interfaces.EvidenceFilter{ActivityID: &activityID}
+	res, err := s.evidenceRepo.List(ctx, userID, filter, 1, 1000)
+	if err != nil {
+		return errors.ErrInternalError(err, "failed to list evidences for progress recalc")
+	}
+
+	var total int
+	for _, e := range res.Evidences {
+		if e.IsApproved() && e.Score != nil {
+			total += *e.Score
+		}
+	}
+
+	progress := &domain.Progress{
+		UserID:     userID,
+		ActivityID: activityID,
+		TotalScore: total,
+	}
+
+	if err := s.progressRepo.Upsert(ctx, progress); err != nil {
+		return errors.ErrInternalError(err, "failed to upsert progress")
+	}
+
+	return nil
+}

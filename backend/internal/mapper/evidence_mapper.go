@@ -19,18 +19,11 @@ func DomainToEvidenceItem(e *domain.Evidence) *dto.EvidenceItem {
 		CreatedAt:     e.CreatedAt,
 	}
 
-	if e.CriteriaDocID != nil {
-		item.CriteriaDocId = e.CriteriaDocID
-	}
-	if e.CriteriaDocTitle != nil {
-		item.CriteriaDocTitle = e.CriteriaDocTitle
-	}
+	// legacy criteria_doc fields removed from domain; keep DTO fields nil until OpenAPI regenerated
 	if e.Description != nil {
 		item.Description = *e.Description
 	}
-	if e.CriterionType != nil {
-		item.CriterionType = e.CriterionType
-	}
+	// criterionType removed from DTO; derive via activityCriteria when needed
 	if e.ReviewLevel != nil {
 		item.ReviewLevel = e.ReviewLevel
 	}
@@ -43,23 +36,29 @@ func DomainToEvidenceItem(e *domain.Evidence) *dto.EvidenceItem {
 	if e.ReviewedAt != nil {
 		item.ReviewedAt = e.ReviewedAt
 	}
+	if e.ActivityCriteriaID != nil {
+		item.ActivityCriteriaId = e.ActivityCriteriaID
+	}
+	if e.Score != nil {
+		v := int32(*e.Score)
+		item.Score = &v
+	}
 
 	return item
 }
 
 func CreateEvidenceRequestToDomain(req *dto.CreateEvidenceRequest, userID string, fileURL string) *domain.Evidence {
-	criterionType := domain.CriterionTypeHocTap
 	evidence := &domain.Evidence{
-		UserID:        userID,
-		ActivityID:    req.ActivityId,
-		FileURL:       fileURL,
-		FileKey:       req.FileKey,
-		Status:        domain.StatusPending,
-		CriterionType: &criterionType,
+		UserID:     userID,
+		ActivityID: req.ActivityId,
+		FileURL:    fileURL,
+		FileKey:    req.FileKey,
+		Status:     domain.StatusPending,
 	}
 
-	if req.CriteriaDocId != nil {
-		evidence.CriteriaDocID = req.CriteriaDocId
+	// Map incoming activityCriteriaId to domain
+	if req.ActivityCriteriaId != nil {
+		evidence.ActivityCriteriaID = req.ActivityCriteriaId
 	}
 	if req.Description != "" {
 		evidence.Description = &req.Description

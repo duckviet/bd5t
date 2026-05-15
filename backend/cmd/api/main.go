@@ -79,10 +79,10 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	tokenMgr := auth.NewTokenManager(cfg)
 
 	userRepo := repoImpl.NewUserRepository(db)
-	authService := svcImpl.NewAuthService(userRepo, tokenMgr)
+	unitRepo := repoImpl.NewUnitRepository(db)
+	authService := svcImpl.NewAuthService(userRepo, unitRepo, tokenMgr)
 	authAPI := handlers.NewAuthAPI(authService)
 
-	unitRepo := repoImpl.NewUnitRepository(db)
 	unitService := svcImpl.NewUnitService(unitRepo)
 	unitsAPI := handlers.NewUnitsAPI(unitService)
 

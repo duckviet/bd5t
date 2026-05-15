@@ -96,8 +96,7 @@ export default function ProfilePage() {
       title.toLowerCase().includes(q) ||
       description.toLowerCase().includes(q);
     const matchesStatus = filterStatus === "all" || ev.status === filterStatus;
-    const matchesCriterion =
-      filterCriterion === "all" || ev.criterionType === filterCriterion;
+    const matchesCriterion = filterCriterion === "all";
     const matchesLevel =
       filterLevel === "all" || ev.reviewLevel === filterLevel;
     return matchesSearch && matchesStatus && matchesCriterion && matchesLevel;

@@ -14,8 +14,8 @@ type CreateEvidenceRequest struct {
 	// Target activity ID
 	ActivityId string `json:"activityId"`
 
-	// Optional criteria document this evidence is for
-	CriteriaDocId *string `json:"criteriaDocId,omitempty"`
+	// Optional activity_criteria id this evidence is for (NULL = applies to whole activity)
+	ActivityCriteriaId *string `json:"activityCriteriaId,omitempty"`
 
 	// R2 object key for the uploaded file
 	FileKey string `json:"fileKey"`

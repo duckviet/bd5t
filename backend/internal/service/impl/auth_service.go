@@ -12,12 +12,14 @@ import (
 
 type AuthService struct {
 	userRepo interfaces.UserRepository
+	unitRepo interfaces.UnitRepository
 	tokenMgr *auth.TokenManager
 }
 
-func NewAuthService(userRepo interfaces.UserRepository, tokenMgr *auth.TokenManager) *AuthService {
+func NewAuthService(userRepo interfaces.UserRepository, unitRepo interfaces.UnitRepository, tokenMgr *auth.TokenManager) *AuthService {
 	return &AuthService{
 		userRepo: userRepo,
+		unitRepo: unitRepo,
 		tokenMgr: tokenMgr,
 	}
 }
@@ -59,6 +61,17 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 		return nil, errors.ErrInternalError(err, "failed to create user")
 	}
 
+	var unitName string
+	if user.UnitID != nil {
+		unit, err := s.unitRepo.GetByID(ctx, *user.UnitID)
+		if err != nil {
+			return nil, errors.ErrInternalError(err, "failed to get unit")
+		}
+		if unit != nil {
+			unitName = unit.Name
+		}
+	}
+
 	accessToken, err := s.tokenMgr.SignAccessToken(user.ID, user.Email, user.Role, "")
 	if err != nil {
 		return nil, errors.ErrInternalError(err, "failed to sign access token")
@@ -70,7 +83,7 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 	}
 
 	return &LoginResult{
-		User:         mapper.UserToProfileDTO(user),
+		User:         mapper.UserToProfileDTOWithUnit(user, unitName),
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
@@ -145,5 +158,16 @@ func (s *AuthService) Me(ctx context.Context, userID string) (*dto.UserProfile, 
 		return nil, errors.ErrUserNotFound()
 	}
 
-	return mapper.UserToProfileDTO(user), nil
+	var unitName string
+	if user.UnitID != nil {
+		unit, err := s.unitRepo.GetByID(ctx, *user.UnitID)
+		if err != nil {
+			return nil, errors.ErrInternalError(err, "failed to get unit")
+		}
+		if unit != nil {
+			unitName = unit.Name
+		}
+	}
+
+	return mapper.UserToProfileDTOWithUnit(user, unitName), nil
 }

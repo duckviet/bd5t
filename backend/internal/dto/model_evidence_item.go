@@ -21,18 +21,17 @@ type EvidenceItem struct {
 
 	ActivityTitle string `json:"activityTitle,omitempty"`
 
-	CriteriaDocId *string `json:"criteriaDocId,omitempty"`
+	// Optional FK to activity_criteria when evidence applies to a single criterion
+	ActivityCriteriaId *string `json:"activityCriteriaId,omitempty"`
 
-	CriteriaDocTitle *string `json:"criteriaDocTitle,omitempty"`
+	// Score assigned by reviewer when evidence is approved; null = not reviewed
+	Score *int32 `json:"score,omitempty"`
 
 	FileUrl string `json:"fileUrl,omitempty"`
 
 	Description string `json:"description,omitempty"`
 
 	Status string `json:"status,omitempty"`
-
-	// Criterion category used for filtering and progress views
-	CriterionType *string `json:"criterionType,omitempty"`
 
 	// Activity review level associated with the evidence
 	ReviewLevel *string `json:"reviewLevel,omitempty"`

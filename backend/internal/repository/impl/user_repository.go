@@ -130,8 +130,8 @@ func (r *UserRepository) GetByStudentID(ctx context.Context, studentID string) (
 
 func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	query := `
-		INSERT INTO users (email, password_hash, student_id, display_name, role)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO users (email, password_hash, student_id, display_name, unit_id, class_name, role)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at, updated_at`
 
 	var studentID *string
@@ -144,12 +144,22 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 		displayName = user.DisplayName
 	}
 
+	var unitID *string
+	if user.UnitID != nil {
+		unitID = user.UnitID
+	}
+
+	var className *string
+	if user.ClassName != nil {
+		className = user.ClassName
+	}
+
 	role := domain.RoleStudent
 	if user.Role != "" {
 		role = user.Role
 	}
 
-	err := r.pool.QueryRow(ctx, query, user.Email, user.PasswordHash, studentID, displayName, role).Scan(
+	err := r.pool.QueryRow(ctx, query, user.Email, user.PasswordHash, studentID, displayName, unitID, className, role).Scan(
 		&user.ID,
 		&user.CreatedAt,
 		&user.UpdatedAt,

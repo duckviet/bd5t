@@ -10,11 +10,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, EyeOff, Loader2 } from "lucide-react"
-import { UNITS } from "@/lib/constants"
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 import { useRegisterMutation } from "@/features/auth/hooks/useAuthMutation"
-import type { RegisterRequest } from "@/services/generated/api";
+import { useListUnits, type RegisterRequest } from "@/services/generated/api";
 
 const registerSchema = z
   .object({
@@ -35,7 +34,12 @@ type RegisterFormData = z.infer<typeof registerSchema>
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
+  const [selectedUnitId, setSelectedUnitId] = useState("__none__");
   const registerMutation = useRegisterMutation()
+  const { data: unitsData, isLoading: isUnitsLoading } = useListUnits({
+    query: { retry: false, refetchOnWindowFocus: false },
+  });
+  const units = unitsData?.data ?? [];
 
   const {
     register,
@@ -44,6 +48,10 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      className: "",
+      unitId: "",
+    },
   });
 
   const onSubmit = async (data: RegisterFormData) => {
@@ -135,21 +143,29 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label htmlFor="unitId">Đơn vị</Label>
                 <Select
-                  onValueChange={(value) =>
-                    setValue("unitId", value, { shouldDirty: true })
-                  }
-                  defaultValue=""
+                  value={selectedUnitId}
+                  disabled={isUnitsLoading}
+                  onValueChange={(value) => {
+                    setSelectedUnitId(value);
+                    setValue("unitId", value === "__none__" ? "" : value, {
+                      shouldDirty: true,
+                    });
+                  }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Chọn khoa" />
+                    <SelectValue
+                      placeholder={
+                        isUnitsLoading ? "Đang tải đơn vị..." : "Chọn khoa"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Không chọn</SelectItem>
-                    {UNITS.map((unit) => (
+                    <SelectItem value="__none__">Không chọn</SelectItem>
+                    {units.map((unit) => (
                       <SelectItem
                         className="focus:text-foreground"
                         key={unit.id}
-                        value={unit.id}
+                        value={unit.id || ""}
                       >
                         {unit.name}
                       </SelectItem>

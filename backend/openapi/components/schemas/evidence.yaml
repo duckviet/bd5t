@@ -11,12 +11,14 @@ EvidenceItem:
     activityTitle:
       type: string
       example: "Tập hợp trường 2025"
-    criteriaDocId:
+    # Deprecated: criteriaDocId and criteriaDocTitle removed in favor of activityCriteriaId
+    activityCriteriaId:
       type: [string, "null"]
       format: uuid
-    criteriaDocTitle:
-      type: [string, "null"]
-      example: "Tham gia đầy đủ các buổi sinh hoạt"
+      description: Optional FK to activity_criteria when evidence applies to a single criterion
+    score:
+      type: [integer, "null"]
+      description: Score assigned by reviewer when evidence is approved; null = not reviewed
     fileUrl:
       type: string
       format: uri
@@ -28,10 +30,7 @@ EvidenceItem:
       type: string
       enum: [pending, approved, rejected]
       example: pending
-    criterionType:
-      type: [string, "null"]
-      enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
-      description: Criterion category used for filtering and progress views
+    # Removed: criterionType (denormalized) - use activityCriteriaId -> activity_criteria -> criteria
     reviewLevel:
       type: [string, "null"]
       enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
@@ -60,10 +59,10 @@ CreateEvidenceRequest:
       type: string
       format: uuid
       description: Target activity ID
-    criteriaDocId:
+    activityCriteriaId:
       type: [string, "null"]
       format: uuid
-      description: Optional criteria document this evidence is for
+      description: Optional activity_criteria id this evidence is for (NULL = applies to whole activity)
     fileKey:
       type: string
       description: R2 object key for the uploaded file
@@ -89,3 +88,6 @@ ReviewEvidenceRequest:
       type: boolean
       default: false
       description: Allow re-reviewing already reviewed evidence
+    score:
+      type: [integer, "null"]
+      description: Optional score assigned by reviewer when approving

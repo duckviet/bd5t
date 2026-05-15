@@ -48,7 +48,14 @@ func (s *AdminService) ReviewEvidence(ctx context.Context, adminID, evidenceID s
 		reviewNote = req.ReviewNote
 	}
 
-	if err := s.evidenceRepo.UpdateStatus(ctx, evidenceID, req.Status, reviewNote, adminID); err != nil {
+	// Convert optional score from request to *int for repository
+	var scorePtr *int
+	if req.Score != nil {
+		v := int(*req.Score)
+		scorePtr = &v
+	}
+
+	if err := s.evidenceRepo.UpdateStatus(ctx, evidenceID, req.Status, reviewNote, adminID, scorePtr); err != nil {
 		return nil, errors.ErrInternalError(err, "failed to update evidence status")
 	}
 
@@ -57,6 +64,14 @@ func (s *AdminService) ReviewEvidence(ctx context.Context, adminID, evidenceID s
 	reviewedAt := time.Now()
 	evidence.ReviewedAt = &reviewedAt
 	evidence.ReviewedBy = &adminID
+
+	// After status update, if approved, recalculate progress for the user/activity
+	if req.Status == domain.StatusApproved {
+		// best-effort recalc; not wrapped in the same DB transaction currently
+		if err := s.progressSvc.RecalculateForUserActivity(ctx, evidence.UserID, evidence.ActivityID); err != nil {
+			return nil, errors.ErrInternalError(err, "failed to recalc progress")
+		}
+	}
 
 	return mapper.DomainToEvidenceItem(evidence), nil
 }

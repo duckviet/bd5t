@@ -417,22 +417,6 @@ export const EvidenceItemStatus = {
 } as const;
 
 /**
- * Criterion category used for filtering and progress views
- * @nullable
- */
-export type EvidenceItemCriterionType =
-  | (typeof EvidenceItemCriterionType)[keyof typeof EvidenceItemCriterionType]
-  | null;
-
-export const EvidenceItemCriterionType = {
-  DAO_DUC: "DAO_DUC",
-  HOC_TAP: "HOC_TAP",
-  THE_LUC: "THE_LUC",
-  TINH_NGUYEN: "TINH_NGUYEN",
-  HOI_NHAP: "HOI_NHAP",
-} as const;
-
-/**
  * Activity review level associated with the evidence
  * @nullable
  */
@@ -451,18 +435,19 @@ export interface EvidenceItem {
   id?: string;
   activityId?: string;
   activityTitle?: string;
-  /** @nullable */
-  criteriaDocId?: string | null;
-  /** @nullable */
-  criteriaDocTitle?: string | null;
+  /**
+   * Optional FK to activity_criteria when evidence applies to a single criterion
+   * @nullable
+   */
+  activityCriteriaId?: string | null;
+  /**
+   * Score assigned by reviewer when evidence is approved; null = not reviewed
+   * @nullable
+   */
+  score?: number | null;
   fileUrl?: string;
   description?: string;
   status?: EvidenceItemStatus;
-  /**
-   * Criterion category used for filtering and progress views
-   * @nullable
-   */
-  criterionType?: EvidenceItemCriterionType;
   /**
    * Activity review level associated with the evidence
    * @nullable
@@ -484,10 +469,10 @@ export interface CreateEvidenceRequest {
   /** Target activity ID */
   activityId: string;
   /**
-   * Optional criteria document this evidence is for
+   * Optional activity_criteria id this evidence is for (NULL = applies to whole activity)
    * @nullable
    */
-  criteriaDocId?: string | null;
+  activityCriteriaId?: string | null;
   /** R2 object key for the uploaded file */
   fileKey: string;
   /**
@@ -519,6 +504,11 @@ export interface ReviewEvidenceRequest {
   reviewNote?: string | null;
   /** Allow re-reviewing already reviewed evidence */
   forceOverride?: boolean;
+  /**
+   * Optional score assigned by reviewer when approving
+   * @nullable
+   */
+  score?: number | null;
 }
 
 export type ProgressMatrixCellCompletedCriteriaItemCriteriaType =

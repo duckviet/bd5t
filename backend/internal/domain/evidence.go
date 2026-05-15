@@ -9,8 +9,8 @@ type Evidence struct {
 	UserID           string
 	ActivityID       string
 	ActivityTitle    string
-	CriteriaDocID    *string
-	CriteriaDocTitle *string
+	ActivityCriteriaID *string
+	Score              *int
 	FileURL          string
 	FileKey          string
 	Description      *string

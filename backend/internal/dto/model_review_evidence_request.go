@@ -19,4 +19,7 @@ type ReviewEvidenceRequest struct {
 
 	// Allow re-reviewing already reviewed evidence
 	ForceOverride bool `json:"forceOverride,omitempty"`
+
+	// Optional score assigned by reviewer when approving
+	Score *int32 `json:"score,omitempty"`
 }
