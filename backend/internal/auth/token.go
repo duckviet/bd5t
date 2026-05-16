@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/duckviet/bd5t/backend/internal/config"
@@ -15,14 +16,24 @@ type TokenManager struct {
 }
 
 func NewTokenManager(cfg *config.Config) *TokenManager {
-	accessTTL, _ := time.ParseDuration(cfg.JWT.AccessTTL)
-	refreshTTL, _ := time.ParseDuration(cfg.JWT.RefreshTTL)
+	accessTTL := parseDurationOrDefault("JWT_ACCESS_TTL", cfg.JWT.AccessTTL, time.Hour)
+	refreshTTL := parseDurationOrDefault("JWT_REFRESH_TTL", cfg.JWT.RefreshTTL, 7*24*time.Hour)
 
 	return &TokenManager{
 		secret:     cfg.JWT.Secret,
 		accessTTL:  accessTTL,
 		refreshTTL: refreshTTL,
 	}
+}
+
+func parseDurationOrDefault(name, value string, fallback time.Duration) time.Duration {
+	duration, err := time.ParseDuration(value)
+	if err == nil && duration > 0 {
+		return duration
+	}
+
+	log.Printf("Invalid %s=%q, using fallback %s", name, value, fallback)
+	return fallback
 }
 
 func (tm *TokenManager) SignAccessToken(userID, email, role, studentID string) (string, error) {

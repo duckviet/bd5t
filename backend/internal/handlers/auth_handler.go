@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/duckviet/bd5t/backend/internal/auth"
 	"github.com/duckviet/bd5t/backend/internal/config"
@@ -13,12 +14,19 @@ import (
 )
 
 type AuthAPI struct {
-	authService *svcImpl.AuthService
-	cookie      config.CookieConfig
+	authService         *svcImpl.AuthService
+	cookie              config.CookieConfig
+	accessCookieMaxAge  int
+	refreshCookieMaxAge int
 }
 
-func NewAuthAPI(authService *svcImpl.AuthService, cookie config.CookieConfig) *AuthAPI {
-	return &AuthAPI{authService: authService, cookie: cookie}
+func NewAuthAPI(authService *svcImpl.AuthService, cookie config.CookieConfig, accessTTL, refreshTTL time.Duration) *AuthAPI {
+	return &AuthAPI{
+		authService:         authService,
+		cookie:              cookie,
+		accessCookieMaxAge:  maxAgeSeconds(accessTTL),
+		refreshCookieMaxAge: maxAgeSeconds(refreshTTL),
+	}
 }
 
 func (h *AuthAPI) Register(c *gin.Context) {
@@ -109,12 +117,12 @@ func (h *AuthAPI) Me(c *gin.Context) {
 }
 
 func (h *AuthAPI) setAuthCookies(c *gin.Context, accessToken, refreshToken string) {
-	h.setCookie(c, "access_token", accessToken, 3600*24*7)
-	h.setCookie(c, "refresh_token", refreshToken, 3600*24*30)
+	h.setCookie(c, "access_token", accessToken, h.accessCookieMaxAge)
+	h.setCookie(c, "refresh_token", refreshToken, h.refreshCookieMaxAge)
 }
 
 func (h *AuthAPI) setAccessCookie(c *gin.Context, accessToken string) {
-	h.setCookie(c, "access_token", accessToken, 3600*24*7)
+	h.setCookie(c, "access_token", accessToken, h.accessCookieMaxAge)
 }
 
 func (h *AuthAPI) clearAuthCookies(c *gin.Context) {
@@ -154,6 +162,14 @@ func parseSameSite(value string) http.SameSite {
 	default:
 		return http.SameSiteDefaultMode
 	}
+}
+
+func maxAgeSeconds(duration time.Duration) int {
+	if duration <= 0 {
+		return 0
+	}
+
+	return int(duration.Seconds())
 }
 
 var _ interface{} = (*AuthAPI)(nil)

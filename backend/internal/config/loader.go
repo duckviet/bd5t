@@ -27,7 +27,7 @@ func Load() (*Config, error) {
 		},
 		JWT: JWTConfig{
 			Secret:     getEnvRequired("JWT_SECRET"),
-			AccessTTL:  getEnv("JWT_ACCESS_TTL", "15m"),
+			AccessTTL:  getEnv("JWT_ACCESS_TTL", "1h"),
 			RefreshTTL: getEnv("JWT_REFRESH_TTL", "7d"),
 		},
 		Cookie: CookieConfig{

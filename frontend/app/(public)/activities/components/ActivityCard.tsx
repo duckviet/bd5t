@@ -6,14 +6,14 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar, MapPin, ExternalLink, LayoutGrid } from "lucide-react"
 import { CRITERIA, REVIEW_LEVELS } from "@/lib/constants"
-import { cn } from "@/lib/utils"
 import type { ActivityItem } from "@/services/generated/api"
 
 interface ActivityCardProps {
   activity: ActivityItem
+  onViewDetails?: () => void
 }
 
-export function ActivityCard({ activity }: ActivityCardProps) {
+export function ActivityCard({ activity, onViewDetails }: ActivityCardProps) {
   const handleParticipate = () => {
     if (activity.registrationUrl) {
       window.open(activity.registrationUrl, "_blank")
@@ -90,7 +90,11 @@ export function ActivityCard({ activity }: ActivityCardProps) {
       </CardContent>
 
       <CardFooter className="p-5 pt-0 flex gap-3">
-        <Link href={`/activities/${activity.slug}`} className="flex-1">
+        <Link
+          href={`/activities/${activity.slug}`}
+          className="flex-1"
+          onClick={onViewDetails}
+        >
           <Button
             variant="outline"
             size="sm"
@@ -114,13 +118,18 @@ export function ActivityCard({ activity }: ActivityCardProps) {
 
 interface ActivityGridProps {
   activities: ActivityItem[]
+  onViewDetails?: () => void
 }
 
-export function ActivityGrid({ activities }: ActivityGridProps) {
+export function ActivityGrid({ activities, onViewDetails }: ActivityGridProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {activities.map((activity) => (
-        <ActivityCard key={activity.id} activity={activity} />
+        <ActivityCard
+          key={activity.id}
+          activity={activity}
+          onViewDetails={onViewDetails}
+        />
       ))}
     </div>
   )

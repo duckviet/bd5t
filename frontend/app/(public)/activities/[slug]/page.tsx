@@ -52,9 +52,10 @@ export default async function ActivityDetailPage({
 
   const startDate = activity.startDate ? new Date(activity.startDate) : null;
   const endDate = activity.endDate ? new Date(activity.endDate) : null;
-  // eslint-disable-next-line react-hooks/purity
+  // eslint-disable-next-line react-hooks/purity -- Server-rendered countdown is based on render time.
+  const now = Date.now();
   const daysRemaining = endDate
-    ? Math.ceil((endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    ? Math.ceil((endDate.getTime() - now) / (1000 * 60 * 60 * 24))
     : 0;
 
   return (
