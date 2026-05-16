@@ -8,20 +8,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { CRITERIA } from "@/lib/constants"
 import { Search, X } from "lucide-react"
-import { CRITERIA, REVIEW_LEVELS } from "@/lib/constants"
-import { cn } from "@/lib/utils"
+import type { UnitItem } from "@/services/generated/api"
 
 interface ActivityFiltersProps {
   searchQuery: string
   onSearchChange: (value: string) => void
   statusFilter: string
   onStatusFilterChange: (value: string) => void
-  criteriaFilter: string[]
-  onCriteriaFilterChange: (value: string[]) => void
+  criteriaFilter: string
+  onCriteriaFilterChange: (value: string) => void
   reviewLevelFilter: string
   onReviewLevelFilterChange: (value: string) => void
+  unitFilter: string
+  onUnitFilterChange: (value: string) => void
+  startDateFrom: string
+  onStartDateFromChange: (value: string) => void
+  startDateTo: string
+  onStartDateToChange: (value: string) => void
+  units: UnitItem[]
+  onClear: () => void
 }
 
 const STATUS_OPTIONS = [
@@ -47,24 +55,22 @@ export function ActivityFilters({
   onCriteriaFilterChange,
   reviewLevelFilter,
   onReviewLevelFilterChange,
+  unitFilter,
+  onUnitFilterChange,
+  startDateFrom,
+  onStartDateFromChange,
+  startDateTo,
+  onStartDateToChange,
+  units,
+  onClear,
 }: ActivityFiltersProps) {
-  const toggleCriteria = (key: string) => {
-    if (criteriaFilter.includes(key)) {
-      onCriteriaFilterChange(criteriaFilter.filter((k) => k !== key))
-    } else {
-      onCriteriaFilterChange([...criteriaFilter, key])
-    }
-  }
-
-  const clearCriteria = () => onCriteriaFilterChange([])
-
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative min-w-[240px] flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <div className="space-y-3 rounded-lg border bg-white p-4">
+      <div className="grid gap-3 lg:grid-cols-[minmax(260px,1.4fr)_repeat(3,minmax(160px,1fr))]">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Tìm kiếm hoạt động..."
+            placeholder="Tìm tên hoạt động, mô tả, đơn vị..."
             className="pl-10"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -72,7 +78,7 @@ export function ActivityFilters({
         </div>
 
         <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -85,7 +91,7 @@ export function ActivityFilters({
         </Select>
 
         <Select value={reviewLevelFilter} onValueChange={onReviewLevelFilterChange}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -96,37 +102,52 @@ export function ActivityFilters({
             ))}
           </SelectContent>
         </Select>
+
+        <Select value={criteriaFilter} onValueChange={onCriteriaFilterChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Tiêu chí" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả tiêu chí</SelectItem>
+            {Object.entries(CRITERIA).map(([key, label]) => (
+              <SelectItem key={key} value={key}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-muted-foreground font-medium shrink-0">Tiêu chí:</span>
-        <div className="flex flex-wrap gap-1.5">
-          {Object.entries(CRITERIA).map(([key, label]) => {
-            const isSelected = criteriaFilter.includes(key)
-            return (
-              <Badge
-                key={key}
-                variant={isSelected ? "default" : "outline"}
-                className={cn(
-                  "cursor-pointer transition-all text-xs",
-                  isSelected ? "bg-primary text-white" : "hover:bg-slate-100"
-                )}
-                onClick={() => toggleCriteria(key)}
-              >
-                {label}
-              </Badge>
-            )
-          })}
-        </div>
-        {criteriaFilter.length > 0 && (
-          <button
-            onClick={clearCriteria}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors ml-1"
-          >
-            <X className="h-3 w-3" />
-            Xóa lọc
-          </button>
-        )}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(2,160px)_120px]">
+        {/* <Select value={unitFilter} onValueChange={onUnitFilterChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Đơn vị tổ chức" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả đơn vị</SelectItem>
+            {units.map((unit) => (
+              <SelectItem key={unit.id} value={unit.id || "all"}>
+                {unit.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select> */}
+        <Input
+          type="date"
+          value={startDateFrom}
+          onChange={(e) => onStartDateFromChange(e.target.value)}
+          aria-label="Từ ngày bắt đầu"
+        />
+        <Input
+          type="date"
+          value={startDateTo}
+          onChange={(e) => onStartDateToChange(e.target.value)}
+          aria-label="Đến ngày bắt đầu"
+        />
+        <Button variant="outline" onClick={onClear} className="gap-2">
+          <X className="h-4 w-4" />
+          Xóa lọc
+        </Button>
       </div>
     </div>
   )

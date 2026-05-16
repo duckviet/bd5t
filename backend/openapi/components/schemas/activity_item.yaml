@@ -61,3 +61,23 @@ ActivityItem:
     organizer:
       type: [string, "null"]
       example: "Ban Công tác Sinh viên"
+    participantCount:
+      type: integer
+      description: Number of distinct students with submitted evidence for this activity
+      example: 24
+    evidenceCount:
+      type: integer
+      description: Total submitted evidences for this activity
+      example: 32
+    pendingEvidenceCount:
+      type: integer
+      description: Number of pending evidences for this activity
+      example: 6
+    totalScore:
+      type: integer
+      description: Sum of configured activity criteria scores
+      example: 100
+    createdByName:
+      type: [string, "null"]
+      description: Admin creator display name when available
+      example: "Admin Hội Sinh viên"

@@ -10,7 +10,6 @@
 package dto
 
 type ActivityItem struct {
-
 	Id string `json:"id,omitempty"`
 
 	Slug string `json:"slug,omitempty"`
@@ -48,4 +47,19 @@ type ActivityItem struct {
 	Criteria []string `json:"criteria,omitempty"`
 
 	Organizer *string `json:"organizer,omitempty"`
+
+	// Number of distinct students with submitted evidence for this activity
+	ParticipantCount int32 `json:"participantCount,omitempty"`
+
+	// Total submitted evidences for this activity
+	EvidenceCount int32 `json:"evidenceCount,omitempty"`
+
+	// Number of pending evidences for this activity
+	PendingEvidenceCount int32 `json:"pendingEvidenceCount,omitempty"`
+
+	// Sum of configured activity criteria scores
+	TotalScore int32 `json:"totalScore,omitempty"`
+
+	// Admin creator display name when available
+	CreatedByName *string `json:"createdByName,omitempty"`
 }

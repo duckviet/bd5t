@@ -7,8 +7,14 @@ import (
 )
 
 type ListActivitiesFilter struct {
-	UnitID   *string
-	IsActive *bool
+	UnitID        *string
+	IsActive      *bool
+	Search        *string
+	Criteria      *string
+	ReviewLevel   *string
+	StartDateFrom *string
+	StartDateTo   *string
+	Sort          *string
 }
 
 type ListActivitiesResult struct {

@@ -17,6 +17,7 @@ type AdminService struct {
 	activityRepo     interfaces.ActivityRepository
 	notificationRepo interfaces.NotificationRepository
 	progressSvc      *ProgressService
+	activitySvc      *ActivityService
 }
 
 func NewAdminService(
@@ -30,6 +31,7 @@ func NewAdminService(
 		activityRepo:     activityRepo,
 		notificationRepo: notificationRepo,
 		progressSvc:      progressSvc,
+		activitySvc:      NewActivityService(activityRepo),
 	}
 }
 
@@ -38,6 +40,10 @@ type AdminListEvidencesResult struct {
 	Total     int
 	Page      int
 	PageSize  int
+}
+
+func (s *AdminService) ListAdminActivities(ctx context.Context, params *ListActivitiesParams) (*dto.ListActivities200Response, error) {
+	return s.activitySvc.ListAdminActivities(ctx, params)
 }
 
 func (s *AdminService) ListEvidences(ctx context.Context, filter interfaces.EvidenceFilter, page, pageSize int) (*AdminListEvidencesResult, error) {

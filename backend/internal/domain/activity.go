@@ -5,27 +5,32 @@ import (
 )
 
 type Activity struct {
-	ID               string
-	Title            string
-	Description      *string
-	Slug             *string
-	ThumbnailURL     *string
-	ShortDescription *string
-	Location         *string
-	TargetAudience    *string
-	Rules            *string
-	Rewards          *string
-	ContactInfo      *string
-	UnitID           *string
-	StartDate        *time.Time
-	EndDate          *time.Time
-	IsActive         bool
-	RegistrationURL  *string
-	ReviewLevel      *string
-	Organizer        *string
-	Criteria         []string
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+	ID                   string
+	Title                string
+	Description          *string
+	Slug                 *string
+	ThumbnailURL         *string
+	ShortDescription     *string
+	Location             *string
+	TargetAudience       *string
+	Rules                *string
+	Rewards              *string
+	ContactInfo          *string
+	UnitID               *string
+	StartDate            *time.Time
+	EndDate              *time.Time
+	IsActive             bool
+	RegistrationURL      *string
+	ReviewLevel          *string
+	Organizer            *string
+	Criteria             []string
+	ParticipantCount     int
+	EvidenceCount        int
+	PendingEvidenceCount int
+	TotalScore           int
+	CreatedByName        *string
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
 }
 
 type ReviewLevel string

@@ -125,6 +125,12 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			handleFunctions.AdminAPI.GetAdminEvidenceStats,
 		},
 		{
+			"ListAdminActivities",
+			http.MethodGet,
+			"/admin/activities",
+			handleFunctions.AdminAPI.ListAdminActivities,
+		},
+		{
 			"ListAdminEvidences",
 			http.MethodGet,
 			"/admin/evidences",

@@ -211,6 +211,19 @@ export interface ActivityItem {
   criteria?: ActivityItemCriteriaItem[];
   /** @nullable */
   organizer?: string | null;
+  /** Number of distinct students with submitted evidence for this activity */
+  participantCount?: number;
+  /** Total submitted evidences for this activity */
+  evidenceCount?: number;
+  /** Number of pending evidences for this activity */
+  pendingEvidenceCount?: number;
+  /** Sum of configured activity criteria scores */
+  totalScore?: number;
+  /**
+   * Admin creator display name when available
+   * @nullable
+   */
+  createdByName?: string | null;
 }
 
 export type ActivityDetailReviewLevel =
@@ -892,6 +905,96 @@ export type MarkNotificationRead200 = ApiResponse & {
 
 export type MarkAllNotificationsRead200 = ApiResponse & {
   data?: MarkAllNotificationsReadResult;
+};
+
+export type ListAdminActivitiesParams = {
+  /**
+   * Page number for pagination
+   * @minimum 1
+   */
+  page?: PageParameter;
+  /**
+   * Number of items per page
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * Search by title, short description, or organizer
+   */
+  search?: string;
+  /**
+   * Filter by active or inactive status
+   */
+  status?: ListAdminActivitiesStatus;
+  /**
+   * Filter by 5-good criteria code
+   */
+  criteria?: ListAdminActivitiesCriteria;
+  /**
+   * Filter by review level
+   */
+  reviewLevel?: ListAdminActivitiesReviewLevel;
+  /**
+   * Filter by unit/organization ID
+   */
+  unitId?: UnitIdParameter;
+  /**
+   * Filter activities starting on or after this date
+   */
+  startDateFrom?: string;
+  /**
+   * Filter activities starting on or before this date
+   */
+  startDateTo?: string;
+  /**
+   * Sort activities
+   */
+  sort?: ListAdminActivitiesSort;
+};
+
+export type ListAdminActivitiesStatus =
+  (typeof ListAdminActivitiesStatus)[keyof typeof ListAdminActivitiesStatus];
+
+export const ListAdminActivitiesStatus = {
+  active: "active",
+  inactive: "inactive",
+} as const;
+
+export type ListAdminActivitiesCriteria =
+  (typeof ListAdminActivitiesCriteria)[keyof typeof ListAdminActivitiesCriteria];
+
+export const ListAdminActivitiesCriteria = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
+export type ListAdminActivitiesReviewLevel =
+  (typeof ListAdminActivitiesReviewLevel)[keyof typeof ListAdminActivitiesReviewLevel];
+
+export const ListAdminActivitiesReviewLevel = {
+  TRUONG: "TRUONG",
+  DHQGHN: "DHQGHN",
+  THANH_PHO: "THANH_PHO",
+  TRUNG_UONG: "TRUNG_UONG",
+} as const;
+
+export type ListAdminActivitiesSort =
+  (typeof ListAdminActivitiesSort)[keyof typeof ListAdminActivitiesSort];
+
+export const ListAdminActivitiesSort = {
+  createdAt_desc: "createdAt_desc",
+  createdAt_asc: "createdAt_asc",
+  title_asc: "title_asc",
+  title_desc: "title_desc",
+  participant_desc: "participant_desc",
+} as const;
+
+export type ListAdminActivities200 = ApiResponseList & {
+  data?: ActivityItem[];
 };
 
 export type CreateActivity201 = ApiResponse & {
@@ -3478,6 +3581,181 @@ export const useMarkAllNotificationsRead = <
     queryClient,
   );
 };
+
+/**
+ * @summary List activities for admin management
+ */
+export const listAdminActivities = (
+  params?: ListAdminActivitiesParams,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<ListAdminActivities200>(
+    { url: `/admin/activities`, method: "GET", params, signal },
+    options,
+  );
+};
+
+export const getListAdminActivitiesQueryKey = (
+  params?: ListAdminActivitiesParams,
+) => {
+  return [`/admin/activities`, ...(params ? [params] : [])] as const;
+};
+
+export const getListAdminActivitiesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAdminActivities>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAdminActivitiesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAdminActivities>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListAdminActivitiesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listAdminActivities>>
+  > = ({ signal }) => listAdminActivities(params, requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAdminActivities>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ListAdminActivitiesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAdminActivities>>
+>;
+export type ListAdminActivitiesQueryError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+>;
+
+export function useListAdminActivities<
+  TData = Awaited<ReturnType<typeof listAdminActivities>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params: undefined | ListAdminActivitiesParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAdminActivities>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAdminActivities>>,
+          TError,
+          Awaited<ReturnType<typeof listAdminActivities>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useListAdminActivities<
+  TData = Awaited<ReturnType<typeof listAdminActivities>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAdminActivitiesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAdminActivities>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAdminActivities>>,
+          TError,
+          Awaited<ReturnType<typeof listAdminActivities>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useListAdminActivities<
+  TData = Awaited<ReturnType<typeof listAdminActivities>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAdminActivitiesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAdminActivities>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary List activities for admin management
+ */
+
+export function useListAdminActivities<
+  TData = Awaited<ReturnType<typeof listAdminActivities>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAdminActivitiesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAdminActivities>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getListAdminActivitiesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * Admin creates a new activity. Slug must be unique.

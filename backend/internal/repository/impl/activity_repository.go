@@ -37,6 +37,31 @@ func (r *ActivityRepository) List(ctx context.Context, filter *interfaces.ListAc
 			args = append(args, *filter.IsActive)
 			argNum++
 		}
+		if filter.Search != nil && strings.TrimSpace(*filter.Search) != "" {
+			conditions = append(conditions, fmt.Sprintf("(a.title ILIKE $%d OR a.short_description ILIKE $%d OR a.organizer ILIKE $%d)", argNum, argNum, argNum))
+			args = append(args, "%"+strings.TrimSpace(*filter.Search)+"%")
+			argNum++
+		}
+		if filter.Criteria != nil && strings.TrimSpace(*filter.Criteria) != "" {
+			conditions = append(conditions, fmt.Sprintf("EXISTS (SELECT 1 FROM activity_criteria fac JOIN criteria fc ON fac.criteria_id = fc.id WHERE fac.activity_id = a.id AND fc.code = $%d)", argNum))
+			args = append(args, strings.TrimSpace(*filter.Criteria))
+			argNum++
+		}
+		if filter.ReviewLevel != nil && strings.TrimSpace(*filter.ReviewLevel) != "" {
+			conditions = append(conditions, fmt.Sprintf("a.review_level = $%d", argNum))
+			args = append(args, strings.TrimSpace(*filter.ReviewLevel))
+			argNum++
+		}
+		if filter.StartDateFrom != nil && strings.TrimSpace(*filter.StartDateFrom) != "" {
+			conditions = append(conditions, fmt.Sprintf("a.start_date >= $%d::date", argNum))
+			args = append(args, strings.TrimSpace(*filter.StartDateFrom))
+			argNum++
+		}
+		if filter.StartDateTo != nil && strings.TrimSpace(*filter.StartDateTo) != "" {
+			conditions = append(conditions, fmt.Sprintf("a.start_date <= $%d::date", argNum))
+			args = append(args, strings.TrimSpace(*filter.StartDateTo))
+			argNum++
+		}
 	}
 
 	whereClause := ""
@@ -57,19 +82,38 @@ func (r *ActivityRepository) List(ctx context.Context, filter *interfaces.ListAc
 	}
 
 	offset := (page - 1) * pageSize
+	orderBy := "a.created_at DESC"
+	if filter != nil && filter.Sort != nil {
+		switch *filter.Sort {
+		case "createdAt_asc":
+			orderBy = "a.created_at ASC"
+		case "title_asc":
+			orderBy = "a.title ASC"
+		case "title_desc":
+			orderBy = "a.title DESC"
+		case "participant_desc":
+			orderBy = "participant_count DESC, a.created_at DESC"
+		}
+	}
+
 	query := fmt.Sprintf(`
 		SELECT a.id, a.title, a.description, a.slug, a.thumbnail_url, a.short_description, 
 		       a.location, a.target_audience, a.rules, a.rewards, a.contact_info,
 		       a.unit_id, a.start_date, a.end_date, a.is_active, a.registration_url, 
 		       a.review_level, a.organizer, a.created_at, a.updated_at,
-		       COALESCE(array_agg(c.code) FILTER (WHERE c.code IS NOT NULL), '{}') as criteria
+		       COALESCE(array_agg(c.code ORDER BY c.code) FILTER (WHERE c.code IS NOT NULL), '{}') as criteria,
+		       COUNT(DISTINCT e.user_id) as participant_count,
+		       COUNT(DISTINCT e.id) as evidence_count,
+		       COUNT(DISTINCT e.id) FILTER (WHERE e.status = 'pending') as pending_evidence_count,
+		       COALESCE(SUM(DISTINCT ac.score), 0) as total_score
 		FROM activities a
 		LEFT JOIN activity_criteria ac ON a.id = ac.activity_id
 		LEFT JOIN criteria c ON ac.criteria_id = c.id
+		LEFT JOIN evidences e ON a.id = e.activity_id
 		%s
 		GROUP BY a.id
-		ORDER BY a.created_at DESC
-		LIMIT $%d OFFSET $%d`, whereClause, argNum, argNum+1)
+		ORDER BY %s
+		LIMIT $%d OFFSET $%d`, whereClause, orderBy, argNum, argNum+1)
 
 	args = append(args, pageSize, offset)
 
@@ -104,6 +148,10 @@ func (r *ActivityRepository) List(ctx context.Context, filter *interfaces.ListAc
 			&a.CreatedAt,
 			&a.UpdatedAt,
 			&a.Criteria,
+			&a.ParticipantCount,
+			&a.EvidenceCount,
+			&a.PendingEvidenceCount,
+			&a.TotalScore,
 		)
 		if err != nil {
 			return nil, err

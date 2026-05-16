@@ -1,3 +1,78 @@
+get:
+  summary: List activities for admin management
+  operationId: listAdminActivities
+  tags:
+    - Admin
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameters/_index.yaml#/page'
+    - $ref: '../../components/parameters/_index.yaml#/pageSize'
+    - name: search
+      in: query
+      description: Search by title, short description, or organizer
+      schema:
+        type: string
+    - name: status
+      in: query
+      description: Filter by active or inactive status
+      schema:
+        type: string
+        enum: [active, inactive]
+    - name: criteria
+      in: query
+      description: Filter by 5-good criteria code
+      schema:
+        type: string
+        enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+    - name: reviewLevel
+      in: query
+      description: Filter by review level
+      schema:
+        type: string
+        enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
+    - $ref: '../../components/parameters/_index.yaml#/unitId'
+    - name: startDateFrom
+      in: query
+      description: Filter activities starting on or after this date
+      schema:
+        type: string
+        format: date
+    - name: startDateTo
+      in: query
+      description: Filter activities starting on or before this date
+      schema:
+        type: string
+        format: date
+    - name: sort
+      in: query
+      description: Sort activities
+      schema:
+        type: string
+        enum: [createdAt_desc, createdAt_asc, title_asc, title_desc, participant_desc]
+        default: createdAt_desc
+  responses:
+    '200':
+      description: List of activities for admin management
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponseList'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '../../components/schemas/activity_item.yaml#/ActivityItem'
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '403':
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'
+
 post:
   summary: Create a new activity
   description: Admin creates a new activity. Slug must be unique.

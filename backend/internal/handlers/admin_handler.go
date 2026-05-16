@@ -19,6 +19,78 @@ func NewAdminAPI(adminService *svcImpl.AdminService) *AdminAPI {
 	return &AdminAPI{adminService: adminService}
 }
 
+func (h *AdminAPI) ListAdminActivities(c *gin.Context) {
+	page := 1
+	pageSize := 20
+	if p := c.Query("page"); p != "" {
+		if _, err := fmt.Sscanf(p, "%d", &page); err != nil {
+			page = 1
+		}
+	}
+	if ps := c.Query("pageSize"); ps != "" {
+		if _, err := fmt.Sscanf(ps, "%d", &pageSize); err != nil {
+			pageSize = 20
+		}
+	}
+
+	var unitID *string
+	if value := c.Query("unitId"); value != "" && value != "all" {
+		unitID = &value
+	}
+	var search *string
+	if value := c.Query("search"); value != "" {
+		search = &value
+	}
+	var status *string
+	if value := c.Query("status"); value != "" && value != "all" {
+		status = &value
+	}
+	var criteria *string
+	if value := c.Query("criteria"); value != "" && value != "all" {
+		criteria = &value
+	}
+	var reviewLevel *string
+	if value := c.Query("reviewLevel"); value != "" && value != "all" {
+		reviewLevel = &value
+	}
+	var startDateFrom *string
+	if value := c.Query("startDateFrom"); value != "" {
+		startDateFrom = &value
+	}
+	var startDateTo *string
+	if value := c.Query("startDateTo"); value != "" {
+		startDateTo = &value
+	}
+	var sort *string
+	if value := c.Query("sort"); value != "" {
+		sort = &value
+	}
+
+	result, err := h.adminService.ListAdminActivities(c.Request.Context(), &svcImpl.ListActivitiesParams{
+		Page:          page,
+		PageSize:      pageSize,
+		UnitID:        unitID,
+		Search:        search,
+		Status:        status,
+		Criteria:      criteria,
+		ReviewLevel:   reviewLevel,
+		StartDateFrom: startDateFrom,
+		StartDateTo:   startDateTo,
+		Sort:          sort,
+	})
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	response.Paginated(c, result.Data, &response.PaginationMeta{
+		Page:       int(result.Meta.Page),
+		PageSize:   int(result.Meta.PageSize),
+		Total:      int64(result.Meta.Total),
+		TotalPages: int(result.Meta.TotalPages),
+	})
+}
+
 func (h *AdminAPI) ListAdminEvidences(c *gin.Context) {
 	page := 1
 	pageSize := 20

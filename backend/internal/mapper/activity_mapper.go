@@ -94,6 +94,13 @@ func ActivityToItemDTO(activity *domain.Activity) *dto.ActivityItem {
 	if activity.Organizer != nil {
 		dtoItem.Organizer = activity.Organizer
 	}
+	dtoItem.ParticipantCount = int32(activity.ParticipantCount)
+	dtoItem.EvidenceCount = int32(activity.EvidenceCount)
+	dtoItem.PendingEvidenceCount = int32(activity.PendingEvidenceCount)
+	dtoItem.TotalScore = int32(activity.TotalScore)
+	if activity.CreatedByName != nil {
+		dtoItem.CreatedByName = activity.CreatedByName
+	}
 
 	return dtoItem
 }

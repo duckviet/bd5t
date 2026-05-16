@@ -14,6 +14,7 @@ import (
 )
 
 type EvidenceItem struct {
+
 	Id string `json:"id,omitempty"`
 
 	ActivityId string `json:"activityId,omitempty"`

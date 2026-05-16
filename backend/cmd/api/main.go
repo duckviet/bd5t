@@ -164,6 +164,7 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 
 		adminGroup := v1.Group("/admin")
 		{
+			adminGroup.GET("/activities", middleware.AdminRequired(tokenMgr), adminAPI.ListAdminActivities)
 			adminGroup.GET("/evidences", middleware.AdminRequired(tokenMgr), adminAPI.ListAdminEvidences)
 			adminGroup.GET("/evidences/stats", middleware.AdminRequired(tokenMgr), adminAPI.GetAdminEvidenceStats)
 			adminGroup.PATCH("/evidences/review-bulk", middleware.AdminRequired(tokenMgr), adminAPI.BulkReviewEvidence)

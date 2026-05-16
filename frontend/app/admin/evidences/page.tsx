@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Download,
   ExternalLink,
   FileText,
   ImageIcon,
@@ -99,6 +100,58 @@ function getErrorMessage(error: unknown, fallback: string) {
 
 function formatDate(value?: string) {
   return value ? new Date(value).toLocaleDateString("vi-VN") : "Chưa xác định"
+}
+
+function escapeCsvCell(value: unknown) {
+  return `"${String(value ?? "").replace(/"/g, '""')}"`
+}
+
+function exportEvidencesCsv(evidences: EvidenceItem[]) {
+  const headers = [
+    "Hoạt động",
+    "Sinh viên",
+    "Mã SV",
+    "Lớp",
+    "Khoa",
+    "Tiêu chí",
+    "Cấp xét",
+    "Trạng thái",
+    "Ngày nộp",
+    "Điểm",
+    "Ghi chú duyệt",
+    "File",
+  ]
+  const rows = evidences.map((evidence) => {
+    const reviewLevel = evidence.reviewLevel
+      ? REVIEW_LEVELS[evidence.reviewLevel as keyof typeof REVIEW_LEVELS] ?? evidence.reviewLevel
+      : ""
+
+    return [
+      evidence.activityTitle ?? "",
+      evidence.userFullName ?? "",
+      evidence.userStudentId ?? "",
+      evidence.userClassName ?? "",
+      evidence.userUnitName ?? "",
+      getEvidenceCriteriaLabel(evidence, {}, []),
+      reviewLevel,
+      getStatusLabel(evidence.status),
+      formatDate(evidence.createdAt),
+      evidence.score ?? "",
+      evidence.reviewNote ?? "",
+      evidence.fileUrl ?? "",
+    ]
+  })
+
+  const csv = [headers, ...rows]
+    .map((row) => row.map(escapeCsvCell).join(","))
+    .join("\n")
+  const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = url
+  link.download = `minh-chung-${new Date().toISOString().slice(0, 10)}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
 }
 
 function getInitials(name?: string | null) {
@@ -454,10 +507,12 @@ function EvidenceDetailPanel({
 
   return (
     <Card className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
-      <CardHeader className="border-b">
+      <CardHeader className="border-b p-4">
         <CardTitle className="text-lg">Chi tiết minh chứng</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-5 p-4">
+      <CardContent className="relative p-0">
+        <div className="space-y-5  p-4">
+
         <div>
           <div className="mb-1 text-sm font-medium">Hoạt động</div>
           <div className="text-sm text-muted-foreground">
@@ -537,9 +592,10 @@ function EvidenceDetailPanel({
             onChange={(event) => onReviewNoteChange(event.target.value)}
           />
         </div>
+        </div>
 
         {status === "pending" && (
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-2 sm:grid-cols-2 sticky bottom-0 p-4 bg-white">
             <Button
               className="gap-1"
               variant="success"
@@ -583,6 +639,7 @@ function BulkReviewBar({
   onNoteChange,
   onSubmit,
   onClear,
+  onExport,
 }: {
   count: number
   note: string
@@ -590,6 +647,7 @@ function BulkReviewBar({
   onNoteChange: (value: string) => void
   onSubmit: (status: ReviewDecision) => void
   onClear: () => void
+  onExport: () => void
 }) {
   if (count === 0) return null
 
@@ -598,10 +656,16 @@ function BulkReviewBar({
       <CardContent className="space-y-3 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="text-sm font-medium">Đã chọn {count} minh chứng</div>
-          <Button variant="ghost" size="sm" onClick={onClear} className="gap-1">
-            <X className="h-4 w-4" />
-            Bỏ chọn
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" size="sm" onClick={onExport} className="gap-1">
+              <Download className="h-4 w-4" />
+              Export chọn
+            </Button>
+            <Button variant="ghost" size="sm" onClick={onClear} className="gap-1">
+              <X className="h-4 w-4" />
+              Bỏ chọn
+            </Button>
+          </div>
         </div>
         <textarea
           className="min-h-20 w-full rounded-md border border-input bg-white px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -863,11 +927,22 @@ export default function AdminEvidencesPage() {
   return (
     <div className="min-h-screen py-8">
       <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
-        <div>
-          <h1 className="mb-2 text-3xl font-bold">Duyệt minh chứng</h1>
-          <p className="text-muted-foreground">
-            Quản lý và duyệt minh chứng do sinh viên nộp
-          </p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="mb-2 text-3xl font-bold">Duyệt minh chứng</h1>
+            <p className="text-muted-foreground">
+              Quản lý và duyệt minh chứng do sinh viên nộp
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            className="gap-2"
+            disabled={evidences.length === 0}
+            onClick={() => exportEvidencesCsv(evidences)}
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
         </div>
 
         <EvidenceStatsCards stats={statsQuery.data?.data} isLoading={statsQuery.isLoading} />
@@ -962,6 +1037,11 @@ export default function AdminEvidencesPage() {
                 onNoteChange={setBulkNote}
                 onSubmit={handleBulkReview}
                 onClear={() => setSelectedIds([])}
+                onExport={() =>
+                  exportEvidencesCsv(
+                    evidences.filter((evidence) => evidence.id && selectedIds.includes(evidence.id)),
+                  )
+                }
               />
               <EvidenceList
                 evidences={evidences}

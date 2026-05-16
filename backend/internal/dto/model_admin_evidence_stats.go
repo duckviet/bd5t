@@ -10,6 +10,7 @@
 package dto
 
 type AdminEvidenceStats struct {
+
 	Pending int32 `json:"pending"`
 
 	ApprovedToday int32 `json:"approvedToday"`

@@ -118,7 +118,7 @@ export default function ActivityDetailPage() {
               <img
                 src={activity.thumbnailUrl}
                 alt={activity.slug || ""}
-                className="object-cover w-full h-full"
+                className="object-cover w-full h-full max-h-[150px]"
               />
             </div>
           )}

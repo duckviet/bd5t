@@ -7,6 +7,7 @@ type AdminAPIHandler interface {
 	CreateActivity(c *gin.Context)
 	DeleteActivity(c *gin.Context)
 	GetAdminEvidenceStats(c *gin.Context)
+	ListAdminActivities(c *gin.Context)
 	ListAdminEvidences(c *gin.Context)
 	ReviewEvidence(c *gin.Context)
 	UpdateActivity(c *gin.Context)
