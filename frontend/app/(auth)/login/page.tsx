@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 
 import { useLoginMutation } from "@/features/auth/hooks/useAuthMutation"
+import { useAuthStore } from "@/features/auth/store/authStore"
 
 const loginSchema = z.object({
   email: z.string().email("Email không hợp lệ").min(1, "Vui lòng nhập email"),
@@ -21,9 +22,27 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>
 
+function getSafeCallbackUrl(callbackUrl: string | null): string {
+  if (!callbackUrl?.startsWith("/") || callbackUrl.startsWith("//")) {
+    return "/"
+  }
+
+  return callbackUrl
+}
+
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
-  const loginMutation = useLoginMutation()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = getSafeCallbackUrl(searchParams.get("callbackUrl"))
+  const { isAuth, isInitialized } = useAuthStore()
+  const loginMutation = useLoginMutation(callbackUrl)
+
+  useEffect(() => {
+    if (isInitialized && isAuth) {
+      router.replace(callbackUrl)
+    }
+  }, [callbackUrl, isAuth, isInitialized, router])
 
   const {
     register,

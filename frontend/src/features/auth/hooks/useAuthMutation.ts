@@ -42,7 +42,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-export function useLoginMutation() {
+export function useLoginMutation(redirectTo = "/") {
   const router = useRouter();
 
   return useMutation({
@@ -59,8 +59,7 @@ export function useLoginMutation() {
         store.setAuth(user);
         toast.success("Đăng nhập thành công!");
 
-        // Điều hướng về trang chủ
-        router.push("/");
+        router.push(redirectTo);
         router.refresh(); // Buộc Next.js refresh lại các Server Components (như Navbar nếu có)
       }
     },
