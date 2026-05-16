@@ -9,7 +9,7 @@ import {
   Target, 
   ArrowRight
 } from "lucide-react"
-// import { HomeLeaderboardPreview } from "./components/home-leaderboard-preview"
+import { HomeLeaderboardPreview } from "./components/home-leaderboard-preview"
 
 const stats = [
   { label: "Hoạt động", value: "134", icon: Calendar },
@@ -123,7 +123,7 @@ export default function HomePage() {
               </Button>
             </Link>
           </div>
-          {/* <HomeLeaderboardPreview /> */}
+          <HomeLeaderboardPreview />
         </div>
       </section>
 

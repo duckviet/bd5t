@@ -13,6 +13,7 @@ import {
   TrendingUp
 } from "lucide-react"
 import { useListLeaderboard, type LeaderboardItem } from "@/services/generated/api"
+import { cn } from "@/lib/utils"
 
 export default function LeaderboardPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -33,12 +34,17 @@ export default function LeaderboardPage() {
   }
 
   const getRankBg = (rank: number) => {
-    if (rank === 1) return "bg-yellow-50 border-yellow-200"
-    if (rank === 2) return "bg-gray-50 border-gray-200"
-    if (rank === 3) return "bg-amber-50 border-amber-200"
-    return ""
+    switch (rank) {
+      case 1:
+        return "bg-[rgb(255,248,220)] border-[rgb(255,204,0)] text-[rgb(146,100,0)]"
+      case 2:
+        return "bg-[rgb(242,242,242)] border-[rgb(192,192,192)] text-[rgb(90,90,90)]"
+      case 3:
+        return "bg-[rgb(250,235,215)] border-[rgb(205,127,50)] text-[rgb(120,70,20)]"
+      default:
+        return "bg-[rgb(255,255,255)] border-[rgb(220,220,220)] text-[rgb(55,65,81)]"
+    }
   }
-
   return (
     <div className="min-h-screen py-12">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
@@ -57,9 +63,11 @@ export default function LeaderboardPage() {
             return (
               <Card 
                 key={user.userId || user.rank}
-                className={`text-center ${getRankBg(user.rank || idx + 1)} ${
-                  idx === 1 ? "md:-mt-4" : ""
-                }`}
+                className={cn("text-center",
+                  getRankBg(user.rank || idx + 1),
+                   idx === 0 ? "md:-mt-6" : "",
+                  idx === 1 ? "md:-mt-3" : ""
+            )}
               >
                 <CardContent className="p-6">
                   <div className="mb-4">

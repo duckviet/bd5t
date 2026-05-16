@@ -80,6 +80,7 @@ func (r *LeaderboardRepository) List(ctx context.Context, filter interfaces.Lead
 			&item.UserID,
 			&item.UserName,
 			&unitID,
+			&unitName,
 			&item.TotalApproved,
 			&item.TotalScore,
 		)
