@@ -40,9 +40,10 @@ export function proxy(request: NextRequest) {
   const isAuthPath = authPaths.some((path) => pathname.startsWith(path));
 
   // Các route cho phép truy cập mà không cần đăng nhập
-  const publicPaths = ["/", "/activities", "/activities", "/criteria" , "/leaderboard"];
-  const isPublicPath = publicPaths.includes(pathname) || isAuthPath;
-
+  const publicPaths = ["/", "/activities", "/criteria", "/leaderboard"];
+  const isActivityDetailPath = pathname.startsWith("/activities/");
+  const isPublicPath =
+    publicPaths.includes(pathname) || isAuthPath || isActivityDetailPath;
   // 1. Đã đăng nhập mà vào trang Auth -> Đá về Home
   if (isAuthPath && isAuthenticated && !isJustLoggedOut) {
     return NextResponse.redirect(new URL("/", request.url));

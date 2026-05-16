@@ -31,7 +31,7 @@ func Load() (*Config, error) {
 			RefreshTTL: getEnv("JWT_REFRESH_TTL", "7d"),
 		},
 		Cookie: CookieConfig{
-			Domain:   getEnv("COOKIE_DOMAIN", "localhost"),
+			Domain:   os.Getenv("COOKIE_DOMAIN"),
 			Secure:   getEnvBool("COOKIE_SECURE", false),
 			SameSite: getEnv("COOKIE_SAME_SITE", "lax"),
 		},
