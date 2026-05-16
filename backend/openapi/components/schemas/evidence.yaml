@@ -30,7 +30,10 @@ EvidenceItem:
       type: string
       enum: [pending, approved, rejected]
       example: pending
-    # Removed: criterionType (denormalized) - use activityCriteriaId -> activity_criteria -> criteria
+    criterionType:
+      type: [string, "null"]
+      enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+      description: The criteria type associated with this evidence
     reviewLevel:
       type: [string, "null"]
       enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]

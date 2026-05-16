@@ -28,7 +28,7 @@ func (r *EvidenceRepository) List(ctx context.Context, userID string, filter int
 	baseQuery := `
 		SELECT e.id, e.user_id, e.activity_id, e.activity_criteria_id, e.score, e.file_url, e.file_key, 
 			   e.description, e.status, e.review_note, e.reviewed_by, e.reviewed_at, 
-			   e.criterion_type, e.created_at, e.updated_at,
+			   COALESCE(e.criterion_type, c.code) as criterion_type, e.created_at, e.updated_at,
 			   a.title as activity_title,
 			   a.review_level as review_level,
 			   c.title as criteria_title
@@ -141,7 +141,7 @@ func (r *EvidenceRepository) GetByID(ctx context.Context, id string) (*domain.Ev
 	query := `
 		SELECT e.id, e.user_id, e.activity_id, e.activity_criteria_id, e.score, e.file_url, e.file_key, 
 			   e.description, e.status, e.review_note, e.reviewed_by, e.reviewed_at, 
-			   e.criterion_type, e.created_at, e.updated_at,
+			   COALESCE(e.criterion_type, c.code) as criterion_type, e.created_at, e.updated_at,
 			   a.title as activity_title,
 			   a.review_level as review_level,
 			   c.title as criteria_title

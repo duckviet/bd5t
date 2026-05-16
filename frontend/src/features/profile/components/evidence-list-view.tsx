@@ -4,11 +4,18 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Calendar, Download, Trash2, Upload } from "lucide-react"
-import { CRITERIA, REVIEW_LEVELS, EVIDENCE_STATUS } from "@/lib/constants"
+import {
+  CRITERIA,
+  REVIEW_LEVELS,
+  EVIDENCE_STATUS,
+  type CriterionType,
+} from "@/lib/constants";
 import type {
+  ActivityItem,
   EvidenceItem,
   EvidenceItemStatus,
 } from "@/services/generated/api";
+import type { ActivityCriteriaMap } from "../types";
 
 interface EvidenceListViewProps {
   items: EvidenceItem[];
@@ -18,9 +25,42 @@ interface EvidenceListViewProps {
     "success" | "secondary" | "destructive"
   >;
   statusIcon: Record<string, React.ComponentType<{ className?: string }>>;
+  activityCriteriaMap: ActivityCriteriaMap;
+  activities: ActivityItem[];
 }
 
-export function EvidenceListView({ items, onUpload, statusBadgeVariant, statusIcon: statusIconMap }: EvidenceListViewProps) {
+function renderCriteriaLabels(
+  ev: EvidenceItem,
+  activityCriteriaMap: ActivityCriteriaMap,
+  activities: ActivityItem[],
+) {
+  // 1. Prefer direct criterionType from backend
+  if (ev.criterionType) {
+    return CRITERIA[ev.criterionType as keyof typeof CRITERIA] || ev.criterionType;
+  }
+
+  // 2. Fallback to activity lookup
+  const activity =
+    activities.find((item) => item.id === ev.activityId) ??
+    activities.find((item) => item.title === ev.activityTitle);
+  const criteria =
+    activity?.criteria ?? activityCriteriaMap[ev.activityId || ""] ?? [];
+  if (criteria.length === 0) {
+    return "Chưa xác định tiêu chí";
+  }
+  return criteria
+    .map((criterion: CriterionType) => CRITERIA[criterion])
+    .join(", ");
+}
+
+export function EvidenceListView({
+  items,
+  onUpload,
+  statusBadgeVariant,
+  statusIcon: statusIconMap,
+  activityCriteriaMap,
+  activities,
+}: EvidenceListViewProps) {
   if (items.length === 0) {
     return (
       <Card>
@@ -28,7 +68,9 @@ export function EvidenceListView({ items, onUpload, statusBadgeVariant, statusIc
           <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
             <FileText className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="font-medium text-lg mb-1">Không tìm thấy minh chứng</h3>
+          <h3 className="font-medium text-lg mb-1">
+            Không tìm thấy minh chứng
+          </h3>
           <p className="text-sm text-muted-foreground mb-4">
             Thử thay đổi bộ lọc hoặc tải lên minh chứng mới
           </p>
@@ -38,7 +80,7 @@ export function EvidenceListView({ items, onUpload, statusBadgeVariant, statusIc
           </Button>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -59,7 +101,13 @@ export function EvidenceListView({ items, onUpload, statusBadgeVariant, statusIc
                 {ev.activityTitle || ev.description || "Minh chứng"}
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
-                <span>{CRITERIA[ev.criterionType || "HOC_TAP"]}</span>
+                <span>
+                  {renderCriteriaLabels(
+                    ev,
+                    activityCriteriaMap,
+                    activities,
+                  )}
+                </span>
                 <span>•</span>
                 <span>{REVIEW_LEVELS[ev.reviewLevel || "TRUONG"]}</span>
                 <span>•</span>
@@ -100,10 +148,17 @@ export function EvidenceListView({ items, onUpload, statusBadgeVariant, statusIc
         );
       })}
     </div>
-  )
+  );
 }
 
-export function EvidenceGridView({ items, onUpload, statusBadgeVariant, statusIcon: statusIconMap }: EvidenceListViewProps) {
+export function EvidenceGridView({
+  items,
+  onUpload,
+  statusBadgeVariant,
+  statusIcon: statusIconMap,
+  activityCriteriaMap,
+  activities,
+}: EvidenceListViewProps) {
   if (items.length === 0) {
     return (
       <Card>
@@ -111,7 +166,9 @@ export function EvidenceGridView({ items, onUpload, statusBadgeVariant, statusIc
           <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
             <FileText className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="font-medium text-lg mb-1">Không tìm thấy minh chứng</h3>
+          <h3 className="font-medium text-lg mb-1">
+            Không tìm thấy minh chứng
+          </h3>
           <p className="text-sm text-muted-foreground mb-4">
             Thử thay đổi bộ lọc hoặc tải lên minh chứng mới
           </p>
@@ -121,7 +178,7 @@ export function EvidenceGridView({ items, onUpload, statusBadgeVariant, statusIc
           </Button>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -148,7 +205,13 @@ export function EvidenceGridView({ items, onUpload, statusBadgeVariant, statusIc
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mb-3">
-              <span>{CRITERIA[ev.criterionType || "HOC_TAP"]}</span>
+              <span>
+                {renderCriteriaLabels(
+                  ev,
+                  activityCriteriaMap,
+                  activities,
+                )}
+              </span>
               <span>•</span>
               <span>{REVIEW_LEVELS[ev.reviewLevel || "TRUONG"]}</span>
             </div>
@@ -184,5 +247,5 @@ export function EvidenceGridView({ items, onUpload, statusBadgeVariant, statusIc
         );
       })}
     </div>
-  )
+  );
 }

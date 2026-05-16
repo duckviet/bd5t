@@ -417,6 +417,22 @@ export const EvidenceItemStatus = {
 } as const;
 
 /**
+ * The criteria type associated with this evidence
+ * @nullable
+ */
+export type EvidenceItemCriterionType =
+  | (typeof EvidenceItemCriterionType)[keyof typeof EvidenceItemCriterionType]
+  | null;
+
+export const EvidenceItemCriterionType = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
+/**
  * Activity review level associated with the evidence
  * @nullable
  */
@@ -448,6 +464,11 @@ export interface EvidenceItem {
   fileUrl?: string;
   description?: string;
   status?: EvidenceItemStatus;
+  /**
+   * The criteria type associated with this evidence
+   * @nullable
+   */
+  criterionType?: EvidenceItemCriterionType;
   /**
    * Activity review level associated with the evidence
    * @nullable

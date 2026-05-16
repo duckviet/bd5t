@@ -25,6 +25,7 @@ interface EvidenceFiltersProps {
   onLevelChange: (value: ReviewLevel | "all") => void;
   viewType: EvidenceViewType;
   onViewTypeChange: (value: EvidenceViewType) => void;
+  showCriterionFilter?: boolean;
 }
 
 const criteriaKeys = Object.keys(CRITERIA) as CriterionType[]
@@ -41,6 +42,7 @@ export function EvidenceFilters({
   onLevelChange,
   viewType,
   onViewTypeChange,
+  showCriterionFilter = true,
 }: EvidenceFiltersProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -64,19 +66,21 @@ export function EvidenceFilters({
           <SelectItem value="rejected">Bị từ chối</SelectItem>
         </SelectContent>
       </Select>
-      <Select value={filterCriterion} onValueChange={onCriterionChange}>
-        <SelectTrigger className="w-full sm:w-[160px]">
-          <SelectValue placeholder="Tiêu chí" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tất cả tiêu chí</SelectItem>
-          {criteriaKeys.map((key) => (
-            <SelectItem key={key} value={key}>
-              {CRITERIA[key]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {showCriterionFilter ? (
+        <Select value={filterCriterion} onValueChange={onCriterionChange}>
+          <SelectTrigger className="w-full sm:w-[160px]">
+            <SelectValue placeholder="Tiêu chí" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả tiêu chí</SelectItem>
+            {criteriaKeys.map((key) => (
+              <SelectItem key={key} value={key}>
+                {CRITERIA[key]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : null}
       <Select value={filterLevel} onValueChange={onLevelChange}>
         <SelectTrigger className="w-full sm:w-[160px]">
           <SelectValue placeholder="Cấp độ" />

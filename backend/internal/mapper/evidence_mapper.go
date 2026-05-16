@@ -23,7 +23,9 @@ func DomainToEvidenceItem(e *domain.Evidence) *dto.EvidenceItem {
 	if e.Description != nil {
 		item.Description = *e.Description
 	}
-	// criterionType removed from DTO; derive via activityCriteria when needed
+	if e.CriterionType != nil {
+		item.CriterionType = e.CriterionType
+	}
 	if e.ReviewLevel != nil {
 		item.ReviewLevel = e.ReviewLevel
 	}

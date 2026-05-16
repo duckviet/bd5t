@@ -33,6 +33,9 @@ type EvidenceItem struct {
 
 	Status string `json:"status,omitempty"`
 
+	// The criteria type associated with this evidence
+	CriterionType *string `json:"criterionType,omitempty"`
+
 	// Activity review level associated with the evidence
 	ReviewLevel *string `json:"reviewLevel,omitempty"`
 

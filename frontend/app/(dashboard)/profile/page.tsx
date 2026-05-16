@@ -8,7 +8,11 @@ import {
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
-import type { CriterionType, ReviewLevel } from "@/lib/constants";
+import {
+  CRITERIA,
+  type CriterionType,
+  type ReviewLevel,
+} from "@/lib/constants";
 
 import { ProfileCard } from "@/features/profile/components/profile-card"
 import { QuickStats } from "@/features/profile/components/quick-stats"
@@ -17,17 +21,63 @@ import { EvidenceVault } from "@/features/profile/components/evidence-vault"
 import { EvidenceView } from "@/features/profile/components/evidence-view"
 import { EditProfileDialog } from "@/features/profile/components/edit-profile-dialog"
 import { UploadEvidenceDialog } from "@/components/evidence/upload-evidence-dialog"
-import { mockProgress } from "@/features/profile/mock-data";
-import type { EvidenceViewType } from "@/features/profile/types";
+import type {
+  EvidenceViewType,
+  ProgressPresenceMatrix,
+  ActivityCriteriaMap,
+} from "@/features/profile/types";
 import {
   useMe,
+  useListActivities,
   useListEvidences,
   type UserProfile,
   type EvidenceItem,
   type EvidenceItemStatus,
+  type ActivityItem,
 } from "@/services/generated/api";
 import { Button } from "@/components/ui/button";
 import { ProfileSkeleton } from "@/components/common/loading";
+
+function createEmptyMatrix(): ProgressPresenceMatrix {
+  return {
+    DAO_DUC: {
+      TRUONG: false,
+      DHQGHN: false,
+      THANH_PHO: false,
+      TRUNG_UONG: false,
+    },
+    HOC_TAP: {
+      TRUONG: false,
+      DHQGHN: false,
+      THANH_PHO: false,
+      TRUNG_UONG: false,
+    },
+    THE_LUC: {
+      TRUONG: false,
+      DHQGHN: false,
+      THANH_PHO: false,
+      TRUNG_UONG: false,
+    },
+    TINH_NGUYEN: {
+      TRUONG: false,
+      DHQGHN: false,
+      THANH_PHO: false,
+      TRUNG_UONG: false,
+    },
+    HOI_NHAP: {
+      TRUONG: false,
+      DHQGHN: false,
+      THANH_PHO: false,
+      TRUNG_UONG: false,
+    },
+  };
+}
+
+function normalizeCriteria(criteria?: string[] | null): CriterionType[] {
+  return (criteria ?? []).filter(
+    (criterion): criterion is CriterionType => criterion in CRITERIA,
+  );
+}
 
 const statusBadgeVariant: Record<
   EvidenceItemStatus,
@@ -77,16 +127,63 @@ export default function ProfilePage() {
   } = useListEvidences(undefined, {
     query: { retry: false, refetchOnWindowFocus: false },
   });
+  const {
+    data: activitiesData,
+    isLoading: isLoadingActivities,
+    error: activitiesError,
+  } = useListActivities(undefined, {
+    query: { retry: false, refetchOnWindowFocus: false },
+  });
 
   const apiUser = user ?? meData?.data ?? null;
-  const evidences = evidencesData?.data ?? [];
+  const evidences = useMemo(() => evidencesData?.data ?? [], [evidencesData]);
+  const activities = useMemo(
+    () => activitiesData?.data ?? [],
+    [activitiesData],
+  );
+
+  const activityCriteriaMap = useMemo<ActivityCriteriaMap>(() => {
+    return activities.reduce<ActivityCriteriaMap>(
+      (acc, activity: ActivityItem) => {
+        const criteria = normalizeCriteria(
+          activity.criteria as string[] | null | undefined,
+        );
+        acc[activity.id || ""] = criteria;
+        return acc;
+      },
+      {},
+    );
+  }, [activities]);
+
+  const progressMatrix = useMemo<ProgressPresenceMatrix>(() => {
+    const matrix = createEmptyMatrix();
+
+    evidences.forEach((ev: EvidenceItem) => {
+      if (ev.status !== "approved") {
+        return;
+      }
+
+      const reviewLevel = ev.reviewLevel as ReviewLevel | undefined;
+      if (!reviewLevel) {
+        return;
+      }
+
+      const criteria = activityCriteriaMap[ev.activityId || ""] ?? [];
+      criteria.forEach((criterion) => {
+        matrix[criterion][reviewLevel] = true;
+      });
+    });
+
+    return matrix;
+  }, [activityCriteriaMap, evidences]);
 
   const completedCount = useMemo(
-    () => mockProgress.filter((p) => p.isCompleted).length,
-    []
-  )
-  const totalCount = mockProgress.length
-  const progressPercent = Math.round((completedCount / totalCount) * 100)
+    () => evidences.filter((evidence) => evidence.status === "approved").length,
+    [evidences],
+  );
+  const totalCount = evidences.length;
+  const progressPercent =
+    totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
 
   const filteredEvidences = evidences.filter((ev: EvidenceItem) => {
     const q = searchQuery.toLowerCase();
@@ -96,7 +193,11 @@ export default function ProfilePage() {
       title.toLowerCase().includes(q) ||
       description.toLowerCase().includes(q);
     const matchesStatus = filterStatus === "all" || ev.status === filterStatus;
-    const matchesCriterion = filterCriterion === "all";
+    const matchesCriterion =
+      filterCriterion === "all" ||
+      (activityCriteriaMap[ev.activityId || ""] ?? []).includes(
+        filterCriterion,
+      );
     const matchesLevel =
       filterLevel === "all" || ev.reviewLevel === filterLevel;
     return matchesSearch && matchesStatus && matchesCriterion && matchesLevel;
@@ -106,8 +207,8 @@ export default function ProfilePage() {
     setUser(data)
   }
 
-  const isLoading = isLoadingUser || isLoadingEvidences;
-  const error = userError || evidencesError;
+  const isLoading = isLoadingUser || isLoadingEvidences || isLoadingActivities;
+  const error = userError || evidencesError || activitiesError;
 
   if (viewMode === "evidences") {
     return (
@@ -149,6 +250,8 @@ export default function ProfilePage() {
             onUpload={() => setUploadOpen(true)}
             statusBadgeVariant={statusBadgeVariant}
             statusIcon={statusIcon}
+            activityCriteriaMap={activityCriteriaMap}
+            activities={activities}
           />
         )}
         <UploadEvidenceDialog
@@ -198,12 +301,14 @@ export default function ProfilePage() {
               />
             </div>
             <div className="lg:col-span-2 space-y-6">
-              <ProgressMatrix data={mockProgress} />
+              <ProgressMatrix data={progressMatrix} />
               <EvidenceVault
                 items={evidences}
                 onViewAll={() => setViewMode("evidences")}
                 onUpload={() => setUploadOpen(true)}
                 statusBadgeVariant={statusBadgeVariant}
+                activityCriteriaMap={activityCriteriaMap}
+                activities={activities}
               />
             </div>
           </div>

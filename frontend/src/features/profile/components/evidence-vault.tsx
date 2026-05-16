@@ -8,7 +8,9 @@ import { CRITERIA, REVIEW_LEVELS, EVIDENCE_STATUS } from "@/lib/constants"
 import type {
   EvidenceItem,
   EvidenceItemStatus,
+  ActivityItem,
 } from "@/services/generated/api";
+import type { ActivityCriteriaMap } from "../types";
 
 interface EvidenceVaultProps {
   items: EvidenceItem[];
@@ -18,9 +20,18 @@ interface EvidenceVaultProps {
     NonNullable<EvidenceItemStatus>,
     "success" | "secondary" | "destructive"
   >;
+  activityCriteriaMap: ActivityCriteriaMap;
+  activities: ActivityItem[];
 }
 
-export function EvidenceVault({ items, onViewAll, onUpload, statusBadgeVariant }: EvidenceVaultProps) {
+export function EvidenceVault({
+  items,
+  onViewAll,
+  onUpload,
+  statusBadgeVariant,
+  activityCriteriaMap,
+  activities,
+}: EvidenceVaultProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -47,8 +58,29 @@ export function EvidenceVault({ items, onViewAll, onUpload, statusBadgeVariant }
                     {ev.activityTitle || ev.description || "Minh chứng"}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {CRITERIA[ev.criterionType || "HOC_TAP"]} •{" "}
-                    {REVIEW_LEVELS[ev.reviewLevel || "TRUONG"]}
+                    {(() => {
+                      // Prefer criterionType from backend if available
+                      if (ev.criterionType) {
+                        return CRITERIA[ev.criterionType as keyof typeof CRITERIA] || ev.criterionType;
+                      }
+
+                      const activity =
+                        activities.find((a) => a.id === ev.activityId) ||
+                        activities.find((a) => a.title === ev.activityTitle);
+                      const criteria =
+                        activity?.criteria ??
+                        activityCriteriaMap[ev.activityId || ""] ??
+                        [];
+                      return criteria.length > 0
+                        ? criteria
+                            .map(
+                              (criterion) =>
+                                CRITERIA[criterion as keyof typeof CRITERIA],
+                            )
+                            .join(", ")
+                        : "Chưa xác định tiêu chí";
+                    })()}{" "}
+                    • {REVIEW_LEVELS[ev.reviewLevel || "TRUONG"]}
                   </div>
                 </div>
                 <Badge variant={statusBadgeVariant[status]}>

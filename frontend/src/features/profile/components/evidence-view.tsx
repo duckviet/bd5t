@@ -8,6 +8,8 @@ import type { EvidenceItem } from "@/services/generated/api";
 import type { CriterionType, ReviewLevel } from "@/lib/constants";
 import type { EvidenceViewType } from "../types";
 import type { EvidenceItemStatus } from "@/services/generated/api";
+import type { ActivityCriteriaMap } from "../types";
+import type { ActivityItem } from "@/services/generated/api";
 
 interface EvidenceViewProps {
   items: EvidenceItem[];
@@ -26,6 +28,8 @@ interface EvidenceViewProps {
   onUpload: () => void;
   statusBadgeVariant: Record<string, "success" | "secondary" | "destructive">;
   statusIcon: Record<string, React.ComponentType<{ className?: string }>>;
+  activityCriteriaMap: ActivityCriteriaMap;
+  activities: ActivityItem[];
 }
 
 export function EvidenceView({
@@ -45,6 +49,8 @@ export function EvidenceView({
   onUpload,
   statusBadgeVariant,
   statusIcon,
+  activityCriteriaMap,
+  activities,
 }: EvidenceViewProps) {
   return (
     <div className="min-h-screen py-12">
@@ -97,6 +103,8 @@ export function EvidenceView({
             onUpload={onUpload}
             statusBadgeVariant={statusBadgeVariant}
             statusIcon={statusIcon}
+            activityCriteriaMap={activityCriteriaMap}
+            activities={activities}
           />
         ) : (
           <EvidenceListView
@@ -104,9 +112,11 @@ export function EvidenceView({
             onUpload={onUpload}
             statusBadgeVariant={statusBadgeVariant}
             statusIcon={statusIcon}
+            activityCriteriaMap={activityCriteriaMap}
+            activities={activities}
           />
         )}
       </div>
     </div>
-  )
+  );
 }

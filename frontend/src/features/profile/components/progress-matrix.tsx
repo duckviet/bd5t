@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle2, Circle } from "lucide-react"
 import { CRITERIA, REVIEW_LEVELS, type CriterionType, type ReviewLevel } from "@/lib/constants"
-import type { ProgressItem } from "../types"
+import type { ProgressPresenceMatrix } from "../types";
 
 interface ProgressMatrixProps {
-  data: ProgressItem[]
+  data: ProgressPresenceMatrix;
 }
 
 const criteriaKeys = Object.keys(CRITERIA) as CriterionType[]
@@ -34,9 +34,7 @@ export function ProgressMatrix({ data }: ProgressMatrixProps) {
                 <tr key={criterion}>
                   <td className="p-2 font-medium text-sm">{CRITERIA[criterion]}</td>
                   {reviewLevelKeys.map((level) => {
-                    const isCompleted = data.find(
-                      (p) => p.criterion === criterion && p.reviewLevel === level
-                    )?.isCompleted
+                    const isCompleted = data[criterion]?.[level] ?? false;
                     return (
                       <td key={level} className="text-center p-2">
                         {isCompleted ? (
