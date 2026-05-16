@@ -1,26 +1,20 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { 
   Trophy, 
   Users, 
   Calendar, 
   Target, 
-  ArrowRight,
-  CheckCircle2
+  ArrowRight
 } from "lucide-react"
+// import { HomeLeaderboardPreview } from "./components/home-leaderboard-preview"
 
 const stats = [
   { label: "Hoạt động", value: "134", icon: Calendar },
   { label: "Sinh viên tham gia", value: "1,839", icon: Users },
   { label: "Hoàn thành 5 tiêu chí", value: "629", icon: Trophy },
-]
-
-const topUsers = [
-  { rank: 1, name: "Nguyễn Văn A", unit: "Khoa Ngôn ngữ Anh", activities: 12 },
-  { rank: 2, name: "Trần Thị B", unit: "Khoa Ngôn ngữ Nhật", activities: 10 },
-  { rank: 3, name: "Lê Văn C", unit: "Khoa Ngôn ngữ Hàn", activities: 9 },
 ]
 
 const criteriaList = [
@@ -129,36 +123,7 @@ export default function HomePage() {
               </Button>
             </Link>
           </div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Top 3 Sinh viên xuất sắc</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {topUsers.map((user) => (
-                  <div 
-                    key={user.rank} 
-                    className="flex items-center gap-4 p-4 rounded-xl bg-muted/50"
-                  >
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-white ${
-                      user.rank === 1 ? "bg-yellow-500" : 
-                      user.rank === 2 ? "bg-gray-400" : "bg-amber-700"
-                    }`}>
-                      {user.rank}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold">{user.name}</div>
-                      <div className="text-sm text-muted-foreground">{user.unit}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-primary">{user.activities}</div>
-                      <div className="text-xs text-muted-foreground">hoạt động</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          {/* <HomeLeaderboardPreview /> */}
         </div>
       </section>
 

@@ -1,7 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import { notFound, useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,48 +10,49 @@ import {
   ExternalLink,
   FileText,
   Award,
-  Loader2,
 } from "lucide-react";
-import { useState } from "react";
-import { UploadEvidenceDialog } from "@/components/evidence/upload-evidence-dialog";
 import {
   type ReviewLevel,
   type CriterionType,
   REVIEW_LEVELS,
   CRITERIA,
 } from "@/lib/constants";
-import { useGetActivityDetail } from "@/services/generated/api";
-import type { ActivityDetail } from "@/services/generated/api";
+import { getActivityDetailBySlug, getAllActivities } from "@/lib/server-public-api";
+import { UploadEvidenceButton } from "./upload-evidence-button";
 
-export default function ActivityDetailPage() {
-  const params = useParams();
-  const slug = params.slug as string;
+export const revalidate = 300;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { data: _apiResponse, isLoading, error } = useGetActivityDetail(slug);
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
+interface ActivityDetailPageProps {
+  params: Promise<{ slug: string }>;
+}
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen py-12 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-3 text-muted-foreground">Đang tải...</span>
-      </div>
-    );
-  }
+export async function generateStaticParams() {
+  const activities = await getAllActivities(100);
+  return activities
+    .filter((activity) => Boolean(activity.slug))
+    .map((activity) => ({ slug: activity.slug as string }));
+}
 
-  if (error) {
+export default async function ActivityDetailPage({
+  params,
+}: ActivityDetailPageProps) {
+  const { slug } = await params;
+
+  let activityResponse;
+  try {
+    activityResponse = await getActivityDetailBySlug(slug);
+  } catch {
     notFound();
   }
 
-  const activity = (_apiResponse as any)?.data as ActivityDetail | undefined;
-
+  const activity = activityResponse?.data;
   if (!activity) {
     notFound();
   }
 
-  const startDate = activity?.startDate ? new Date(activity.startDate) : null;
-  const endDate = activity?.endDate ? new Date(activity.endDate) : null;
+  const startDate = activity.startDate ? new Date(activity.startDate) : null;
+  const endDate = activity.endDate ? new Date(activity.endDate) : null;
+  // eslint-disable-next-line react-hooks/purity
   const daysRemaining = endDate
     ? Math.ceil((endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
     : 0;
@@ -61,7 +60,6 @@ export default function ActivityDetailPage() {
   return (
     <div className="min-h-screen py-12">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        {/* Breadcrumb */}
         <div className="mb-6">
           <Link
             href="/activities"
@@ -71,16 +69,15 @@ export default function ActivityDetailPage() {
           </Link>
         </div>
 
-        {/* Header */}
         <div className="mb-8 flex flex-col lg:flex-row gap-8">
           <div className="flex-1">
             <div className="flex flex-wrap gap-2 mb-4">
-              {activity?.criteriaDocs?.[0]?.criteriaType && (
+              {activity.criteriaDocs?.[0]?.criteriaType && (
                 <Badge variant="secondary">
                   {CRITERIA[activity.criteriaDocs[0].criteriaType as CriterionType]}
                 </Badge>
               )}
-              {activity?.reviewLevel && (
+              {activity.reviewLevel && (
                 <Badge variant="outline">
                   {REVIEW_LEVELS[activity.reviewLevel as ReviewLevel]}
                 </Badge>
@@ -99,13 +96,13 @@ export default function ActivityDetailPage() {
                   {endDate.toLocaleDateString("vi-VN")}
                 </div>
               )}
-              {activity?.organizer && (
+              {activity.organizer && (
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   {activity.organizer}
                 </div>
               )}
-              {activity?.location && (
+              {activity.location && (
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
                   {activity.location}
@@ -113,7 +110,7 @@ export default function ActivityDetailPage() {
               )}
             </div>
           </div>
-          {activity?.thumbnailUrl && (
+          {activity.thumbnailUrl && (
             <div className="lg:max-w-xs w-full rounded-md overflow-hidden">
               <img
                 src={activity.thumbnailUrl}
@@ -124,11 +121,9 @@ export default function ActivityDetailPage() {
           )}
         </div>
 
-        {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Main Info */}
           <div className="lg:col-span-2 space-y-6">
-            {activity?.description && (
+            {activity.description && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Mô tả</CardTitle>
@@ -141,7 +136,7 @@ export default function ActivityDetailPage() {
               </Card>
             )}
 
-            {activity?.rules && (
+            {activity.rules && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -157,7 +152,7 @@ export default function ActivityDetailPage() {
               </Card>
             )}
 
-            {activity?.rewards && (
+            {activity.rewards && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -173,7 +168,7 @@ export default function ActivityDetailPage() {
               </Card>
             )}
 
-            {activity?.targetAudience && (
+            {activity.targetAudience && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -190,7 +185,6 @@ export default function ActivityDetailPage() {
             )}
           </div>
 
-          {/* Right Column - Sidebar */}
           <div className="space-y-6">
             <Card className="sticky top-24">
               <CardContent className="p-6 space-y-4">
@@ -206,7 +200,7 @@ export default function ActivityDetailPage() {
                 )}
 
                 <div className="space-y-2">
-                  {activity?.registrationUrl ? (
+                  {activity.registrationUrl ? (
                     <a
                       href={activity.registrationUrl}
                       target="_blank"
@@ -224,23 +218,16 @@ export default function ActivityDetailPage() {
                     </Button>
                   )}
 
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full gap-2 mt-4"
-                    onClick={() => setIsUploadOpen(true)}
-                  >
-                    Nộp minh chứng
-                  </Button>
+                  <UploadEvidenceButton activityId={activity.id} />
                 </div>
 
-                {(activity?.contactInfo || activity?.organizer) && (
+                {(activity.contactInfo || activity.organizer) && (
                   <div className="pt-4 border-t border-border">
                     <div className="text-sm text-muted-foreground mb-2">
                       Thông tin liên hệ:
                     </div>
                     <div className="text-sm">
-                      {activity?.contactInfo || activity?.organizer}
+                      {activity.contactInfo || activity.organizer}
                     </div>
                   </div>
                 )}
@@ -249,16 +236,6 @@ export default function ActivityDetailPage() {
           </div>
         </div>
       </div>
-
-      <UploadEvidenceDialog
-        open={isUploadOpen}
-        onOpenChange={setIsUploadOpen}
-        initialActivityId={activity.id}
-        onSuccess={() => {
-          // Optional: show a success message or refresh data
-          console.log("Upload success!");
-        }}
-      />
     </div>
   );
 }

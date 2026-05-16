@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { 
@@ -12,27 +12,17 @@ import {
   Building2,
   TrendingUp
 } from "lucide-react"
-
-const mockLeaderboard = [
-  { rank: 1, userId: "user_1", fullName: "Nguyễn Văn A", unitName: "Khoa Ngôn ngữ & Văn hóa Anh", approvedActivityCount: 12 },
-  { rank: 2, userId: "user_2", fullName: "Trần Thị B", unitName: "Khoa Ngôn ngữ & Văn hóa Nhật Bản", approvedActivityCount: 10 },
-  { rank: 3, userId: "user_3", fullName: "Lê Văn C", unitName: "Khoa Ngôn ngữ & Văn hóa Hàn Quốc", approvedActivityCount: 9 },
-  { rank: 4, userId: "user_4", fullName: "Phạm Thị D", unitName: "Khoa Ngôn ngữ & Văn hóa Trung Quốc", approvedActivityCount: 8 },
-  { rank: 5, userId: "user_5", fullName: "Hoàng Văn E", unitName: "Khoa Ngôn ngữ & Văn hóa Pháp", approvedActivityCount: 7 },
-  { rank: 6, userId: "user_6", fullName: "Nguyễn Thị F", unitName: "Khoa Ngôn ngữ & Văn hóa Đức", approvedActivityCount: 6 },
-  { rank: 7, userId: "user_7", fullName: "Trần Văn G", unitName: "Khoa Ngôn ngữ & Văn hóa Nga", approvedActivityCount: 6 },
-  { rank: 8, userId: "user_8", fullName: "Lê Thị H", unitName: "Khoa Ngôn ngữ & Văn hóa Ả Rập", approvedActivityCount: 5 },
-  { rank: 9, userId: "user_9", fullName: "Phạm Văn I", unitName: "Khoa Việt Nam - Đông Nam Á", approvedActivityCount: 5 },
-  { rank: 10, userId: "user_10", fullName: "Nguyễn Văn J", unitName: "Khoa Giáo dục Quốc tế", approvedActivityCount: 4 },
-]
+import { useListLeaderboard, type LeaderboardItem } from "@/services/generated/api"
 
 export default function LeaderboardPage() {
   const [searchQuery, setSearchQuery] = useState("")
+  const { data, isLoading, error } = useListLeaderboard({ pageSize: 100 })
+  const leaderboard: LeaderboardItem[] = data?.data || []
 
-  const filteredLeaderboard = mockLeaderboard.filter(
+  const filteredLeaderboard = leaderboard.filter(
     (user) =>
-      user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.unitName.toLowerCase().includes(searchQuery.toLowerCase())
+      (user.userName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.unitName || "").toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const getRankIcon = (rank: number) => {
@@ -62,27 +52,27 @@ export default function LeaderboardPage() {
         {/* Top 3 Podium */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {[1, 0, 2].map((idx) => {
-            const user = mockLeaderboard[idx]
-            const order = idx === 1 ? 1 : idx === 0 ? 2 : 3
+            const user = leaderboard[idx]
+            if (!user) return null
             return (
               <Card 
-                key={user.rank}
-                className={`text-center ${getRankBg(user.rank)} ${
+                key={user.userId || user.rank}
+                className={`text-center ${getRankBg(user.rank || idx + 1)} ${
                   idx === 1 ? "md:-mt-4" : ""
                 }`}
               >
                 <CardContent className="p-6">
                   <div className="mb-4">
-                    {getRankIcon(user.rank)}
+                    {getRankIcon(user.rank || idx + 1)}
                   </div>
                   <div className="h-16 w-16 rounded-full bg-primary/10 mx-auto flex items-center justify-center mb-3">
                     <User className="h-8 w-8 text-primary" />
                   </div>
-                  <h3 className="font-semibold text-lg mb-1">{user.fullName}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">{user.unitName}</p>
+                  <h3 className="font-semibold text-lg mb-1">{user.userName || "N/A"}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">{user.unitName || "Chưa có đơn vị"}</p>
                   <Badge variant="default" className="gap-1">
                     <TrendingUp className="h-3 w-3" />
-                    {user.approvedActivityCount} hoạt động
+                    {user.totalApproved || 0} hoạt động
                   </Badge>
                 </CardContent>
               </Card>
@@ -104,29 +94,36 @@ export default function LeaderboardPage() {
             </div>
           </CardHeader>
           <CardContent>
+            {isLoading && <div className="text-sm text-muted-foreground">Đang tải bảng xếp hạng...</div>}
+            {!isLoading && error && (
+              <div className="text-sm text-destructive">Không thể tải bảng xếp hạng.</div>
+            )}
+            {!isLoading && !error && filteredLeaderboard.length === 0 && (
+              <div className="text-sm text-muted-foreground">Không có dữ liệu phù hợp.</div>
+            )}
             <div className="space-y-2">
-              {filteredLeaderboard.map((user) => (
+              {!isLoading && !error && filteredLeaderboard.map((user, idx) => (
                 <div 
-                  key={user.userId}
+                  key={user.userId || `${user.rank}-${idx}`}
                   className={`flex items-center gap-4 p-4 rounded-xl ${
-                    getRankBg(user.rank) || "bg-muted/30 hover:bg-muted/50"
+                    getRankBg(user.rank || idx + 1) || "bg-muted/30 hover:bg-muted/50"
                   } transition-colors`}
                 >
                   <div className="w-10 flex justify-center">
-                    {getRankIcon(user.rank)}
+                    {getRankIcon(user.rank || idx + 1)}
                   </div>
                   <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <User className="h-5 w-5 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium">{user.fullName}</div>
+                    <div className="font-medium">{user.userName || "N/A"}</div>
                     <div className="text-sm text-muted-foreground flex items-center gap-1">
                       <Building2 className="h-3 w-3" />
-                      {user.unitName}
+                      {user.unitName || "Chưa có đơn vị"}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-primary">{user.approvedActivityCount}</div>
+                    <div className="font-bold text-primary">{user.totalApproved || 0}</div>
                     <div className="text-xs text-muted-foreground">hoạt động</div>
                   </div>
                 </div>

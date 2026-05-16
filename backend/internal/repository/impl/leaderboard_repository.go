@@ -23,14 +23,16 @@ func (r *LeaderboardRepository) List(ctx context.Context, filter interfaces.Lead
 	offset := (page - 1) * pageSize
 
 	baseQuery := `
-		SELECT u.id as user_id, 
+		SELECT
+		       u.id as user_id,
 		       COALESCE(u.display_name, u.email) as user_name,
 		       u.unit_id,
-		       u.class_name,
-		       COUNT(e.id) FILTER (WHERE e.status = 'approved') as total_approved,
-		       COALESCE(SUM(CASE WHEN e.status = 'approved' THEN 1 ELSE 0 END), 0) as total_score
+		       un.name as unit_name,
+		       COUNT(DISTINCT e.activity_id) FILTER (WHERE e.status = 'approved') as total_approved,
+		       COALESCE(SUM(e.score) FILTER (WHERE e.status = 'approved' AND e.score IS NOT NULL), 0) as total_score
 		FROM users u
-		LEFT JOIN evidences e ON e.user_id = u.id`
+		LEFT JOIN evidences e ON e.user_id = u.id
+		LEFT JOIN units un ON un.id = u.unit_id`
 
 	args := []interface{}{}
 	argIndex := 1
@@ -41,7 +43,7 @@ func (r *LeaderboardRepository) List(ctx context.Context, filter interfaces.Lead
 		argIndex++
 	}
 
-	baseQuery += fmt.Sprintf(" GROUP BY u.id, u.display_name, u.email, u.unit_id, u.class_name ORDER BY total_score DESC, total_approved DESC LIMIT $%d OFFSET $%d", argIndex, argIndex+1)
+	baseQuery += fmt.Sprintf(" GROUP BY u.id, u.display_name, u.email, u.unit_id, un.name ORDER BY total_approved DESC, total_score DESC, user_name ASC, user_id ASC LIMIT $%d OFFSET $%d", argIndex, argIndex+1)
 	args = append(args, pageSize, offset)
 
 	countQuery := `SELECT COUNT(DISTINCT u.id) FROM users u`
@@ -85,16 +87,15 @@ func (r *LeaderboardRepository) List(ctx context.Context, filter interfaces.Lead
 			return nil, err
 		}
 
-		if unitID != nil {
-			r.pool.QueryRow(ctx, "SELECT name FROM units WHERE id = $1", *unitID).Scan(&unitName)
-		}
-
 		item.Rank = rank
 		item.UnitID = unitID
 		item.UnitName = unitName
 
 		items = append(items, &item)
 		rank++
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return &interfaces.LeaderboardResult{
