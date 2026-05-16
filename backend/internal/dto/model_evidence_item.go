@@ -14,12 +14,32 @@ import (
 )
 
 type EvidenceItem struct {
-
 	Id string `json:"id,omitempty"`
 
 	ActivityId string `json:"activityId,omitempty"`
 
 	ActivityTitle string `json:"activityTitle,omitempty"`
+
+	// Owner user ID
+	UserId string `json:"userId,omitempty"`
+
+	// Owner display name, included for admin review screens
+	UserFullName *string `json:"userFullName,omitempty"`
+
+	// Owner student ID, included for admin review screens
+	UserStudentId *string `json:"userStudentId,omitempty"`
+
+	// Owner avatar URL, included for admin review screens
+	UserAvatarUrl *string `json:"userAvatarUrl,omitempty"`
+
+	// Owner unit ID, included for admin review screens
+	UserUnitId *string `json:"userUnitId,omitempty"`
+
+	// Owner unit name, included for admin review screens
+	UserUnitName *string `json:"userUnitName,omitempty"`
+
+	// Owner class name, included for admin review screens
+	UserClassName *string `json:"userClassName,omitempty"`
 
 	// Optional FK to activity_criteria when evidence applies to a single criterion
 	ActivityCriteriaId *string `json:"activityCriteriaId,omitempty"`
@@ -35,6 +55,9 @@ type EvidenceItem struct {
 
 	// The criteria type associated with this evidence
 	CriterionType *string `json:"criterionType,omitempty"`
+
+	// Criteria codes associated with this evidence or its activity
+	Criteria []string `json:"criteria,omitempty"`
 
 	// Activity review level associated with the evidence
 	ReviewLevel *string `json:"reviewLevel,omitempty"`

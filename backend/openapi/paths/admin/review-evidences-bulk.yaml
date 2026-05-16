@@ -1,0 +1,45 @@
+patch:
+  summary: Review multiple evidence submissions
+  description: Admin approves or rejects multiple pending evidences with the same note.
+  operationId: bulkReviewEvidence
+  tags:
+    - Admin
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/evidence.yaml#/BulkReviewEvidenceRequest'
+  responses:
+    '200':
+      description: Evidences reviewed successfully
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '../../components/schemas/evidence.yaml#/EvidenceItem'
+    '400':
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '403':
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
+    '404':
+      $ref: '../../components/responses/error_responses.yaml#/NotFound'
+    '409':
+      description: One or more evidences were already reviewed and cannot be reviewed in bulk
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schemas/_common.yaml#/ErrorResponse'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

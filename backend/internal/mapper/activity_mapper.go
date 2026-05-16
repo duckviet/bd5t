@@ -82,6 +82,9 @@ func ActivityToItemDTO(activity *domain.Activity) *dto.ActivityItem {
 	if activity.EndDate != nil {
 		dtoItem.EndDate = formatDatePtr(activity.EndDate)
 	}
+	if activity.RegistrationURL != nil {
+		dtoItem.RegistrationUrl = activity.RegistrationURL
+	}
 	if activity.ReviewLevel != nil {
 		dtoItem.ReviewLevel = *activity.ReviewLevel
 	}

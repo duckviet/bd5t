@@ -1,0 +1,35 @@
+patch:
+  summary: Mark notification as read
+  operationId: markNotificationRead
+  tags:
+    - Notifications
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Notification ID
+  responses:
+    '200':
+      description: Notification marked as read
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/notification.yaml#/NotificationItem'
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '404':
+      $ref: '../../components/responses/error_responses.yaml#/NotFound'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'
+

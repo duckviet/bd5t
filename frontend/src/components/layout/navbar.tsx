@@ -17,6 +17,7 @@ import {
 import { useState } from "react"
 import { useAuthStore } from "@/features/auth/store/authStore"
 import authAction from "@/services/actions/auth.action"
+import { useListNotifications } from "@/services/generated/api"
 
 const navItems = [
   { href: "/", label: "Trang chủ", icon: Home },
@@ -24,11 +25,28 @@ const navItems = [
   { href: "/activities", label: "Hoạt động", icon: Calendar },
 ]
 
+const adminNavItems = [
+  { href: "/admin/activities", label: "QL hoạt động", icon: Calendar },
+  { href: "/admin/evidences", label: "Duyệt minh chứng", icon: FileText },
+]
+
 export function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { isAuth, user, isInitialized } = useAuthStore();
   const isAuthenticated = isAuth === true;
+  const isAdmin = user?.role?.toLowerCase() === "admin";
+  const notificationsQuery = useListNotifications({
+    query: {
+      enabled: isInitialized && isAuthenticated,
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  });
+  const unreadNotificationsCount =
+    notificationsQuery.data?.data?.filter((notification) => !notification.isRead).length ?? 0;
+  const unreadNotificationsLabel =
+    unreadNotificationsCount > 99 ? "99+" : String(unreadNotificationsCount);
   const handleLogout = async () => {
     await authAction.logout()
   }
@@ -66,6 +84,25 @@ export function Navbar() {
                   </Link>
                 );
               })}
+              {isAdmin &&
+                adminNavItems.map((item) => {
+                  const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                        isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                      )}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
             </nav>
           </div>
 
@@ -93,9 +130,11 @@ export function Navbar() {
                   className="relative p-2 rounded-full hover:bg-muted transition-colors"
                 >
                   <Bell className="h-5 w-5 text-muted-foreground" />
-                  <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
-                    3
-                  </span>
+                  {unreadNotificationsCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-medium text-destructive-foreground">
+                      {unreadNotificationsLabel}
+                    </span>
+                  )}
                 </Link>
                 <Link
                   href="/profile"
@@ -156,6 +195,26 @@ export function Navbar() {
                   </Link>
                 );
               })}
+              {isAdmin &&
+                adminNavItems.map((item) => {
+                  const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                        isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
               {!isInitialized ? null : !isAuthenticated ? (
                 <div className="flex gap-2 mt-2 pt-2 border-t border-border">
                   <Link
@@ -186,6 +245,11 @@ export function Navbar() {
                   >
                     <Bell className="h-4 w-4" />
                     <span>Thông báo</span>
+                    {unreadNotificationsCount > 0 && (
+                      <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[11px] font-medium text-destructive-foreground">
+                        {unreadNotificationsLabel}
+                      </span>
+                    )}
                   </Link>
                   <Link
                     href="/profile"

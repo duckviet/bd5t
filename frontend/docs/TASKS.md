@@ -190,10 +190,13 @@ Build notifications page:
 - [x] read/unread state
 - [x] countdown badge UI
 - [x] suggestion cards
+- [x] integrate backend notifications API
+- [x] mark one/all notifications as read
 
 Done when:
 
 - [x] notifications display correctly with states
+- [x] notifications load from backend
 
 ## 8. Phase 6 - Admin Dashboard
 

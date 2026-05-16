@@ -11,6 +11,30 @@ EvidenceItem:
     activityTitle:
       type: string
       example: "Tập hợp trường 2025"
+    userId:
+      type: string
+      format: uuid
+      description: Owner user ID
+    userFullName:
+      type: [string, "null"]
+      description: Owner display name, included for admin review screens
+    userStudentId:
+      type: [string, "null"]
+      description: Owner student ID, included for admin review screens
+    userAvatarUrl:
+      type: [string, "null"]
+      format: uri
+      description: Owner avatar URL, included for admin review screens
+    userUnitId:
+      type: [string, "null"]
+      format: uuid
+      description: Owner unit ID, included for admin review screens
+    userUnitName:
+      type: [string, "null"]
+      description: Owner unit name, included for admin review screens
+    userClassName:
+      type: [string, "null"]
+      description: Owner class name, included for admin review screens
     # Deprecated: criteriaDocId and criteriaDocTitle removed in favor of activityCriteriaId
     activityCriteriaId:
       type: [string, "null"]
@@ -34,6 +58,12 @@ EvidenceItem:
       type: [string, "null"]
       enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
       description: The criteria type associated with this evidence
+    criteria:
+      type: array
+      items:
+        type: string
+        enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+      description: Criteria codes associated with this evidence or its activity
     reviewLevel:
       type: [string, "null"]
       enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
@@ -94,3 +124,46 @@ ReviewEvidenceRequest:
     score:
       type: [integer, "null"]
       description: Optional score assigned by reviewer when approving
+
+BulkReviewEvidenceRequest:
+  type: object
+  required:
+    - ids
+    - status
+  properties:
+    ids:
+      type: array
+      minItems: 1
+      items:
+        type: string
+        format: uuid
+      description: Evidence IDs to review with the same decision
+    status:
+      type: string
+      enum: [approved, rejected]
+      description: Bulk review decision
+    reviewNote:
+      type: [string, "null"]
+      maxLength: 500
+      description: Optional feedback applied to all selected evidences
+
+AdminEvidenceStats:
+  type: object
+  properties:
+    pending:
+      type: integer
+      example: 12
+    approvedToday:
+      type: integer
+      example: 5
+    rejectedToday:
+      type: integer
+      example: 2
+    total:
+      type: integer
+      example: 42
+  required:
+    - pending
+    - approvedToday
+    - rejectedToday
+    - total

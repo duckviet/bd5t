@@ -63,5 +63,14 @@
   delete:
     $ref: ./admin/delete-activity.yaml#/delete
 
+/admin/evidences:
+  $ref: ./admin/evidences.yaml
+
+/admin/evidences/stats:
+  $ref: ./admin/evidence-stats.yaml
+
+/admin/evidences/review-bulk:
+  $ref: ./admin/review-evidences-bulk.yaml
+
 /admin/evidences/{id}/review:
   $ref: ./admin/review-evidence.yaml

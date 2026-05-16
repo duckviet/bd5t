@@ -1,0 +1,27 @@
+get:
+  summary: List notifications for current user
+  operationId: listNotifications
+  tags:
+    - Notifications
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  responses:
+    '200':
+      description: List of notifications
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '../components/schemas/notification.yaml#/NotificationItem'
+    '401':
+      $ref: '../components/responses/error_responses.yaml#/Unauthorized'
+    '500':
+      $ref: '../components/responses/error_responses.yaml#/InternalServerError'
+

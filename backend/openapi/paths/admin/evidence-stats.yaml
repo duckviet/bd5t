@@ -1,0 +1,26 @@
+get:
+  summary: Get admin evidence review stats
+  operationId: getAdminEvidenceStats
+  tags:
+    - Admin
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  responses:
+    '200':
+      description: Evidence review stats
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/evidence.yaml#/AdminEvidenceStats'
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '403':
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

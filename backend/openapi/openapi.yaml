@@ -94,12 +94,20 @@ components:
       $ref: "./components/schemas/evidence.yaml#/CreateEvidenceRequest"
     ReviewEvidenceRequest:
       $ref: "./components/schemas/evidence.yaml#/ReviewEvidenceRequest"
+    BulkReviewEvidenceRequest:
+      $ref: "./components/schemas/evidence.yaml#/BulkReviewEvidenceRequest"
+    AdminEvidenceStats:
+      $ref: "./components/schemas/evidence.yaml#/AdminEvidenceStats"
     ProgressMatrix:
       $ref: "./components/schemas/progress.yaml#/ProgressMatrix"
     ProgressMatrixCell:
       $ref: "./components/schemas/progress.yaml#/ProgressMatrixCell"
     LeaderboardItem:
       $ref: "./components/schemas/leaderboard.yaml#/LeaderboardItem"
+    NotificationItem:
+      $ref: "./components/schemas/notification.yaml#/NotificationItem"
+    MarkAllNotificationsReadResult:
+      $ref: "./components/schemas/notification.yaml#/MarkAllNotificationsReadResult"
 
 paths:
   /healthz:
@@ -134,9 +142,21 @@ paths:
     $ref: "./paths/progress/get.yaml"
   /leaderboard:
     $ref: "./paths/leaderboard/list.yaml"
+  /notifications:
+    $ref: "./paths/notifications.yaml"
+  /notifications/{id}/read:
+    $ref: "./paths/notifications/read.yaml"
+  /notifications/read-all:
+    $ref: "./paths/notifications/read-all.yaml"
   /admin/activities:
     $ref: "./paths/admin/create-activity.yaml"
   "/admin/activities/{id}":
     $ref: "./paths/admin/activity_detail.yaml"
+  /admin/evidences:
+    $ref: "./paths/admin/evidences.yaml"
+  /admin/evidences/stats:
+    $ref: "./paths/admin/evidence-stats.yaml"
+  /admin/evidences/review-bulk:
+    $ref: "./paths/admin/review-evidences-bulk.yaml"
   /admin/evidences/{id}/review:
     $ref: "./paths/admin/review-evidence.yaml"

@@ -205,6 +205,8 @@ export interface ActivityItem {
   startDate?: string;
   endDate?: string;
   isActive?: boolean;
+  /** @nullable */
+  registrationUrl?: string | null;
   reviewLevel?: ActivityItemReviewLevel;
   criteria?: ActivityItemCriteriaItem[];
   /** @nullable */
@@ -432,6 +434,17 @@ export const EvidenceItemCriterionType = {
   HOI_NHAP: "HOI_NHAP",
 } as const;
 
+export type EvidenceItemCriteriaItem =
+  (typeof EvidenceItemCriteriaItem)[keyof typeof EvidenceItemCriteriaItem];
+
+export const EvidenceItemCriteriaItem = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
 /**
  * Activity review level associated with the evidence
  * @nullable
@@ -451,6 +464,38 @@ export interface EvidenceItem {
   id?: string;
   activityId?: string;
   activityTitle?: string;
+  /** Owner user ID */
+  userId?: string;
+  /**
+   * Owner display name, included for admin review screens
+   * @nullable
+   */
+  userFullName?: string | null;
+  /**
+   * Owner student ID, included for admin review screens
+   * @nullable
+   */
+  userStudentId?: string | null;
+  /**
+   * Owner avatar URL, included for admin review screens
+   * @nullable
+   */
+  userAvatarUrl?: string | null;
+  /**
+   * Owner unit ID, included for admin review screens
+   * @nullable
+   */
+  userUnitId?: string | null;
+  /**
+   * Owner unit name, included for admin review screens
+   * @nullable
+   */
+  userUnitName?: string | null;
+  /**
+   * Owner class name, included for admin review screens
+   * @nullable
+   */
+  userClassName?: string | null;
   /**
    * Optional FK to activity_criteria when evidence applies to a single criterion
    * @nullable
@@ -469,6 +514,8 @@ export interface EvidenceItem {
    * @nullable
    */
   criterionType?: EvidenceItemCriterionType;
+  /** Criteria codes associated with this evidence or its activity */
+  criteria?: EvidenceItemCriteriaItem[];
   /**
    * Activity review level associated with the evidence
    * @nullable
@@ -532,6 +579,40 @@ export interface ReviewEvidenceRequest {
   score?: number | null;
 }
 
+/**
+ * Bulk review decision
+ */
+export type BulkReviewEvidenceRequestStatus =
+  (typeof BulkReviewEvidenceRequestStatus)[keyof typeof BulkReviewEvidenceRequestStatus];
+
+export const BulkReviewEvidenceRequestStatus = {
+  approved: "approved",
+  rejected: "rejected",
+} as const;
+
+export interface BulkReviewEvidenceRequest {
+  /**
+   * Evidence IDs to review with the same decision
+   * @minItems 1
+   */
+  ids: string[];
+  /** Bulk review decision */
+  status: BulkReviewEvidenceRequestStatus;
+  /**
+   * Optional feedback applied to all selected evidences
+   * @maxLength 500
+   * @nullable
+   */
+  reviewNote?: string | null;
+}
+
+export interface AdminEvidenceStats {
+  pending: number;
+  approvedToday: number;
+  rejectedToday: number;
+  total: number;
+}
+
 export type ProgressMatrixCellCompletedCriteriaItemCriteriaType =
   (typeof ProgressMatrixCellCompletedCriteriaItemCriteriaType)[keyof typeof ProgressMatrixCellCompletedCriteriaItemCriteriaType];
 
@@ -580,6 +661,22 @@ export interface LeaderboardItem {
   totalApproved?: number;
   /** Sum of all approved scores */
   totalScore?: number;
+}
+
+export type NotificationItemData = { [key: string]: unknown };
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  data?: NotificationItemData;
+  createdAt: string;
+}
+
+export interface MarkAllNotificationsReadResult {
+  updated: number;
 }
 
 /**
@@ -785,12 +882,102 @@ export type ListLeaderboard200 = ApiResponseList & {
   data?: LeaderboardItem[];
 };
 
+export type ListNotifications200 = ApiResponse & {
+  data?: NotificationItem[];
+};
+
+export type MarkNotificationRead200 = ApiResponse & {
+  data?: NotificationItem;
+};
+
+export type MarkAllNotificationsRead200 = ApiResponse & {
+  data?: MarkAllNotificationsReadResult;
+};
+
 export type CreateActivity201 = ApiResponse & {
   data?: ActivityDetail;
 };
 
 export type UpdateActivity200 = ApiResponse & {
   data?: ActivityDetail;
+};
+
+export type ListAdminEvidencesParams = {
+  /**
+   * Page number for pagination
+   * @minimum 1
+   */
+  page?: PageParameter;
+  /**
+   * Number of items per page
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * Filter by evidence status
+   */
+  status?: EvidenceStatusParameter;
+  /**
+   * Search by activity title, evidence description, student name, or student ID
+   */
+  search?: string;
+  /**
+   * Filter by 5-good criteria code
+   */
+  criteria?: ListAdminEvidencesCriteria;
+  /**
+   * Filter evidences submitted on or after this date
+   */
+  submittedFrom?: string;
+  /**
+   * Filter evidences submitted on or before this date
+   */
+  submittedTo?: string;
+  /**
+   * Filter by unit/organization ID
+   */
+  unitId?: UnitIdParameter;
+  /**
+   * Filter by student class name
+   */
+  className?: string;
+  /**
+   * Sort evidence list
+   */
+  sort?: ListAdminEvidencesSort;
+};
+
+export type ListAdminEvidencesCriteria =
+  (typeof ListAdminEvidencesCriteria)[keyof typeof ListAdminEvidencesCriteria];
+
+export const ListAdminEvidencesCriteria = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
+export type ListAdminEvidencesSort =
+  (typeof ListAdminEvidencesSort)[keyof typeof ListAdminEvidencesSort];
+
+export const ListAdminEvidencesSort = {
+  createdAt_desc: "createdAt_desc",
+  createdAt_asc: "createdAt_asc",
+  priority: "priority",
+} as const;
+
+export type ListAdminEvidences200 = ApiResponseList & {
+  data?: EvidenceItem[];
+};
+
+export type GetAdminEvidenceStats200 = ApiResponse & {
+  data?: AdminEvidenceStats;
+};
+
+export type BulkReviewEvidence200 = ApiResponse & {
+  data?: EvidenceItem[];
 };
 
 export type ReviewEvidence200 = ApiResponse & {
@@ -2960,6 +3147,339 @@ export function useListLeaderboard<
 }
 
 /**
+ * @summary List notifications for current user
+ */
+export const listNotifications = (
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<ListNotifications200>(
+    { url: `/notifications`, method: "GET", signal },
+    options,
+  );
+};
+
+export const getListNotificationsQueryKey = () => {
+  return [`/notifications`] as const;
+};
+
+export const getListNotificationsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listNotifications>>,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof listNotifications>>,
+      TError,
+      TData
+    >
+  >;
+  request?: SecondParameter<typeof customInstance>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListNotificationsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listNotifications>>
+  > = ({ signal }) => listNotifications(requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listNotifications>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ListNotificationsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listNotifications>>
+>;
+export type ListNotificationsQueryError = ErrorType<
+  UnauthorizedResponse | InternalServerErrorResponse
+>;
+
+export function useListNotifications<
+  TData = Awaited<ReturnType<typeof listNotifications>>,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listNotifications>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listNotifications>>,
+          TError,
+          Awaited<ReturnType<typeof listNotifications>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useListNotifications<
+  TData = Awaited<ReturnType<typeof listNotifications>>,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listNotifications>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listNotifications>>,
+          TError,
+          Awaited<ReturnType<typeof listNotifications>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useListNotifications<
+  TData = Awaited<ReturnType<typeof listNotifications>>,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listNotifications>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary List notifications for current user
+ */
+
+export function useListNotifications<
+  TData = Awaited<ReturnType<typeof listNotifications>>,
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listNotifications>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getListNotificationsQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Mark notification as read
+ */
+export const markNotificationRead = (
+  id: string,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<MarkNotificationRead200>(
+    { url: `/notifications/${id}/read`, method: "PATCH", signal },
+    options,
+  );
+};
+
+export const getMarkNotificationReadMutationOptions = <
+  TError = ErrorType<
+    UnauthorizedResponse | NotFoundResponse | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markNotificationRead>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof markNotificationRead>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["markNotificationRead"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof markNotificationRead>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return markNotificationRead(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type MarkNotificationReadMutationResult = NonNullable<
+  Awaited<ReturnType<typeof markNotificationRead>>
+>;
+
+export type MarkNotificationReadMutationError = ErrorType<
+  UnauthorizedResponse | NotFoundResponse | InternalServerErrorResponse
+>;
+
+/**
+ * @summary Mark notification as read
+ */
+export const useMarkNotificationRead = <
+  TError = ErrorType<
+    UnauthorizedResponse | NotFoundResponse | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof markNotificationRead>>,
+      TError,
+      { id: string },
+      TContext
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof markNotificationRead>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(
+    getMarkNotificationReadMutationOptions(options),
+    queryClient,
+  );
+};
+
+/**
+ * @summary Mark all notifications as read
+ */
+export const markAllNotificationsRead = (
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<MarkAllNotificationsRead200>(
+    { url: `/notifications/read-all`, method: "PATCH", signal },
+    options,
+  );
+};
+
+export const getMarkAllNotificationsReadMutationOptions = <
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markAllNotificationsRead>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof markAllNotificationsRead>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["markAllNotificationsRead"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof markAllNotificationsRead>>,
+    void
+  > = () => {
+    return markAllNotificationsRead(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type MarkAllNotificationsReadMutationResult = NonNullable<
+  Awaited<ReturnType<typeof markAllNotificationsRead>>
+>;
+
+export type MarkAllNotificationsReadMutationError = ErrorType<
+  UnauthorizedResponse | InternalServerErrorResponse
+>;
+
+/**
+ * @summary Mark all notifications as read
+ */
+export const useMarkAllNotificationsRead = <
+  TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof markAllNotificationsRead>>,
+      TError,
+      void,
+      TContext
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof markAllNotificationsRead>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(
+    getMarkAllNotificationsReadMutationOptions(options),
+    queryClient,
+  );
+};
+
+/**
  * Admin creates a new activity. Slug must be unique.
  * @summary Create a new activity
  */
@@ -3276,6 +3796,461 @@ export const useDeleteActivity = <
   TContext
 > => {
   return useMutation(getDeleteActivityMutationOptions(options), queryClient);
+};
+
+/**
+ * @summary List evidences for admin review
+ */
+export const listAdminEvidences = (
+  params?: ListAdminEvidencesParams,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<ListAdminEvidences200>(
+    { url: `/admin/evidences`, method: "GET", params, signal },
+    options,
+  );
+};
+
+export const getListAdminEvidencesQueryKey = (
+  params?: ListAdminEvidencesParams,
+) => {
+  return [`/admin/evidences`, ...(params ? [params] : [])] as const;
+};
+
+export const getListAdminEvidencesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAdminEvidences>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAdminEvidencesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAdminEvidences>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListAdminEvidencesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listAdminEvidences>>
+  > = ({ signal }) => listAdminEvidences(params, requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAdminEvidences>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ListAdminEvidencesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAdminEvidences>>
+>;
+export type ListAdminEvidencesQueryError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+>;
+
+export function useListAdminEvidences<
+  TData = Awaited<ReturnType<typeof listAdminEvidences>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params: undefined | ListAdminEvidencesParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAdminEvidences>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAdminEvidences>>,
+          TError,
+          Awaited<ReturnType<typeof listAdminEvidences>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useListAdminEvidences<
+  TData = Awaited<ReturnType<typeof listAdminEvidences>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAdminEvidencesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAdminEvidences>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAdminEvidences>>,
+          TError,
+          Awaited<ReturnType<typeof listAdminEvidences>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useListAdminEvidences<
+  TData = Awaited<ReturnType<typeof listAdminEvidences>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAdminEvidencesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAdminEvidences>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary List evidences for admin review
+ */
+
+export function useListAdminEvidences<
+  TData = Awaited<ReturnType<typeof listAdminEvidences>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAdminEvidencesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAdminEvidences>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getListAdminEvidencesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get admin evidence review stats
+ */
+export const getAdminEvidenceStats = (
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<GetAdminEvidenceStats200>(
+    { url: `/admin/evidences/stats`, method: "GET", signal },
+    options,
+  );
+};
+
+export const getGetAdminEvidenceStatsQueryKey = () => {
+  return [`/admin/evidences/stats`] as const;
+};
+
+export const getGetAdminEvidenceStatsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+      TError,
+      TData
+    >
+  >;
+  request?: SecondParameter<typeof customInstance>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAdminEvidenceStatsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAdminEvidenceStats>>
+  > = ({ signal }) => getAdminEvidenceStats(requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAdminEvidenceStatsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAdminEvidenceStats>>
+>;
+export type GetAdminEvidenceStatsQueryError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+>;
+
+export function useGetAdminEvidenceStats<
+  TData = Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminEvidenceStats>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminEvidenceStats<
+  TData = Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminEvidenceStats>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminEvidenceStats<
+  TData = Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get admin evidence review stats
+ */
+
+export function useGetAdminEvidenceStats<
+  TData = Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminEvidenceStats>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getGetAdminEvidenceStatsQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Admin approves or rejects multiple pending evidences with the same note.
+ * @summary Review multiple evidence submissions
+ */
+export const bulkReviewEvidence = (
+  bulkReviewEvidenceRequest: BodyType<BulkReviewEvidenceRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<BulkReviewEvidence200>(
+    {
+      url: `/admin/evidences/review-bulk`,
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      data: bulkReviewEvidenceRequest,
+      signal,
+    },
+    options,
+  );
+};
+
+export const getBulkReviewEvidenceMutationOptions = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | NotFoundResponse
+    | ErrorResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bulkReviewEvidence>>,
+    TError,
+    { data: BodyType<BulkReviewEvidenceRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof bulkReviewEvidence>>,
+  TError,
+  { data: BodyType<BulkReviewEvidenceRequest> },
+  TContext
+> => {
+  const mutationKey = ["bulkReviewEvidence"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof bulkReviewEvidence>>,
+    { data: BodyType<BulkReviewEvidenceRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return bulkReviewEvidence(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type BulkReviewEvidenceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof bulkReviewEvidence>>
+>;
+export type BulkReviewEvidenceMutationBody =
+  BodyType<BulkReviewEvidenceRequest>;
+export type BulkReviewEvidenceMutationError = ErrorType<
+  | BadRequestResponse
+  | UnauthorizedResponse
+  | ForbiddenResponse
+  | NotFoundResponse
+  | ErrorResponse
+  | InternalServerErrorResponse
+>;
+
+/**
+ * @summary Review multiple evidence submissions
+ */
+export const useBulkReviewEvidence = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | NotFoundResponse
+    | ErrorResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof bulkReviewEvidence>>,
+      TError,
+      { data: BodyType<BulkReviewEvidenceRequest> },
+      TContext
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof bulkReviewEvidence>>,
+  TError,
+  { data: BodyType<BulkReviewEvidenceRequest> },
+  TContext
+> => {
+  return useMutation(
+    getBulkReviewEvidenceMutationOptions(options),
+    queryClient,
+  );
 };
 
 /**

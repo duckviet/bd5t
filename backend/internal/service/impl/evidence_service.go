@@ -85,7 +85,15 @@ func (s *EvidenceService) CreateEvidence(ctx context.Context, userID string, req
 		return nil, errors.ErrInternalError(err, "failed to create evidence")
 	}
 
-	return mapper.DomainToEvidenceItem(evidence), nil
+	created, err := s.evidenceRepo.GetByID(ctx, evidence.ID)
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to get created evidence")
+	}
+	if created == nil {
+		return nil, errors.ErrEvidenceNotFound()
+	}
+
+	return mapper.DomainToEvidenceItem(created), nil
 }
 
 func (s *EvidenceService) DeleteEvidence(ctx context.Context, userID, evidenceID string) error {

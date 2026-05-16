@@ -5,10 +5,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Calendar, Download, Trash2, Upload } from "lucide-react"
 import {
-  CRITERIA,
   REVIEW_LEVELS,
   EVIDENCE_STATUS,
-  type CriterionType,
 } from "@/lib/constants";
 import type {
   ActivityItem,
@@ -16,6 +14,7 @@ import type {
   EvidenceItemStatus,
 } from "@/services/generated/api";
 import type { ActivityCriteriaMap } from "../types";
+import { getEvidenceCriteriaLabel } from "../evidence-criteria";
 
 interface EvidenceListViewProps {
   items: EvidenceItem[];
@@ -27,30 +26,6 @@ interface EvidenceListViewProps {
   statusIcon: Record<string, React.ComponentType<{ className?: string }>>;
   activityCriteriaMap: ActivityCriteriaMap;
   activities: ActivityItem[];
-}
-
-function renderCriteriaLabels(
-  ev: EvidenceItem,
-  activityCriteriaMap: ActivityCriteriaMap,
-  activities: ActivityItem[],
-) {
-  // 1. Prefer direct criterionType from backend
-  if (ev.criterionType) {
-    return CRITERIA[ev.criterionType as keyof typeof CRITERIA] || ev.criterionType;
-  }
-
-  // 2. Fallback to activity lookup
-  const activity =
-    activities.find((item) => item.id === ev.activityId) ??
-    activities.find((item) => item.title === ev.activityTitle);
-  const criteria =
-    activity?.criteria ?? activityCriteriaMap[ev.activityId || ""] ?? [];
-  if (criteria.length === 0) {
-    return "Chưa xác định tiêu chí";
-  }
-  return criteria
-    .map((criterion: CriterionType) => CRITERIA[criterion])
-    .join(", ");
 }
 
 export function EvidenceListView({
@@ -102,7 +77,7 @@ export function EvidenceListView({
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
                 <span>
-                  {renderCriteriaLabels(
+                  {getEvidenceCriteriaLabel(
                     ev,
                     activityCriteriaMap,
                     activities,
@@ -206,7 +181,7 @@ export function EvidenceGridView({
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mb-3">
               <span>
-                {renderCriteriaLabels(
+                {getEvidenceCriteriaLabel(
                   ev,
                   activityCriteriaMap,
                   activities,

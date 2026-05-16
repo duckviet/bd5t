@@ -1,0 +1,46 @@
+NotificationItem:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: "60000000-0000-4000-8000-000000000001"
+    title:
+      type: string
+      example: "Hoạt động mới"
+    message:
+      type: string
+      example: "Có hoạt động mới thuộc tiêu chí Thể lực tốt vừa được đăng tải."
+    type:
+      type: string
+      example: "ACTIVITY_NEW"
+    isRead:
+      type: boolean
+      example: false
+    data:
+      type: object
+      additionalProperties: true
+      example:
+        activityId: "30000000-0000-4000-8000-00000000000a"
+        activitySlug: "giai-chay-buoc-chan-sinh-vien"
+    createdAt:
+      type: string
+      format: date-time
+  required:
+    - id
+    - title
+    - message
+    - type
+    - isRead
+    - createdAt
+
+MarkAllNotificationsReadResult:
+  type: object
+  properties:
+    updated:
+      type: integer
+      format: int64
+      example: 3
+  required:
+    - updated
+

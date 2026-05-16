@@ -396,13 +396,14 @@
 > Goal: users receive notifications when evidence is reviewed.
 
 ### 11.1 OpenAPI Spec
-- [ ] `openapi/paths/notifications/list.yaml`
-- [ ] `openapi/paths/notifications/mark-read.yaml`
-- [ ] Add `NotificationItem` schema
-- [ ] Run `make openapi-generator-cli`
+- [x] `openapi/paths/notifications.yaml`
+- [x] `openapi/paths/notifications/read.yaml`
+- [x] `openapi/paths/notifications/read-all.yaml`
+- [x] Add `NotificationItem` schema
+- [x] Run `make openapi-generator-cli`
 
 ### 11.2 Domain
-- [ ] `internal/domain/notification.go`
+- [x] `internal/domain/notification.go`
 
 ### 11.3 Event System (MVP)
 - [ ] `internal/event/events.go` — event type definitions
@@ -412,22 +413,22 @@
 - [ ] `internal/event/dispatcher.go` — synchronous dispatch (MVP, no queue)
 
 ### 11.4 Repository
-- [ ] `NotificationRepository`
-  - [ ] `List(ctx, userId, pagination) ([]*domain.Notification, total, error)`
+- [x] `NotificationRepository`
+  - [x] `ListByUser(ctx, userId) ([]*domain.Notification, error)`
   - [ ] `Create(ctx, input) error`
-  - [ ] `MarkRead(ctx, userId, notificationId) error`
-  - [ ] `MarkAllRead(ctx, userId) error`
+  - [x] `MarkRead(ctx, userId, notificationId) error`
+  - [x] `MarkAllRead(ctx, userId) error`
 
 ### 11.5 Service
-- [ ] `NotificationService`
-  - [ ] `ListNotifications(ctx, userId, req) (paginated, error)`
-  - [ ] `MarkRead(ctx, userId, id) error`
+- [x] `NotificationService`
+  - [x] `ListNotifications(ctx, userId) ([]NotificationItem, error)`
+  - [x] `MarkRead(ctx, userId, id) error`
   - [ ] `CreateFromEvent(ctx, event) error` — called by event dispatcher
 
 ### 11.6 Handler
-- [ ] `GET /notifications` — authenticated, paginated
-- [ ] `PATCH /notifications/:id/read` — authenticated
-- [ ] `PATCH /notifications/read-all` — authenticated
+- [x] `GET /notifications` — authenticated
+- [x] `PATCH /notifications/:id/read` — authenticated
+- [x] `PATCH /notifications/read-all` — authenticated
 
 ---
 

@@ -120,7 +120,11 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	leaderboardService := svcImpl.NewLeaderboardService(leaderboardRepo)
 	leaderboardAPI := handlers.NewLeaderboardAPI(leaderboardService)
 
-	adminService := svcImpl.NewAdminService(evidenceRepo, activityRepo, progressService)
+	notificationRepo := repoImpl.NewNotificationRepository(db)
+	notificationService := svcImpl.NewNotificationService(notificationRepo)
+	notificationsAPI := handlers.NewNotificationsAPI(notificationService)
+
+	adminService := svcImpl.NewAdminService(evidenceRepo, activityRepo, notificationRepo, progressService)
 	adminAPI := handlers.NewAdminAPI(adminService)
 
 	healthAPI := handlers.NewHealthAPI()
@@ -151,12 +155,18 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 
 		v1.GET("/progress", middleware.AuthRequired(tokenMgr), progressAPI.GetProgress)
 		v1.GET("/leaderboard", leaderboardAPI.ListLeaderboard)
+		v1.GET("/notifications", middleware.AuthRequired(tokenMgr), notificationsAPI.ListNotifications)
+		v1.PATCH("/notifications/read-all", middleware.AuthRequired(tokenMgr), notificationsAPI.MarkAllNotificationsRead)
+		v1.PATCH("/notifications/:id/read", middleware.AuthRequired(tokenMgr), notificationsAPI.MarkNotificationRead)
 
 		v1.GET("/healthz", healthAPI.Healthz)
 		v1.GET("/readyz", healthAPI.Readyz)
 
 		adminGroup := v1.Group("/admin")
 		{
+			adminGroup.GET("/evidences", middleware.AdminRequired(tokenMgr), adminAPI.ListAdminEvidences)
+			adminGroup.GET("/evidences/stats", middleware.AdminRequired(tokenMgr), adminAPI.GetAdminEvidenceStats)
+			adminGroup.PATCH("/evidences/review-bulk", middleware.AdminRequired(tokenMgr), adminAPI.BulkReviewEvidence)
 			adminGroup.PATCH("/evidences/:id/review", middleware.AdminRequired(tokenMgr), adminAPI.ReviewEvidence)
 			adminGroup.POST("/activities", middleware.AdminRequired(tokenMgr), adminAPI.CreateActivity)
 			adminGroup.PATCH("/activities/:id", middleware.AdminRequired(tokenMgr), adminAPI.UpdateActivity)

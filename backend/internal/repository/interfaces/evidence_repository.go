@@ -7,8 +7,15 @@ import (
 )
 
 type EvidenceFilter struct {
-	ActivityID *string
-	Status     *string
+	ActivityID    *string
+	Status        *string
+	Search        *string
+	Criteria      *string
+	SubmittedFrom *string
+	SubmittedTo   *string
+	UnitID        *string
+	ClassName     *string
+	Sort          *string
 }
 
 type EvidenceListResult struct {
@@ -16,8 +23,17 @@ type EvidenceListResult struct {
 	Total     int
 }
 
+type EvidenceStats struct {
+	Pending       int
+	ApprovedToday int
+	RejectedToday int
+	Total         int
+}
+
 type EvidenceRepository interface {
 	List(ctx context.Context, userID string, filter EvidenceFilter, page, pageSize int) (*EvidenceListResult, error)
+	ListAll(ctx context.Context, filter EvidenceFilter, page, pageSize int) (*EvidenceListResult, error)
+	GetStats(ctx context.Context) (*EvidenceStats, error)
 	GetByID(ctx context.Context, id string) (*domain.Evidence, error)
 	Create(ctx context.Context, evidence *domain.Evidence) error
 	Delete(ctx context.Context, id string) error

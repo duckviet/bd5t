@@ -58,6 +58,12 @@ CreateEvidenceRequest:
 ReviewEvidenceRequest:
   $ref: "./evidence.yaml#/ReviewEvidenceRequest"
 
+BulkReviewEvidenceRequest:
+  $ref: "./evidence.yaml#/BulkReviewEvidenceRequest"
+
+AdminEvidenceStats:
+  $ref: "./evidence.yaml#/AdminEvidenceStats"
+
 ProgressMatrix:
   $ref: "./progress.yaml#/ProgressMatrix"
 

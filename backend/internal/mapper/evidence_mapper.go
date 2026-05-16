@@ -14,17 +14,38 @@ func DomainToEvidenceItem(e *domain.Evidence) *dto.EvidenceItem {
 		Id:            e.ID,
 		ActivityId:    e.ActivityID,
 		ActivityTitle: e.ActivityTitle,
+		UserId:        e.UserID,
 		FileUrl:       e.FileURL,
 		Status:        e.Status,
 		CreatedAt:     e.CreatedAt,
 	}
 
-	// legacy criteria_doc fields removed from domain; keep DTO fields nil until OpenAPI regenerated
+	if e.UserFullName != nil {
+		item.UserFullName = e.UserFullName
+	}
+	if e.UserStudentID != nil {
+		item.UserStudentId = e.UserStudentID
+	}
+	if e.UserAvatarURL != nil {
+		item.UserAvatarUrl = e.UserAvatarURL
+	}
+	if e.UserUnitID != nil {
+		item.UserUnitId = e.UserUnitID
+	}
+	if e.UserUnitName != nil {
+		item.UserUnitName = e.UserUnitName
+	}
+	if e.UserClassName != nil {
+		item.UserClassName = e.UserClassName
+	}
 	if e.Description != nil {
 		item.Description = *e.Description
 	}
 	if e.CriterionType != nil {
 		item.CriterionType = e.CriterionType
+	}
+	if e.Criteria != nil {
+		item.Criteria = e.Criteria
 	}
 	if e.ReviewLevel != nil {
 		item.ReviewLevel = e.ReviewLevel

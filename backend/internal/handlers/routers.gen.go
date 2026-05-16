@@ -18,13 +18,13 @@ import (
 // Route is the information for every URI.
 type Route struct {
 	// Name is the name of this Route.
-	Name		string
+	Name string
 	// Method is the string for the HTTP method. ex) GET, POST etc..
-	Method		string
+	Method string
 	// Pattern is the pattern of the URI.
-	Pattern	 	string
+	Pattern string
 	// HandlerFunc is the handler function of this route.
-	HandlerFunc	gin.HandlerFunc
+	HandlerFunc gin.HandlerFunc
 }
 
 // NewRouter returns a new router.
@@ -76,6 +76,8 @@ type ApiHandleFunctions struct {
 	LeaderboardAPI LeaderboardAPI
 	// Routes for the MediaAPI part of the API
 	MediaAPI MediaAPI
+	// Routes for the NotificationsAPI part of the API
+	NotificationsAPI NotificationsAPI
 	// Routes for the ProfileAPI part of the API
 	ProfileAPI ProfileAPI
 	// Routes for the ProgressAPI part of the API
@@ -85,7 +87,7 @@ type ApiHandleFunctions struct {
 }
 
 func getRoutes(handleFunctions ApiHandleFunctions) []Route {
-	return []Route{ 
+	return []Route{
 		{
 			"GetActivityDetail",
 			http.MethodGet,
@@ -99,6 +101,12 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			handleFunctions.ActivitiesAPI.ListActivities,
 		},
 		{
+			"BulkReviewEvidence",
+			http.MethodPatch,
+			"/admin/evidences/review-bulk",
+			handleFunctions.AdminAPI.BulkReviewEvidence,
+		},
+		{
 			"CreateActivity",
 			http.MethodPost,
 			"/admin/activities",
@@ -109,6 +117,18 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			http.MethodDelete,
 			"/admin/activities/:id",
 			handleFunctions.AdminAPI.DeleteActivity,
+		},
+		{
+			"GetAdminEvidenceStats",
+			http.MethodGet,
+			"/admin/evidences/stats",
+			handleFunctions.AdminAPI.GetAdminEvidenceStats,
+		},
+		{
+			"ListAdminEvidences",
+			http.MethodGet,
+			"/admin/evidences",
+			handleFunctions.AdminAPI.ListAdminEvidences,
 		},
 		{
 			"ReviewEvidence",
@@ -193,6 +213,24 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			http.MethodPost,
 			"/media/upload",
 			handleFunctions.MediaAPI.UploadMedia,
+		},
+		{
+			"ListNotifications",
+			http.MethodGet,
+			"/notifications",
+			handleFunctions.NotificationsAPI.ListNotifications,
+		},
+		{
+			"MarkAllNotificationsRead",
+			http.MethodPatch,
+			"/notifications/read-all",
+			handleFunctions.NotificationsAPI.MarkAllNotificationsRead,
+		},
+		{
+			"MarkNotificationRead",
+			http.MethodPatch,
+			"/notifications/:id/read",
+			handleFunctions.NotificationsAPI.MarkNotificationRead,
 		},
 		{
 			"GetProfile",

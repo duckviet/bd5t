@@ -44,6 +44,10 @@ ActivityItem:
     isActive:
       type: boolean
       example: true
+    registrationUrl:
+      type: [string, "null"]
+      format: uri
+      example: "https://example.com/register"
     reviewLevel:
       type: string
       enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]

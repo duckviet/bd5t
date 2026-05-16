@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Upload } from "lucide-react"
-import { CRITERIA, REVIEW_LEVELS, EVIDENCE_STATUS } from "@/lib/constants"
+import { REVIEW_LEVELS, EVIDENCE_STATUS } from "@/lib/constants"
 import type {
   EvidenceItem,
   EvidenceItemStatus,
   ActivityItem,
 } from "@/services/generated/api";
 import type { ActivityCriteriaMap } from "../types";
+import { getEvidenceCriteriaLabel } from "../evidence-criteria";
 
 interface EvidenceVaultProps {
   items: EvidenceItem[];
@@ -58,28 +59,7 @@ export function EvidenceVault({
                     {ev.activityTitle || ev.description || "Minh chứng"}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {(() => {
-                      // Prefer criterionType from backend if available
-                      if (ev.criterionType) {
-                        return CRITERIA[ev.criterionType as keyof typeof CRITERIA] || ev.criterionType;
-                      }
-
-                      const activity =
-                        activities.find((a) => a.id === ev.activityId) ||
-                        activities.find((a) => a.title === ev.activityTitle);
-                      const criteria =
-                        activity?.criteria ??
-                        activityCriteriaMap[ev.activityId || ""] ??
-                        [];
-                      return criteria.length > 0
-                        ? criteria
-                            .map(
-                              (criterion) =>
-                                CRITERIA[criterion as keyof typeof CRITERIA],
-                            )
-                            .join(", ")
-                        : "Chưa xác định tiêu chí";
-                    })()}{" "}
+                    {getEvidenceCriteriaLabel(ev, activityCriteriaMap, activities)}{" "}
                     • {REVIEW_LEVELS[ev.reviewLevel || "TRUONG"]}
                   </div>
                 </div>

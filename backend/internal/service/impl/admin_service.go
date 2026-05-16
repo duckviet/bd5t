@@ -13,21 +13,88 @@ import (
 )
 
 type AdminService struct {
-	evidenceRepo interfaces.EvidenceRepository
-	activityRepo interfaces.ActivityRepository
-	progressSvc  *ProgressService
+	evidenceRepo     interfaces.EvidenceRepository
+	activityRepo     interfaces.ActivityRepository
+	notificationRepo interfaces.NotificationRepository
+	progressSvc      *ProgressService
 }
 
 func NewAdminService(
 	evidenceRepo interfaces.EvidenceRepository,
 	activityRepo interfaces.ActivityRepository,
+	notificationRepo interfaces.NotificationRepository,
 	progressSvc *ProgressService,
 ) *AdminService {
 	return &AdminService{
-		evidenceRepo: evidenceRepo,
-		activityRepo: activityRepo,
-		progressSvc:  progressSvc,
+		evidenceRepo:     evidenceRepo,
+		activityRepo:     activityRepo,
+		notificationRepo: notificationRepo,
+		progressSvc:      progressSvc,
 	}
+}
+
+type AdminListEvidencesResult struct {
+	Evidences []*dto.EvidenceItem
+	Total     int
+	Page      int
+	PageSize  int
+}
+
+func (s *AdminService) ListEvidences(ctx context.Context, filter interfaces.EvidenceFilter, page, pageSize int) (*AdminListEvidencesResult, error) {
+	result, err := s.evidenceRepo.ListAll(ctx, filter, page, pageSize)
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to list evidences")
+	}
+
+	evidences := make([]*dto.EvidenceItem, len(result.Evidences))
+	for i, evidence := range result.Evidences {
+		evidences[i] = mapper.DomainToEvidenceItem(evidence)
+	}
+
+	return &AdminListEvidencesResult{
+		Evidences: evidences,
+		Total:     result.Total,
+		Page:      page,
+		PageSize:  pageSize,
+	}, nil
+}
+
+func (s *AdminService) GetEvidenceStats(ctx context.Context) (*dto.AdminEvidenceStats, error) {
+	stats, err := s.evidenceRepo.GetStats(ctx)
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to get evidence stats")
+	}
+
+	return &dto.AdminEvidenceStats{
+		Pending:       int32(stats.Pending),
+		ApprovedToday: int32(stats.ApprovedToday),
+		RejectedToday: int32(stats.RejectedToday),
+		Total:         int32(stats.Total),
+	}, nil
+}
+
+func (s *AdminService) BulkReviewEvidence(ctx context.Context, adminID string, req *dto.BulkReviewEvidenceRequest) ([]*dto.EvidenceItem, error) {
+	if len(req.Ids) == 0 {
+		return nil, errors.ErrBadRequest("No evidences selected")
+	}
+	if req.Status != domain.StatusApproved && req.Status != domain.StatusRejected {
+		return nil, errors.ErrBadRequest("Invalid evidence review status")
+	}
+
+	reviewed := make([]*dto.EvidenceItem, 0, len(req.Ids))
+	for _, id := range req.Ids {
+		item, err := s.ReviewEvidence(ctx, adminID, id, &dto.ReviewEvidenceRequest{
+			Status:        req.Status,
+			ReviewNote:    req.ReviewNote,
+			ForceOverride: false,
+		})
+		if err != nil {
+			return nil, err
+		}
+		reviewed = append(reviewed, item)
+	}
+
+	return reviewed, nil
 }
 
 func (s *AdminService) ReviewEvidence(ctx context.Context, adminID, evidenceID string, req *dto.ReviewEvidenceRequest) (*dto.EvidenceItem, error) {
@@ -73,7 +140,56 @@ func (s *AdminService) ReviewEvidence(ctx context.Context, adminID, evidenceID s
 		}
 	}
 
-	return mapper.DomainToEvidenceItem(evidence), nil
+	updatedEvidence, err := s.evidenceRepo.GetByID(ctx, evidenceID)
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to get reviewed evidence")
+	}
+	if updatedEvidence == nil {
+		return nil, errors.ErrEvidenceNotFound()
+	}
+
+	if err := s.createEvidenceReviewNotification(ctx, updatedEvidence); err != nil {
+		return nil, errors.ErrInternalError(err, "failed to create review notification")
+	}
+
+	return mapper.DomainToEvidenceItem(updatedEvidence), nil
+}
+
+func (s *AdminService) createEvidenceReviewNotification(ctx context.Context, evidence *domain.Evidence) error {
+	title := "Minh chứng đã được duyệt"
+	message := "Minh chứng của bạn đã được duyệt."
+	notificationType := "EVIDENCE_APPROVED"
+
+	if evidence.Status == domain.StatusRejected {
+		title = "Minh chứng bị từ chối"
+		message = "Minh chứng của bạn đã bị từ chối."
+		notificationType = "EVIDENCE_REJECTED"
+	}
+
+	if evidence.ActivityTitle != "" {
+		if evidence.Status == domain.StatusRejected {
+			message = "Minh chứng cho hoạt động \"" + evidence.ActivityTitle + "\" đã bị từ chối."
+		} else {
+			message = "Minh chứng cho hoạt động \"" + evidence.ActivityTitle + "\" đã được duyệt."
+		}
+	}
+
+	if evidence.ReviewNote != nil && *evidence.ReviewNote != "" {
+		message += " Ghi chú: " + *evidence.ReviewNote
+	}
+
+	return s.notificationRepo.Create(ctx, &domain.Notification{
+		UserID:  evidence.UserID,
+		Title:   title,
+		Message: message,
+		Type:    notificationType,
+		IsRead:  false,
+		Data: map[string]interface{}{
+			"evidenceId": evidence.ID,
+			"activityId": evidence.ActivityID,
+			"status":     evidence.Status,
+		},
+	})
 }
 
 func (s *AdminService) CreateActivity(ctx context.Context, req *dto.CreateActivityRequest) (*dto.ActivityDetail, error) {

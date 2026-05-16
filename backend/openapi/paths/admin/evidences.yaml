@@ -1,0 +1,68 @@
+get:
+  summary: List evidences for admin review
+  operationId: listAdminEvidences
+  tags:
+    - Admin
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameters/_index.yaml#/page'
+    - $ref: '../../components/parameters/_index.yaml#/pageSize'
+    - $ref: '../../components/parameters/_index.yaml#/evidenceStatus'
+    - name: search
+      in: query
+      description: Search by activity title, evidence description, student name, or student ID
+      schema:
+        type: string
+    - name: criteria
+      in: query
+      description: Filter by 5-good criteria code
+      schema:
+        type: string
+        enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+    - name: submittedFrom
+      in: query
+      description: Filter evidences submitted on or after this date
+      schema:
+        type: string
+        format: date
+    - name: submittedTo
+      in: query
+      description: Filter evidences submitted on or before this date
+      schema:
+        type: string
+        format: date
+    - $ref: '../../components/parameters/_index.yaml#/unitId'
+    - name: className
+      in: query
+      description: Filter by student class name
+      schema:
+        type: string
+    - name: sort
+      in: query
+      description: Sort evidence list
+      schema:
+        type: string
+        enum: [createdAt_desc, createdAt_asc, priority]
+        default: createdAt_desc
+  responses:
+    '200':
+      description: List of evidences across all users
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponseList'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '../../components/schemas/evidence.yaml#/EvidenceItem'
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '403':
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

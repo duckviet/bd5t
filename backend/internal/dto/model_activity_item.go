@@ -41,6 +41,8 @@ type ActivityItem struct {
 
 	IsActive bool `json:"isActive,omitempty"`
 
+	RegistrationUrl *string `json:"registrationUrl,omitempty"`
+
 	ReviewLevel string `json:"reviewLevel,omitempty"`
 
 	Criteria []string `json:"criteria,omitempty"`

@@ -9,7 +9,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 import {
-  CRITERIA,
   type CriterionType,
   type ReviewLevel,
 } from "@/lib/constants";
@@ -26,6 +25,10 @@ import type {
   ProgressPresenceMatrix,
   ActivityCriteriaMap,
 } from "@/features/profile/types";
+import {
+  getEvidenceCriteria,
+  normalizeCriteria,
+} from "@/features/profile/evidence-criteria";
 import {
   useMe,
   useListActivities,
@@ -71,12 +74,6 @@ function createEmptyMatrix(): ProgressPresenceMatrix {
       TRUNG_UONG: false,
     },
   };
-}
-
-function normalizeCriteria(criteria?: string[] | null): CriterionType[] {
-  return (criteria ?? []).filter(
-    (criterion): criterion is CriterionType => criterion in CRITERIA,
-  );
 }
 
 const statusBadgeVariant: Record<
@@ -168,14 +165,14 @@ export default function ProfilePage() {
         return;
       }
 
-      const criteria = activityCriteriaMap[ev.activityId || ""] ?? [];
+      const criteria = getEvidenceCriteria(ev, activityCriteriaMap, activities);
       criteria.forEach((criterion) => {
         matrix[criterion][reviewLevel] = true;
       });
     });
 
     return matrix;
-  }, [activityCriteriaMap, evidences]);
+  }, [activities, activityCriteriaMap, evidences]);
 
   const completedCount = useMemo(
     () => evidences.filter((evidence) => evidence.status === "approved").length,
@@ -195,7 +192,7 @@ export default function ProfilePage() {
     const matchesStatus = filterStatus === "all" || ev.status === filterStatus;
     const matchesCriterion =
       filterCriterion === "all" ||
-      (activityCriteriaMap[ev.activityId || ""] ?? []).includes(
+      getEvidenceCriteria(ev, activityCriteriaMap, activities).includes(
         filterCriterion,
       );
     const matchesLevel =

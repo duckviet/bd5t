@@ -98,7 +98,7 @@ export function ActivityTable({
                     )}
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-muted-foreground hidden lg:table-cell">
+                <td className="px-4 py-3 text-sm text-muted-foreground hidden lg:table-cell max-w-[200px] wrap-normal">
                   <div className="flex items-center gap-1.5">
                     <Users className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
                     <span className="truncate">{activity.organizer || "—"}</span>
@@ -121,7 +121,7 @@ export function ActivityTable({
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {activity.reviewLevel ? (
-                    <Badge variant="outline" className="text-xs font-normal">
+                    <Badge variant="outline" className="text-xs font-normal text-nowrap">
                       {REVIEW_LEVELS[activity.reviewLevel as keyof typeof REVIEW_LEVELS] || activity.reviewLevel}
                     </Badge>
                   ) : (

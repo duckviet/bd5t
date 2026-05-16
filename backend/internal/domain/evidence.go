@@ -5,23 +5,30 @@ import (
 )
 
 type Evidence struct {
-	ID               string
-	UserID           string
-	ActivityID       string
-	ActivityTitle    string
+	ID                 string
+	UserID             string
+	UserFullName       *string
+	UserStudentID      *string
+	UserAvatarURL      *string
+	UserUnitID         *string
+	UserUnitName       *string
+	UserClassName      *string
+	ActivityID         string
+	ActivityTitle      string
 	ActivityCriteriaID *string
 	Score              *int
-	FileURL          string
-	FileKey          string
-	Description      *string
-	Status           string
-	ReviewNote       *string
-	ReviewedBy       *string
-	ReviewedAt       *time.Time
-	CriterionType    *string
-	ReviewLevel      *string
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+	FileURL            string
+	FileKey            string
+	Description        *string
+	Status             string
+	ReviewNote         *string
+	ReviewedBy         *string
+	ReviewedAt         *time.Time
+	CriterionType      *string
+	Criteria           []string
+	ReviewLevel        *string
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
 }
 
 const (
