@@ -1,48 +1,33 @@
-"use client"
+import type { Metadata } from "next"
+import { BreadcrumbJsonLd } from "next-seo"
+import { absoluteUrl, createMetadata } from "@/lib/seo"
+import { NotificationsClient } from "./notifications-client"
 
-import { useState } from "react"
-import { useQueryClient } from "@tanstack/react-query"
-
-import { NotificationList } from "@/features/notifications/components/notification-list"
-import {
-  getListNotificationsQueryKey,
-  useListNotifications,
-  useMarkAllNotificationsRead,
-  useMarkNotificationRead,
-} from "@/services/generated/api"
+export const metadata: Metadata = createMetadata({
+  title: "Thông báo",
+  description:
+    "Theo dõi các thông báo mới nhất về hoạt động và minh chứng Sinh viên 5 Tốt.",
+  path: "/notifications",
+})
 
 export default function NotificationsPage() {
-  const [filter, setFilter] = useState<"all" | "unread">("all")
-  const queryClient = useQueryClient()
-
-  const notificationsQuery = useListNotifications({
-    query: { retry: false, refetchOnWindowFocus: false },
-  })
-  const invalidateNotifications = () =>
-    queryClient.invalidateQueries({ queryKey: getListNotificationsQueryKey() })
-  const markReadMutation = useMarkNotificationRead({
-    mutation: { onSuccess: invalidateNotifications },
-  })
-  const markAllReadMutation = useMarkAllNotificationsRead({
-    mutation: { onSuccess: invalidateNotifications },
-  })
-
   return (
-    <div className="min-h-screen py-12">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <NotificationList
-          notifications={notificationsQuery.data?.data ?? []}
-          filter={filter}
-          onFilterChange={setFilter}
-          onMarkRead={(id) => markReadMutation.mutate({ id })}
-          onMarkAllRead={() => markAllReadMutation.mutate()}
-          onRetry={() => notificationsQuery.refetch()}
-          isLoading={notificationsQuery.isLoading}
-          isError={notificationsQuery.isError}
-          isMarkingRead={markReadMutation.isPending}
-          isMarkingAllRead={markAllReadMutation.isPending}
-        />
-      </div>
-    </div>
+    <>
+      <BreadcrumbJsonLd
+        scriptId="notifications-breadcrumb-jsonld"
+        scriptKey="notifications-breadcrumb-jsonld"
+        items={[
+          {
+            name: "Trang chủ",
+            item: absoluteUrl("/"),
+          },
+          {
+            name: "Thông báo",
+            item: absoluteUrl("/notifications"),
+          },
+        ]}
+      />
+      <NotificationsClient />
+    </>
   )
 }

@@ -1,7 +1,17 @@
+import type { Metadata } from "next"
+import { BreadcrumbJsonLd } from "next-seo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { FileText, Download, Eye } from "lucide-react"
+import { absoluteUrl, createMetadata } from "@/lib/seo"
+
+export const metadata: Metadata = createMetadata({
+  title: "Tiêu chí xét chọn",
+  description:
+    "Thư viện tài liệu hướng dẫn và quy định xét chọn danh hiệu Sinh viên 5 Tốt các cấp.",
+  path: "/criteria",
+})
 
 const criteriaDocs = [
   {
@@ -37,6 +47,20 @@ const criteriaDocs = [
 export default function CriteriaPage() {
   return (
     <div className="min-h-screen py-12">
+      <BreadcrumbJsonLd
+        scriptId="criteria-breadcrumb-jsonld"
+        scriptKey="criteria-breadcrumb-jsonld"
+        items={[
+          {
+            name: "Trang chủ",
+            item: absoluteUrl("/"),
+          },
+          {
+            name: "Tiêu chí xét chọn",
+            item: absoluteUrl("/criteria"),
+          },
+        ]}
+      />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Tiêu chí xét chọn</h1>

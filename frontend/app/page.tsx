@@ -1,4 +1,6 @@
 import Link from "next/link"
+import type { Metadata } from "next"
+import { BreadcrumbJsonLd } from "next-seo"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +12,12 @@ import {
   ArrowRight
 } from "lucide-react"
 import { HomeLeaderboardPreview } from "./components/home-leaderboard-preview"
+import { SITE_NAME, absoluteUrl, createMetadata } from "@/lib/seo"
+
+export const metadata: Metadata = createMetadata({
+  title: "Dẫn lối hành trình Sinh viên 5 Tốt",
+  path: "/",
+})
 
 const stats = [
   { label: "Hoạt động", value: "134", icon: Calendar },
@@ -28,6 +36,16 @@ const criteriaList = [
 export default function HomePage() {
   return (
     <div className="min-h-screen">
+      <BreadcrumbJsonLd
+        scriptId="home-breadcrumb-jsonld"
+        scriptKey="home-breadcrumb-jsonld"
+        items={[
+          {
+            name: SITE_NAME,
+            item: absoluteUrl("/"),
+          },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-primary/5 via-background to-background py-20 lg:py-32">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />

@@ -1,5 +1,7 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { BreadcrumbJsonLd, EventJsonLd } from "next-seo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +21,13 @@ import {
 } from "@/lib/constants";
 import { getActivityDetailBySlug, getAllActivities } from "@/lib/server-public-api";
 import { UploadEvidenceButton } from "./upload-evidence-button";
+import {
+  ORGANIZATION_NAME,
+  SITE_NAME,
+  absoluteUrl,
+  createMetadata,
+  truncateDescription,
+} from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -31,6 +40,38 @@ export async function generateStaticParams() {
   return activities
     .filter((activity) => Boolean(activity.slug))
     .map((activity) => ({ slug: activity.slug as string }));
+}
+
+export async function generateMetadata({
+  params,
+}: ActivityDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+
+  try {
+    const response = await getActivityDetailBySlug(slug);
+    const activity = response.data;
+
+    if (!activity) {
+      return createMetadata({
+        title: "Hoạt động",
+        path: `/activities/${slug}`,
+      });
+    }
+
+    return createMetadata({
+      title: activity.title || "Hoạt động",
+      description: truncateDescription(
+        activity.shortDescription || activity.description,
+      ),
+      path: `/activities/${activity.slug || slug}`,
+      image: activity.thumbnailUrl || undefined,
+    });
+  } catch {
+    return createMetadata({
+      title: "Hoạt động",
+      path: `/activities/${slug}`,
+    });
+  }
 }
 
 export default async function ActivityDetailPage({
@@ -57,9 +98,51 @@ export default async function ActivityDetailPage({
   const daysRemaining = endDate
     ? Math.ceil((endDate.getTime() - now) / (1000 * 60 * 60 * 24))
     : 0;
+  const activityPath = `/activities/${activity.slug || slug}`;
+  const activityUrl = absoluteUrl(activityPath);
+  const activityDescription = truncateDescription(
+    activity.shortDescription || activity.description,
+  );
 
   return (
     <div className="min-h-screen py-12">
+      <BreadcrumbJsonLd
+        scriptId="activity-detail-breadcrumb-jsonld"
+        scriptKey="activity-detail-breadcrumb-jsonld"
+        items={[
+          {
+            name: "Trang chủ",
+            item: absoluteUrl("/"),
+          },
+          {
+            name: "Khám phá hoạt động",
+            item: absoluteUrl("/activities"),
+          },
+          {
+            name: activity.title || SITE_NAME,
+            item: activityUrl,
+          },
+        ]}
+      />
+      {activity.title && activity.startDate && activity.location && (
+        <EventJsonLd
+          scriptId="activity-event-jsonld"
+          scriptKey="activity-event-jsonld"
+          name={activity.title}
+          startDate={activity.startDate}
+          endDate={activity.endDate}
+          location={activity.location}
+          description={activityDescription}
+          image={activity.thumbnailUrl ? absoluteUrl(activity.thumbnailUrl) : undefined}
+          organizer={{
+            "@type": "Organization",
+            name: activity.organizer || ORGANIZATION_NAME,
+            url: absoluteUrl("/"),
+          }}
+          url={activityUrl}
+          eventStatus="https://schema.org/EventScheduled"
+        />
+      )}
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
           <Link
