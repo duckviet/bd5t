@@ -1,9 +1,11 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Upload } from "lucide-react"
 import { EvidenceFilters } from "./evidence-filters"
 import { EvidenceListView, EvidenceGridView } from "./evidence-list-view"
+import { EvidencePreviewDialog } from "./evidence-preview-dialog"
 import type { EvidenceItem } from "@/services/generated/api";
 import type { CriterionType, ReviewLevel } from "@/lib/constants";
 import type { EvidenceViewType } from "../types";
@@ -52,6 +54,14 @@ export function EvidenceView({
   activityCriteriaMap,
   activities,
 }: EvidenceViewProps) {
+  const [selectedEvidence, setSelectedEvidence] = useState<EvidenceItem | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+
+  const handleSelectEvidence = (evidence: EvidenceItem) => {
+    setSelectedEvidence(evidence)
+    setIsPreviewOpen(true)
+  }
+
   return (
     <div className="min-h-screen py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -105,6 +115,7 @@ export function EvidenceView({
             statusIcon={statusIcon}
             activityCriteriaMap={activityCriteriaMap}
             activities={activities}
+            onSelect={handleSelectEvidence}
           />
         ) : (
           <EvidenceListView
@@ -114,9 +125,19 @@ export function EvidenceView({
             statusIcon={statusIcon}
             activityCriteriaMap={activityCriteriaMap}
             activities={activities}
+            onSelect={handleSelectEvidence}
           />
         )}
       </div>
+
+      <EvidencePreviewDialog
+        evidence={selectedEvidence}
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        activityCriteriaMap={activityCriteriaMap}
+        activities={activities}
+        statusBadgeVariant={statusBadgeVariant}
+      />
     </div>
   );
 }

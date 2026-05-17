@@ -1,0 +1,35 @@
+post:
+  summary: Send activity notification to matched students
+  operationId: notifyActivity
+  tags:
+    - Admin
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Notification result
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/activity_detail.yaml#/ActivityNotificationResult'
+    '400':
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '403':
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

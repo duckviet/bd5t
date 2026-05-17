@@ -5,6 +5,7 @@ import (
 
 	"github.com/duckviet/bd5t/backend/internal/auth"
 	"github.com/duckviet/bd5t/backend/internal/dto"
+	appErrors "github.com/duckviet/bd5t/backend/internal/errors"
 	repoInterfaces "github.com/duckviet/bd5t/backend/internal/repository/interfaces"
 	svcImpl "github.com/duckviet/bd5t/backend/internal/service/impl"
 	"github.com/duckviet/bd5t/backend/pkg/response"
@@ -13,6 +14,15 @@ import (
 
 type AdminAPI struct {
 	adminService *svcImpl.AdminService
+}
+
+type notifyActivitiesBulkRequest struct {
+	ActivityIDs []string `json:"activityIds"`
+	Type        string   `json:"type"`
+}
+
+type notifyDeadlineSoonRequest struct {
+	Days int `json:"days"`
 }
 
 func NewAdminAPI(adminService *svcImpl.AdminService) *AdminAPI {
@@ -242,6 +252,66 @@ func (h *AdminAPI) DeleteActivity(c *gin.Context) {
 	}
 
 	response.OK(c, gin.H{"message": "Activity deleted successfully"})
+}
+
+func (h *AdminAPI) NotifyActivity(c *gin.Context) {
+	id := c.Param("id")
+
+	result, err := h.adminService.NotifyActivityNew(c.Request.Context(), id)
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	response.OK(c, result)
+}
+
+func (h *AdminAPI) HandleActivityNotificationAction(c *gin.Context) {
+	id := c.Param("id")
+	action := c.Param("notificationAction")
+
+	switch {
+	case id == "notifications" && action == "bulk":
+		h.NotifyActivitiesBulk(c)
+	case id == "notifications" && action == "deadline-soon":
+		h.NotifyDeadlineSoon(c)
+	case id != "notifications" && action == "notifications":
+		h.NotifyActivity(c)
+	default:
+		response.Error(c, appErrors.ErrNotFound("notification endpoint"))
+	}
+}
+
+func (h *AdminAPI) NotifyActivitiesBulk(c *gin.Context) {
+	var req notifyActivitiesBulkRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	result, err := h.adminService.NotifyActivitiesBulk(c.Request.Context(), req.ActivityIDs, req.Type)
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	response.OK(c, result)
+}
+
+func (h *AdminAPI) NotifyDeadlineSoon(c *gin.Context) {
+	var req notifyDeadlineSoonRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	result, err := h.adminService.NotifyDeadlineSoon(c.Request.Context(), req.Days)
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	response.OK(c, result)
 }
 
 var _ interface{} = (*AdminAPI)(nil)

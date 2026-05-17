@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Eye, Pencil, Trash2, LayoutGrid, Users, ArrowUpDown } from "lucide-react"
+import { Eye, Pencil, Trash2, LayoutGrid, Users, ArrowUpDown, Bell } from "lucide-react"
 import { CRITERIA, REVIEW_LEVELS } from "@/lib/constants"
 import type { ActivityItem, ListAdminActivitiesSort } from "@/services/generated/api"
 import dayjs from "dayjs"
@@ -21,9 +21,12 @@ interface ActivityTableProps {
   sort: ListAdminActivitiesSort
   onSortChange: (sort: ListAdminActivitiesSort) => void
   onToggleSelected: (id: string) => void
+  onToggleAll: () => void
   onView: (activity: ActivityItem) => void
   onEdit: (activity: ActivityItem) => void
+  onNotify: (activity: ActivityItem) => void
   onDelete: (activity: ActivityItem) => void
+  isActionPending: boolean
   isLoading: boolean
 }
 
@@ -94,20 +97,34 @@ export function ActivityTable({
   sort,
   onSortChange,
   onToggleSelected,
+  onToggleAll,
   onView,
   onEdit,
+  onNotify,
   onDelete,
+  isActionPending,
   isLoading,
 }: ActivityTableProps) {
   if (isLoading) return <TableSkeleton />
   if (activities.length === 0) return <EmptyState />
+
+  const allPageIds = activities.map((a) => a.id).filter((id): id is string => Boolean(id))
+  const isAllSelected = activities.length > 0 && allPageIds.every((id) => selectedIds.includes(id))
 
   return (
     <div className="overflow-x-auto rounded-xl border border-border shadow-sm">
       <table className="w-full">
         <thead>
           <tr className="border-b border-border bg-muted/40 text-nowrap">
-            <th className="w-10 px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground" />
+            <th className="w-10 px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={isAllSelected}
+                onChange={onToggleAll}
+                className="h-4 w-4 rounded border-border"
+                aria-label="Chọn tất cả hoạt động"
+              />
+            </th>
             <th className="w-12 px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">#</th>
             <th className="px-4 py-3 text-left">
               <SortButton sort={sort} value="title_asc" onSortChange={onSortChange}>
@@ -244,6 +261,16 @@ export function ActivityTable({
                     </Button>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onEdit(activity)} title="Chỉnh sửa">
                       <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => onNotify(activity)}
+                      disabled={isActionPending}
+                      title="Tùy chọn gửi thông báo"
+                    >
+                      <Bell className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"

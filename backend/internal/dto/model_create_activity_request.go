@@ -47,4 +47,7 @@ type CreateActivityRequest struct {
 	Organizer *string `json:"organizer,omitempty"`
 
 	Criteria []string `json:"criteria,omitempty"`
+
+	// Send ACTIVITY_NEW notifications to matching students after creating the activity.
+	NotifyMatchedUsers bool `json:"notifyMatchedUsers,omitempty"`
 }

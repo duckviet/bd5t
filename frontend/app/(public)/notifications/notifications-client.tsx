@@ -3,7 +3,10 @@
 import { useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { NotificationList } from "@/features/notifications/components/notification-list"
+import {
+  NotificationList,
+  type NotificationFilter,
+} from "@/features/notifications/components/notification-list"
 import {
   getListNotificationsQueryKey,
   useListNotifications,
@@ -12,7 +15,7 @@ import {
 } from "@/services/generated/api"
 
 export function NotificationsClient() {
-  const [filter, setFilter] = useState<"all" | "unread">("all")
+  const [filter, setFilter] = useState<NotificationFilter>("all")
   const queryClient = useQueryClient()
 
   const notificationsQuery = useListNotifications({

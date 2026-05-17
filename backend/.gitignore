@@ -19,3 +19,5 @@ internal/generated-gin-server/
 openapi/dist.yaml
 
 node_modules/
+
+tmp/

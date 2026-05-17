@@ -12,3 +12,11 @@ type Notification struct {
 	Data      map[string]interface{}
 	CreatedAt time.Time
 }
+
+const (
+	NotificationTypeEvidenceApproved     = "EVIDENCE_APPROVED"
+	NotificationTypeEvidenceRejected     = "EVIDENCE_REJECTED"
+	NotificationTypeActivityNew          = "ACTIVITY_NEW"
+	NotificationTypeActivityDeadlineSoon = "ACTIVITY_DEADLINE_SOON"
+	NotificationTypeSuggestion           = "SUGGESTION"
+)

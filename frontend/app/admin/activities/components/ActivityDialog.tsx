@@ -30,13 +30,17 @@ import {
   type ActivityItemReviewLevel,
 } from "@/services/generated/api"
 
+type ActivityFormData = CreateActivityRequest & {
+  notifyMatchedUsers?: boolean
+}
+
 interface ActivityDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   editingActivity: ActivityItem | null
-  formData: CreateActivityRequest
-  onFormDataChange: (data: CreateActivityRequest) => void
-  onSubmit: (e: React.FormEvent, data?: CreateActivityRequest) => void | Promise<void>
+  formData: ActivityFormData
+  onFormDataChange: (data: ActivityFormData) => void
+  onSubmit: (e: React.FormEvent, data?: ActivityFormData) => void | Promise<void>
   isPending: boolean
 }
 
@@ -55,7 +59,7 @@ export function ActivityDialog({
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false)
   const thumbnailInputRef = useRef<HTMLInputElement>(null)
 
-  const set = (field: keyof CreateActivityRequest, value: unknown) => {
+  const set = (field: keyof ActivityFormData, value: unknown) => {
     onFormDataChange({ ...formData, [field]: value })
   }
 
@@ -94,7 +98,7 @@ export function ActivityDialog({
     }
 
     setIsUploadingThumbnail(true)
-    let nextFormData: CreateActivityRequest
+    let nextFormData: ActivityFormData
     try {
       const uploadResponse = await uploadMedia({
         file: thumbnailFile,
@@ -236,6 +240,18 @@ export function ActivityDialog({
                 {formData.isActive ? "Đang hoạt động" : "Nháp"}
               </Badge>
             </div>
+
+            {!editingActivity && (
+              <label className="flex items-center gap-3 rounded-md border bg-slate-50/50 px-3 py-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={Boolean(formData.notifyMatchedUsers)}
+                  onChange={(event) => set("notifyMatchedUsers", event.target.checked)}
+                  className="h-4 w-4 rounded border-border"
+                />
+                <span>Gửi thông báo cho sinh viên phù hợp sau khi tạo</span>
+              </label>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="shortDescription">Mô tả ngắn</Label>

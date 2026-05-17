@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-toastify"
-import { Download, Plus, Trash2, ToggleLeft, ToggleRight } from "lucide-react"
+import { Bell, Download, Plus, Trash2, ToggleLeft, ToggleRight } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -22,6 +22,7 @@ import {
   ListAdminActivitiesStatus,
   useCreateActivity,
   useDeleteActivity,
+  getListNotificationsQueryKey,
   useListAdminActivities,
   useListUnits,
   useUpdateActivity,
@@ -31,12 +32,33 @@ import {
   type ListAdminActivitiesSort as ListAdminActivitiesSortType,
   type UnitItem,
 } from "@/services/generated/api"
+import {
+  useNotifyActivitiesBulk,
+  useNotifyActivity,
+  type ActivityNotificationResult,
+} from "@/services/admin-activity-notifications"
 
-import { ActivityTable, ActivityFilters, ActivityPagination, ActivityDialog } from "./components"
+import {
+  ActivityTable,
+  ActivityFilters,
+  ActivityPagination,
+  ActivityDialog,
+  ActivityViewDialog,
+  ConfirmDeleteDialog,
+  ActivityNotificationDialog,
+} from "./components"
+import type {
+  ActivityNotificationType,
+  ActivityNotificationDialogState,
+} from "./components/ActivityNotificationDialog"
 
 type StatusFilter = "all" | keyof typeof ListAdminActivitiesStatus
 type CriteriaFilter = "all" | keyof typeof ListAdminActivitiesCriteria
 type ReviewLevelFilter = "all" | keyof typeof ListAdminActivitiesReviewLevel
+
+type ActivityFormData = CreateActivityRequest & {
+  notifyMatchedUsers?: boolean
+}
 
 function toSlug(title: string) {
   return title
@@ -99,127 +121,11 @@ function exportActivitiesCsv(activities: ActivityItem[]) {
   URL.revokeObjectURL(url)
 }
 
-function ActivityViewDialog({
-  activity,
-  open,
-  onOpenChange,
-}: {
-  activity: ActivityItem | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}) {
-  if (!activity) return null
+function showNotificationResultToast(result?: ActivityNotificationResult) {
+  if (!result) return
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{activity.title || "Chi tiết hoạt động"}</DialogTitle>
-          <DialogDescription>
-            Thông tin quản trị, số liệu minh chứng và cấu hình điểm của hoạt động
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="grid gap-4 py-2 sm:grid-cols-2">
-          <div>
-            <div className="text-xs font-medium text-muted-foreground">Trạng thái</div>
-            <Badge variant={activity.isActive ? "success" : "secondary"} className="mt-1">
-              {activity.isActive ? "Đang hoạt động" : "Nháp"}
-            </Badge>
-          </div>
-          <div>
-            <div className="text-xs font-medium text-muted-foreground">Cấp xét</div>
-            <div className="mt-1 text-sm">
-              {activity.reviewLevel ? REVIEW_LEVELS[activity.reviewLevel] ?? activity.reviewLevel : "Chưa chọn"}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs font-medium text-muted-foreground">Đơn vị tổ chức</div>
-            <div className="mt-1 text-sm">{activity.organizer || activity.unitName || "Chưa có"}</div>
-          </div>
-          <div>
-            <div className="text-xs font-medium text-muted-foreground">Người tạo</div>
-            <div className="mt-1 text-sm">{activity.createdByName || "Chưa ghi nhận"}</div>
-          </div>
-          <div>
-            <div className="text-xs font-medium text-muted-foreground">Sinh viên tham gia</div>
-            <div className="mt-1 text-sm">{activity.participantCount ?? 0}</div>
-          </div>
-          <div>
-            <div className="text-xs font-medium text-muted-foreground">Minh chứng</div>
-            <div className="mt-1 text-sm">
-              {activity.evidenceCount ?? 0} tổng, {activity.pendingEvidenceCount ?? 0} chờ duyệt
-            </div>
-          </div>
-          <div>
-            <div className="text-xs font-medium text-muted-foreground">Điểm quy đổi</div>
-            <div className="mt-1 text-sm">{activity.totalScore ?? 0}</div>
-          </div>
-          <div>
-            <div className="text-xs font-medium text-muted-foreground">Thời gian</div>
-            <div className="mt-1 text-sm">
-              {activity.startDate || "Chưa có"} {activity.endDate ? `-> ${activity.endDate}` : ""}
-            </div>
-          </div>
-          <div className="sm:col-span-2">
-            <div className="text-xs font-medium text-muted-foreground">Tiêu chí</div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {activity.criteria?.length ? (
-                activity.criteria.map((criterion) => (
-                  <Badge key={criterion} variant="outline">
-                    {CRITERIA[criterion] ?? criterion}
-                  </Badge>
-                ))
-              ) : (
-                <Badge variant="secondary">Chưa phân loại</Badge>
-              )}
-            </div>
-          </div>
-          <div className="sm:col-span-2">
-            <div className="text-xs font-medium text-muted-foreground">Mô tả</div>
-            <div className="mt-1 text-sm text-muted-foreground">
-              {activity.shortDescription || "Chưa có mô tả ngắn"}
-            </div>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-function ConfirmDeleteDialog({
-  open,
-  title,
-  description,
-  isPending,
-  onOpenChange,
-  onConfirm,
-}: {
-  open: boolean
-  title: string
-  description: string
-  isPending: boolean
-  onOpenChange: (open: boolean) => void
-  onConfirm: () => void
-}) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-            Hủy
-          </Button>
-          <Button variant="destructive" onClick={onConfirm} disabled={isPending}>
-            Xóa
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
+  toast.success(`Đã gửi ${result.created} thông báo`)
+  toast.info(`Bỏ qua ${result.skipped} thông báo trùng/không phù hợp`)
 }
 
 export default function AdminActivitiesPage() {
@@ -237,6 +143,8 @@ export default function AdminActivitiesPage() {
   const [deletingActivity, setDeletingActivity] = useState<ActivityItem | null>(null)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [editingActivity, setEditingActivity] = useState<ActivityItem | null>(null)
+  const [notificationDialog, setNotificationDialog] = useState<ActivityNotificationDialogState>(null)
+  const [notificationType, setNotificationType] = useState<ActivityNotificationType>("ACTIVITY_NEW")
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -278,8 +186,10 @@ export default function AdminActivitiesPage() {
   const createMutation = useCreateActivity()
   const updateMutation = useUpdateActivity()
   const deleteMutation = useDeleteActivity()
+  const notifyActivityMutation = useNotifyActivity()
+  const notifyBulkMutation = useNotifyActivitiesBulk()
 
-  const [formData, setFormData] = useState<CreateActivityRequest>({
+  const [formData, setFormData] = useState<ActivityFormData>({
     title: "",
     slug: "",
     thumbnailUrl: "",
@@ -291,6 +201,7 @@ export default function AdminActivitiesPage() {
     registrationUrl: "",
     isActive: true,
     criteria: [],
+    notifyMatchedUsers: false,
   })
 
   const activities = useMemo<ActivityItem[]>(
@@ -311,6 +222,10 @@ export default function AdminActivitiesPage() {
     queryClient.invalidateQueries({ queryKey: ["/activities"] })
   }
 
+  const invalidateNotifications = () => {
+    queryClient.invalidateQueries({ queryKey: getListNotificationsQueryKey() })
+  }
+
   const handleOpenCreate = () => {
     setEditingActivity(null)
     setFormData({
@@ -325,6 +240,7 @@ export default function AdminActivitiesPage() {
       registrationUrl: "",
       isActive: true,
       criteria: [],
+      notifyMatchedUsers: false,
     })
     setIsDialogOpen(true)
   }
@@ -343,6 +259,7 @@ export default function AdminActivitiesPage() {
       registrationUrl: activity.registrationUrl || "",
       isActive: activity.isActive ?? true,
       criteria: activity.criteria || [],
+      notifyMatchedUsers: false,
     })
     setIsDialogOpen(true)
   }
@@ -395,7 +312,46 @@ export default function AdminActivitiesPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent, data?: CreateActivityRequest) => {
+  const handleOpenNotifyActivity = (activity: ActivityItem) => {
+    if (!activity.id) return
+    setNotificationType("ACTIVITY_NEW")
+    setNotificationDialog({ mode: "single", activities: [activity] })
+  }
+
+  const handleOpenBulkNotify = () => {
+    if (selectedIds.length === 0) return
+    const selectedActivities = activities.filter((activity) => activity.id && selectedIds.includes(activity.id))
+    if (selectedActivities.length === 0) return
+
+    setNotificationType("ACTIVITY_NEW")
+    setNotificationDialog({ mode: "bulk", activities: selectedActivities })
+  }
+
+  const handleConfirmNotifications = async () => {
+    if (!notificationDialog || notificationDialog.activities.length === 0) return
+
+    const activityIds = notificationDialog.activities
+      .map((activity) => activity.id)
+      .filter((id): id is string => Boolean(id))
+
+    try {
+      const response =
+        notificationDialog.mode === "single" && notificationType === "ACTIVITY_NEW"
+          ? await notifyActivityMutation.mutateAsync({ id: activityIds[0] })
+          : await notifyBulkMutation.mutateAsync({ activityIds, type: notificationType })
+
+      showNotificationResultToast(response.data)
+      if (notificationDialog.mode === "bulk") {
+        setSelectedIds([])
+      }
+      setNotificationDialog(null)
+      invalidateNotifications()
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Không thể gửi thông báo"))
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent, data?: ActivityFormData) => {
     e.preventDefault()
     const payload = data ?? formData
 
@@ -407,10 +363,21 @@ export default function AdminActivitiesPage() {
         })
         toast.success("Cập nhật hoạt động thành công")
       } else {
-        await createMutation.mutateAsync({
-          data: { ...payload, slug: payload.slug || toSlug(payload.title) },
+        const { notifyMatchedUsers, ...activityPayload } = payload
+        const createResponse = await createMutation.mutateAsync({
+          data: { ...activityPayload, slug: activityPayload.slug || toSlug(activityPayload.title) },
         })
-        toast.success("Tạo hoạt động thành công")
+
+        if (notifyMatchedUsers && createResponse.data?.id) {
+          const notifyResponse = await notifyActivityMutation.mutateAsync({
+            id: createResponse.data.id,
+          })
+          toast.success("Tạo hoạt động thành công")
+          showNotificationResultToast(notifyResponse.data)
+          invalidateNotifications()
+        } else {
+          toast.success("Tạo hoạt động thành công")
+        }
       }
       setIsDialogOpen(false)
       invalidateActivities()
@@ -442,7 +409,28 @@ export default function AdminActivitiesPage() {
     )
   }
 
-  const isBulkPending = updateMutation.isPending || deleteMutation.isPending
+  const toggleAll = () => {
+    if (activities.length === 0) return
+    const allPageIds = activities.map((a) => a.id).filter((id): id is string => Boolean(id))
+    const isAllSelected = allPageIds.every((id) => selectedIds.includes(id))
+
+    if (isAllSelected) {
+      setSelectedIds((current) => current.filter((id) => !allPageIds.includes(id)))
+    } else {
+      setSelectedIds((current) => {
+        const next = [...current]
+        allPageIds.forEach((id) => {
+          if (!next.includes(id)) {
+            next.push(id)
+          }
+        })
+        return next
+      })
+    }
+  }
+
+  const isNotificationPending = notifyActivityMutation.isPending || notifyBulkMutation.isPending
+  const isBulkPending = updateMutation.isPending || deleteMutation.isPending || isNotificationPending
 
   return (
     <div className="min-h-screen py-12">
@@ -533,6 +521,16 @@ export default function AdminActivitiesPage() {
               <Button
                 variant="outline"
                 size="sm"
+                disabled={isBulkPending}
+                onClick={handleOpenBulkNotify}
+                className="gap-1"
+              >
+                <Bell className="h-4 w-4" />
+                Gửi thông báo
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => exportActivitiesCsv(activities.filter((a) => a.id && selectedIds.includes(a.id)))}
                 className="gap-1"
               >
@@ -563,9 +561,12 @@ export default function AdminActivitiesPage() {
             resetPage()
           }}
           onToggleSelected={toggleSelected}
+          onToggleAll={toggleAll}
           onView={setViewingActivity}
           onEdit={handleOpenEdit}
+          onNotify={handleOpenNotifyActivity}
           onDelete={setDeletingActivity}
+          isActionPending={isNotificationPending}
           isLoading={activitiesQuery.isLoading}
         />
 
@@ -586,13 +587,23 @@ export default function AdminActivitiesPage() {
           formData={formData}
           onFormDataChange={setFormData}
           onSubmit={handleSubmit}
-          isPending={createMutation.isPending || updateMutation.isPending}
+          isPending={createMutation.isPending || updateMutation.isPending || notifyActivityMutation.isPending}
         />
 
         <ActivityViewDialog
           open={Boolean(viewingActivity)}
           activity={viewingActivity}
           onOpenChange={(open) => !open && setViewingActivity(null)}
+        />
+
+        <ActivityNotificationDialog
+          open={Boolean(notificationDialog)}
+          state={notificationDialog}
+          notificationType={notificationType}
+          isPending={isNotificationPending}
+          onNotificationTypeChange={setNotificationType}
+          onOpenChange={(open) => !open && setNotificationDialog(null)}
+          onConfirm={handleConfirmNotifications}
         />
 
         <ConfirmDeleteDialog

@@ -354,6 +354,8 @@ export interface CreateActivityRequest {
   /** @nullable */
   organizer?: string | null;
   criteria?: CreateActivityRequestCriteriaItem[];
+  /** Send ACTIVITY_NEW notifications to matching students after creating the activity. */
+  notifyMatchedUsers?: boolean;
 }
 
 /**
@@ -420,6 +422,37 @@ export interface UpdateActivityRequest {
   /** @nullable */
   organizer?: string | null;
   criteria?: UpdateActivityRequestCriteriaItem[];
+}
+
+export interface ActivityNotificationResult {
+  created: number;
+  skipped: number;
+  matchedUsers: number;
+}
+
+export type NotifyActivitiesBulkRequestType =
+  (typeof NotifyActivitiesBulkRequestType)[keyof typeof NotifyActivitiesBulkRequestType];
+
+export const NotifyActivitiesBulkRequestType = {
+  ACTIVITY_NEW: "ACTIVITY_NEW",
+  SUGGESTION: "SUGGESTION",
+} as const;
+
+export interface NotifyActivitiesBulkRequest {
+  activityIds: string[];
+  type?: NotifyActivitiesBulkRequestType;
+}
+
+export type NotifyDeadlineSoonRequestDays =
+  (typeof NotifyDeadlineSoonRequestDays)[keyof typeof NotifyDeadlineSoonRequestDays];
+
+export const NotifyDeadlineSoonRequestDays = {
+  NUMBER_3: 3,
+  NUMBER_7: 7,
+} as const;
+
+export interface NotifyDeadlineSoonRequest {
+  days: NotifyDeadlineSoonRequestDays;
 }
 
 export type EvidenceItemStatus =
@@ -1003,6 +1036,18 @@ export type CreateActivity201 = ApiResponse & {
 
 export type UpdateActivity200 = ApiResponse & {
   data?: ActivityDetail;
+};
+
+export type NotifyActivity200 = ApiResponse & {
+  data?: ActivityNotificationResult;
+};
+
+export type NotifyActivitiesBulk200 = ApiResponse & {
+  data?: ActivityNotificationResult;
+};
+
+export type NotifyDeadlineSoon200 = ApiResponse & {
+  data?: ActivityNotificationResult;
 };
 
 export type ListAdminEvidencesParams = {
@@ -4074,6 +4119,323 @@ export const useDeleteActivity = <
   TContext
 > => {
   return useMutation(getDeleteActivityMutationOptions(options), queryClient);
+};
+
+/**
+ * @summary Send activity notification to matched students
+ */
+export const notifyActivity = (
+  id: string,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<NotifyActivity200>(
+    { url: `/admin/activities/${id}/notifications`, method: "POST", signal },
+    options,
+  );
+};
+
+export const getNotifyActivityMutationOptions = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof notifyActivity>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof notifyActivity>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["notifyActivity"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof notifyActivity>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return notifyActivity(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type NotifyActivityMutationResult = NonNullable<
+  Awaited<ReturnType<typeof notifyActivity>>
+>;
+
+export type NotifyActivityMutationError = ErrorType<
+  | BadRequestResponse
+  | UnauthorizedResponse
+  | ForbiddenResponse
+  | InternalServerErrorResponse
+>;
+
+/**
+ * @summary Send activity notification to matched students
+ */
+export const useNotifyActivity = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof notifyActivity>>,
+      TError,
+      { id: string },
+      TContext
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof notifyActivity>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getNotifyActivityMutationOptions(options), queryClient);
+};
+
+/**
+ * @summary Send activity notifications in bulk
+ */
+export const notifyActivitiesBulk = (
+  notifyActivitiesBulkRequest: BodyType<NotifyActivitiesBulkRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<NotifyActivitiesBulk200>(
+    {
+      url: `/admin/activities/notifications/bulk`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: notifyActivitiesBulkRequest,
+      signal,
+    },
+    options,
+  );
+};
+
+export const getNotifyActivitiesBulkMutationOptions = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof notifyActivitiesBulk>>,
+    TError,
+    { data: BodyType<NotifyActivitiesBulkRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof notifyActivitiesBulk>>,
+  TError,
+  { data: BodyType<NotifyActivitiesBulkRequest> },
+  TContext
+> => {
+  const mutationKey = ["notifyActivitiesBulk"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof notifyActivitiesBulk>>,
+    { data: BodyType<NotifyActivitiesBulkRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return notifyActivitiesBulk(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type NotifyActivitiesBulkMutationResult = NonNullable<
+  Awaited<ReturnType<typeof notifyActivitiesBulk>>
+>;
+export type NotifyActivitiesBulkMutationBody =
+  BodyType<NotifyActivitiesBulkRequest>;
+export type NotifyActivitiesBulkMutationError = ErrorType<
+  | BadRequestResponse
+  | UnauthorizedResponse
+  | ForbiddenResponse
+  | InternalServerErrorResponse
+>;
+
+/**
+ * @summary Send activity notifications in bulk
+ */
+export const useNotifyActivitiesBulk = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof notifyActivitiesBulk>>,
+      TError,
+      { data: BodyType<NotifyActivitiesBulkRequest> },
+      TContext
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof notifyActivitiesBulk>>,
+  TError,
+  { data: BodyType<NotifyActivitiesBulkRequest> },
+  TContext
+> => {
+  return useMutation(
+    getNotifyActivitiesBulkMutationOptions(options),
+    queryClient,
+  );
+};
+
+/**
+ * @summary Send deadline-soon activity notifications
+ */
+export const notifyDeadlineSoon = (
+  notifyDeadlineSoonRequest: BodyType<NotifyDeadlineSoonRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<NotifyDeadlineSoon200>(
+    {
+      url: `/admin/activities/notifications/deadline-soon`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: notifyDeadlineSoonRequest,
+      signal,
+    },
+    options,
+  );
+};
+
+export const getNotifyDeadlineSoonMutationOptions = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof notifyDeadlineSoon>>,
+    TError,
+    { data: BodyType<NotifyDeadlineSoonRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof notifyDeadlineSoon>>,
+  TError,
+  { data: BodyType<NotifyDeadlineSoonRequest> },
+  TContext
+> => {
+  const mutationKey = ["notifyDeadlineSoon"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof notifyDeadlineSoon>>,
+    { data: BodyType<NotifyDeadlineSoonRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return notifyDeadlineSoon(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type NotifyDeadlineSoonMutationResult = NonNullable<
+  Awaited<ReturnType<typeof notifyDeadlineSoon>>
+>;
+export type NotifyDeadlineSoonMutationBody =
+  BodyType<NotifyDeadlineSoonRequest>;
+export type NotifyDeadlineSoonMutationError = ErrorType<
+  | BadRequestResponse
+  | UnauthorizedResponse
+  | ForbiddenResponse
+  | InternalServerErrorResponse
+>;
+
+/**
+ * @summary Send deadline-soon activity notifications
+ */
+export const useNotifyDeadlineSoon = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof notifyDeadlineSoon>>,
+      TError,
+      { data: BodyType<NotifyDeadlineSoonRequest> },
+      TContext
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof notifyDeadlineSoon>>,
+  TError,
+  { data: BodyType<NotifyDeadlineSoonRequest> },
+  TContext
+> => {
+  return useMutation(
+    getNotifyDeadlineSoonMutationOptions(options),
+    queryClient,
+  );
 };
 
 /**

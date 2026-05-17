@@ -16,6 +16,7 @@ type AdminService struct {
 	evidenceRepo     interfaces.EvidenceRepository
 	activityRepo     interfaces.ActivityRepository
 	notificationRepo interfaces.NotificationRepository
+	notificationSvc  *NotificationService
 	progressSvc      *ProgressService
 	activitySvc      *ActivityService
 }
@@ -30,6 +31,7 @@ func NewAdminService(
 		evidenceRepo:     evidenceRepo,
 		activityRepo:     activityRepo,
 		notificationRepo: notificationRepo,
+		notificationSvc:  NewNotificationService(notificationRepo),
 		progressSvc:      progressSvc,
 		activitySvc:      NewActivityService(activityRepo),
 	}
@@ -162,14 +164,33 @@ func (s *AdminService) ReviewEvidence(ctx context.Context, adminID, evidenceID s
 }
 
 func (s *AdminService) createEvidenceReviewNotification(ctx context.Context, evidence *domain.Evidence) error {
+	content := buildEvidenceReviewNotificationContent(evidence)
+
+	return s.notificationRepo.Create(ctx, &domain.Notification{
+		UserID:  evidence.UserID,
+		Title:   content.title,
+		Message: content.message,
+		Type:    content.notificationType,
+		IsRead:  false,
+		Data:    buildEvidenceReviewNotificationData(evidence),
+	})
+}
+
+type evidenceReviewNotificationContent struct {
+	title            string
+	message          string
+	notificationType string
+}
+
+func buildEvidenceReviewNotificationContent(evidence *domain.Evidence) evidenceReviewNotificationContent {
 	title := "Minh chứng đã được duyệt"
 	message := "Minh chứng của bạn đã được duyệt."
-	notificationType := "EVIDENCE_APPROVED"
+	notificationType := domain.NotificationTypeEvidenceApproved
 
 	if evidence.Status == domain.StatusRejected {
 		title = "Minh chứng bị từ chối"
 		message = "Minh chứng của bạn đã bị từ chối."
-		notificationType = "EVIDENCE_REJECTED"
+		notificationType = domain.NotificationTypeEvidenceRejected
 	}
 
 	if evidence.ActivityTitle != "" {
@@ -184,18 +205,19 @@ func (s *AdminService) createEvidenceReviewNotification(ctx context.Context, evi
 		message += " Ghi chú: " + *evidence.ReviewNote
 	}
 
-	return s.notificationRepo.Create(ctx, &domain.Notification{
-		UserID:  evidence.UserID,
-		Title:   title,
-		Message: message,
-		Type:    notificationType,
-		IsRead:  false,
-		Data: map[string]interface{}{
-			"evidenceId": evidence.ID,
-			"activityId": evidence.ActivityID,
-			"status":     evidence.Status,
-		},
-	})
+	return evidenceReviewNotificationContent{
+		title:            title,
+		message:          message,
+		notificationType: notificationType,
+	}
+}
+
+func buildEvidenceReviewNotificationData(evidence *domain.Evidence) map[string]interface{} {
+	return map[string]interface{}{
+		"evidenceId": evidence.ID,
+		"activityId": evidence.ActivityID,
+		"status":     evidence.Status,
+	}
 }
 
 func (s *AdminService) CreateActivity(ctx context.Context, req *dto.CreateActivityRequest) (*dto.ActivityDetail, error) {
@@ -271,6 +293,12 @@ func (s *AdminService) CreateActivity(ctx context.Context, req *dto.CreateActivi
 	if len(req.Criteria) > 0 {
 		if err := s.activityRepo.SetCriteria(ctx, created.ID, req.Criteria); err != nil {
 			return nil, errors.ErrInternalError(err, "failed to set activity criteria")
+		}
+	}
+
+	if req.NotifyMatchedUsers {
+		if _, err := s.notificationSvc.NotifyActivityNew(ctx, created.ID); err != nil {
+			return nil, err
 		}
 	}
 
@@ -382,4 +410,16 @@ func (s *AdminService) DeleteActivity(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+func (s *AdminService) NotifyActivityNew(ctx context.Context, activityID string) (*ActivityNotificationResult, error) {
+	return s.notificationSvc.NotifyActivityNew(ctx, activityID)
+}
+
+func (s *AdminService) NotifyActivitiesBulk(ctx context.Context, activityIDs []string, notificationType string) (*ActivityNotificationResult, error) {
+	return s.notificationSvc.NotifyActivitiesBulk(ctx, activityIDs, notificationType)
+}
+
+func (s *AdminService) NotifyDeadlineSoon(ctx context.Context, days int) (*ActivityNotificationResult, error) {
+	return s.notificationSvc.NotifyDeadlineSoon(ctx, days)
 }

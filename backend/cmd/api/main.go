@@ -170,6 +170,7 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 			adminGroup.PATCH("/evidences/review-bulk", middleware.AdminRequired(tokenMgr), adminAPI.BulkReviewEvidence)
 			adminGroup.PATCH("/evidences/:id/review", middleware.AdminRequired(tokenMgr), adminAPI.ReviewEvidence)
 			adminGroup.POST("/activities", middleware.AdminRequired(tokenMgr), adminAPI.CreateActivity)
+			adminGroup.POST("/activities/:id/:notificationAction", middleware.AdminRequired(tokenMgr), adminAPI.HandleActivityNotificationAction)
 			adminGroup.PATCH("/activities/:id", middleware.AdminRequired(tokenMgr), adminAPI.UpdateActivity)
 			adminGroup.DELETE("/activities/:id", middleware.AdminRequired(tokenMgr), adminAPI.DeleteActivity)
 		}

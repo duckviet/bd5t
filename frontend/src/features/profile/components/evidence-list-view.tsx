@@ -15,6 +15,7 @@ import type {
 } from "@/services/generated/api";
 import type { ActivityCriteriaMap } from "../types";
 import { getEvidenceCriteriaLabel } from "../evidence-criteria";
+import dayjs from "dayjs"
 
 interface EvidenceListViewProps {
   items: EvidenceItem[];
@@ -26,6 +27,7 @@ interface EvidenceListViewProps {
   statusIcon: Record<string, React.ComponentType<{ className?: string }>>;
   activityCriteriaMap: ActivityCriteriaMap;
   activities: ActivityItem[];
+  onSelect: (item: EvidenceItem) => void;
 }
 
 export function EvidenceListView({
@@ -35,6 +37,7 @@ export function EvidenceListView({
   statusIcon: statusIconMap,
   activityCriteriaMap,
   activities,
+  onSelect,
 }: EvidenceListViewProps) {
   if (items.length === 0) {
     return (
@@ -66,7 +69,8 @@ export function EvidenceListView({
         return (
           <div
             key={ev.id}
-            className="flex items-start gap-4 p-4 rounded-xl border border-border hover:bg-muted/50 transition-colors group"
+            onClick={() => onSelect(ev)}
+            className="flex items-start gap-4 p-4 rounded-xl border border-border hover:bg-muted/50 transition-colors group cursor-pointer"
           >
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
               <FileText className="h-5 w-5 text-primary" />
@@ -91,7 +95,7 @@ export function EvidenceListView({
               <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  {ev.createdAt || ""}
+                  {dayjs(ev.createdAt || "").format("DD/MM/YYYY")}
                 </span>
               </div>
             </div>
@@ -108,6 +112,10 @@ export function EvidenceListView({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (ev.fileUrl) window.open(ev.fileUrl, "_blank");
+                }}
               >
                 <Download className="h-4 w-4" />
               </Button>
@@ -115,6 +123,10 @@ export function EvidenceListView({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // deletion is handled elsewhere if supported, let's keep it as is
+                }}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -133,6 +145,7 @@ export function EvidenceGridView({
   statusIcon: statusIconMap,
   activityCriteriaMap,
   activities,
+  onSelect,
 }: EvidenceListViewProps) {
   if (items.length === 0) {
     return (
@@ -164,23 +177,24 @@ export function EvidenceGridView({
         return (
           <div
             key={ev.id}
-            className="flex flex-col p-4 rounded-xl border border-border hover:bg-muted/50 transition-colors group"
+            onClick={() => onSelect(ev)}
+            className="relative flex flex-col px-4 pb-2 pt-4 rounded-xl border border-border hover:bg-muted/50 transition-colors group cursor-pointer"
           >
-            <div className="flex items-start gap-4 mb-3">
+            <div className="flex flex-1 items-start gap-4 mb-3">
               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                 <FileText className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm truncate">
+                <div className="font-medium text-sm max-w-[200px] text-wrap">
                   {ev.activityTitle || ev.description || "Minh chứng"}
                 </div>
-                <div className="text-xs text-muted-foreground mt-0.5">
+                <div className="text-xs text-muted-foreground mt-0.5 truncate">
                   {ev.activityTitle || "Hoạt động"}
                 </div>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mb-3">
-              <span>
+              <span className="">
                 {getEvidenceCriteriaLabel(
                   ev,
                   activityCriteriaMap,
@@ -190,13 +204,13 @@ export function EvidenceGridView({
               <span>•</span>
               <span>{REVIEW_LEVELS[ev.reviewLevel || "TRUONG"]}</span>
             </div>
-            <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
+            <div className="flex items-center justify-between mt-auto pt-1 border-t border-border">
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Calendar className="h-3 w-3" />
-                {ev.createdAt || ""}
+                {dayjs(ev.createdAt || "").format("DD/MM/YYYY")}
               </span>
               <div className="flex items-center gap-2">
-                <Badge variant={statusBadgeVariant[status]}>
+                <Badge className="absolute top-4 right-4" variant={statusBadgeVariant[status]}>
                   <StatusIcon className="h-3 w-3 mr-1" />
                   {
                     EVIDENCE_STATUS[
@@ -205,13 +219,24 @@ export function EvidenceGridView({
                   }
                 </Badge>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (ev.fileUrl) window.open(ev.fileUrl, "_blank");
+                    }}
+                  >
                     <Download className="h-3.5 w-3.5" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-7 w-7 text-destructive hover:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>

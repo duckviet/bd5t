@@ -108,7 +108,7 @@ export default function ProfilePage() {
     "all",
   );
   const [filterLevel, setFilterLevel] = useState<ReviewLevel | "all">("all");
-  const [viewType, setViewType] = useState<EvidenceViewType>("list")
+  const [viewType, setViewType] = useState<EvidenceViewType>("grid")
 
   const {
     data: meData,

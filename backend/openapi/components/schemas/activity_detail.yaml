@@ -123,6 +123,51 @@ CreateActivityRequest:
       items:
         type: string
         enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+    notifyMatchedUsers:
+      type: boolean
+      default: false
+      description: Send ACTIVITY_NEW notifications to matching students after creating the activity.
+
+ActivityNotificationResult:
+  type: object
+  properties:
+    created:
+      type: integer
+      example: 12
+    skipped:
+      type: integer
+      example: 3
+    matchedUsers:
+      type: integer
+      example: 15
+  required:
+    - created
+    - skipped
+    - matchedUsers
+
+NotifyActivitiesBulkRequest:
+  type: object
+  required:
+    - activityIds
+  properties:
+    activityIds:
+      type: array
+      items:
+        type: string
+        format: uuid
+    type:
+      type: string
+      enum: [ACTIVITY_NEW, SUGGESTION]
+      default: ACTIVITY_NEW
+
+NotifyDeadlineSoonRequest:
+  type: object
+  required:
+    - days
+  properties:
+    days:
+      type: integer
+      enum: [3, 7]
 
 UpdateActivityRequest:
   type: object

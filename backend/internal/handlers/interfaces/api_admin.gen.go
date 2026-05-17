@@ -9,6 +9,9 @@ type AdminAPIHandler interface {
 	GetAdminEvidenceStats(c *gin.Context)
 	ListAdminActivities(c *gin.Context)
 	ListAdminEvidences(c *gin.Context)
+	NotifyActivitiesBulk(c *gin.Context)
+	NotifyActivity(c *gin.Context)
+	NotifyDeadlineSoon(c *gin.Context)
 	ReviewEvidence(c *gin.Context)
 	UpdateActivity(c *gin.Context)
 }

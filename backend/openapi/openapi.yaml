@@ -86,6 +86,12 @@ components:
       $ref: "./components/schemas/activity_detail.yaml#/CreateActivityRequest"
     UpdateActivityRequest:
       $ref: "./components/schemas/activity_detail.yaml#/UpdateActivityRequest"
+    ActivityNotificationResult:
+      $ref: "./components/schemas/activity_detail.yaml#/ActivityNotificationResult"
+    NotifyActivitiesBulkRequest:
+      $ref: "./components/schemas/activity_detail.yaml#/NotifyActivitiesBulkRequest"
+    NotifyDeadlineSoonRequest:
+      $ref: "./components/schemas/activity_detail.yaml#/NotifyDeadlineSoonRequest"
     CriteriaDoc:
       $ref: "./components/schemas/criteria_doc.yaml#/CriteriaDoc"
     EvidenceItem:
@@ -152,6 +158,12 @@ paths:
     $ref: "./paths/admin/create-activity.yaml"
   "/admin/activities/{id}":
     $ref: "./paths/admin/activity_detail.yaml"
+  /admin/activities/{id}/notifications:
+    $ref: "./paths/admin/activity-notifications.yaml"
+  /admin/activities/notifications/bulk:
+    $ref: "./paths/admin/activity-notifications-bulk.yaml"
+  /admin/activities/notifications/deadline-soon:
+    $ref: "./paths/admin/activity-notifications-deadline-soon.yaml"
   /admin/evidences:
     $ref: "./paths/admin/evidences.yaml"
   /admin/evidences/stats:

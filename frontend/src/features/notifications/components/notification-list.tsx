@@ -1,26 +1,22 @@
 "use client"
 
-import Link from "next/link"
-import {
-  AlertCircle,
-  Bell,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  ExternalLink,
-  Lightbulb,
-  RefreshCw,
-} from "lucide-react"
+import { RefreshCw } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { EmptyState, ErrorState } from "@/components/common/empty-state"
 import { LoadingSkeleton } from "@/components/common/loading"
-import { CRITERIA, type CriterionType } from "@/lib/constants"
 import type { NotificationItem } from "@/services/generated/api"
 
-type NotificationFilter = "all" | "unread"
+import { NotificationCard } from "./notification-card"
+import {
+  getNotificationFilterDescription,
+  matchesNotificationFilter,
+  type NotificationFilter,
+} from "./notification-filters"
+import { NotificationTabs } from "./notification-tabs"
+
+export type { NotificationFilter } from "./notification-filters"
 
 interface NotificationListProps {
   notifications: NotificationItem[]
@@ -33,48 +29,6 @@ interface NotificationListProps {
   isError?: boolean
   isMarkingRead?: boolean
   isMarkingAllRead?: boolean
-}
-
-function getDataString(notification: NotificationItem, key: string): string | undefined {
-  const value = notification.data?.[key]
-  return typeof value === "string" ? value : undefined
-}
-
-function getDaysRemaining(endDate: string): number {
-  const end = new Date(endDate)
-  const now = new Date()
-  const diff = end.getTime() - now.getTime()
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
-}
-
-function getNotificationIcon(type: string) {
-  switch (type) {
-    case "ACTIVITY_NEW":
-      return Bell
-    case "DEADLINE":
-      return Clock
-    case "SUGGESTION":
-      return Lightbulb
-    default:
-      return AlertCircle
-  }
-}
-
-function getNotificationColor(type: string) {
-  switch (type) {
-    case "ACTIVITY_NEW":
-      return "bg-primary/10 text-primary"
-    case "DEADLINE":
-      return "bg-orange-100 text-orange-600"
-    case "SUGGESTION":
-      return "bg-green-100 text-green-600"
-    default:
-      return "bg-muted text-muted-foreground"
-  }
-}
-
-function isCriterionType(value: string | undefined): value is CriterionType {
-  return Boolean(value && value in CRITERIA)
 }
 
 export function NotificationList({
@@ -90,8 +44,8 @@ export function NotificationList({
   isMarkingAllRead = false,
 }: NotificationListProps) {
   const unreadCount = notifications.filter((notification) => !notification.isRead).length
-  const filteredNotifications = notifications.filter(
-    (notification) => filter === "all" || !notification.isRead,
+  const filteredNotifications = notifications.filter((notification) =>
+    matchesNotificationFilter(notification, filter),
   )
 
   if (isLoading) {
@@ -151,22 +105,11 @@ export function NotificationList({
         )}
       </div>
 
-      <div className="mb-6 flex gap-2">
-        <Button
-          variant={filter === "all" ? "default" : "outline"}
-          size="sm"
-          onClick={() => onFilterChange("all")}
-        >
-          Tất cả
-        </Button>
-        <Button
-          variant={filter === "unread" ? "default" : "outline"}
-          size="sm"
-          onClick={() => onFilterChange("unread")}
-        >
-          Chưa đọc
-        </Button>
-      </div>
+      <NotificationTabs
+        notifications={notifications}
+        activeFilter={filter}
+        onFilterChange={onFilterChange}
+      />
 
       <div className="space-y-4">
         {filteredNotifications.length === 0 ? (
@@ -174,103 +117,19 @@ export function NotificationList({
             <CardContent>
               <EmptyState
                 title="Không có thông báo nào"
-                description={
-                  filter === "unread"
-                    ? "Tất cả thông báo đã được đọc"
-                    : "Thông báo mới sẽ xuất hiện tại đây"
-                }
+                description={getNotificationFilterDescription(filter)}
               />
             </CardContent>
           </Card>
         ) : (
-          filteredNotifications.map((notification) => {
-            const Icon = getNotificationIcon(notification.type)
-            const criterion = getDataString(notification, "criteria")
-            const endAt = getDataString(notification, "endAt")
-            const activitySlug = getDataString(notification, "activitySlug")
-            const daysRemaining = endAt ? getDaysRemaining(endAt) : null
-            const isUrgent =
-              typeof daysRemaining === "number" && daysRemaining > 0 && daysRemaining <= 7
-
-            return (
-              <Card
-                key={notification.id}
-                className={`transition-all ${!notification.isRead ? "border-primary/50" : ""}`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex gap-4">
-                    <div
-                      className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${getNotificationColor(notification.type)}`}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <h3
-                            className={`font-semibold ${
-                              !notification.isRead ? "text-foreground" : "text-muted-foreground"
-                            }`}
-                          >
-                            {notification.title}
-                          </h3>
-                          <p className="mt-1 text-sm text-muted-foreground">
-                            {notification.message}
-                          </p>
-                        </div>
-                        {!notification.isRead && (
-                          <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
-                        )}
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        {isCriterionType(criterion) && (
-                          <Badge variant="outline" className="text-xs">
-                            {CRITERIA[criterion]}
-                          </Badge>
-                        )}
-                        {isUrgent && (
-                          <Badge
-                            variant="secondary"
-                            className="bg-orange-100 text-xs text-orange-700"
-                          >
-                            <Clock className="mr-1 h-3 w-3" />
-                            Còn {daysRemaining} ngày
-                          </Badge>
-                        )}
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Calendar className="h-3 w-3" />
-                          {new Date(notification.createdAt).toLocaleDateString("vi-VN")}
-                        </div>
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {activitySlug && (
-                          <Link href={`/activities/${activitySlug}`}>
-                            <Button variant="outline" size="sm" className="gap-1">
-                              Xem hoạt động
-                              <ExternalLink className="h-3 w-3" />
-                            </Button>
-                          </Link>
-                        )}
-                        {!notification.isRead && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onMarkRead(notification.id)}
-                            disabled={isMarkingRead}
-                          >
-                            <CheckCircle2 className="mr-1 h-4 w-4" />
-                            Đánh dấu đã đọc
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })
+          filteredNotifications.map((notification) => (
+            <NotificationCard
+              key={notification.id}
+              notification={notification}
+              onMarkRead={onMarkRead}
+              isMarkingRead={isMarkingRead}
+            />
+          ))
         )}
       </div>
     </>

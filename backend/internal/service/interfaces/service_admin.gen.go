@@ -9,6 +9,9 @@ type AdminAPIService interface {
 	GetAdminEvidenceStats (ctx context.Context, req interface{}) (interface{}, error)
 	ListAdminActivities (ctx context.Context, req interface{}) (interface{}, error)
 	ListAdminEvidences (ctx context.Context, req interface{}) (interface{}, error)
+	NotifyActivitiesBulk (ctx context.Context, req interface{}) (interface{}, error)
+	NotifyActivity (ctx context.Context, req interface{}) (interface{}, error)
+	NotifyDeadlineSoon (ctx context.Context, req interface{}) (interface{}, error)
 	ReviewEvidence (ctx context.Context, req interface{}) (interface{}, error)
 	UpdateActivity (ctx context.Context, req interface{}) (interface{}, error)
 }
