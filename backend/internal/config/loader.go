@@ -13,11 +13,14 @@ func Load() (*Config, error) {
 	// Load .env file if it exists
 	_ = godotenv.Load()
 
+	appEnv := getEnv("APP_ENV", "development")
+	cookieSecureDefault := appEnv == "production"
+
 	cfg := &Config{
 		Server: ServerConfig{
 			Host: getEnv("APP_HOST", "0.0.0.0"),
 			Port: getEnv("APP_PORT", "8080"),
-			Env:  getEnv("APP_ENV", "development"),
+			Env:  appEnv,
 		},
 		Database: DatabaseConfig{
 			DSN:         getEnvRequired("DATABASE_URL"),
@@ -32,7 +35,7 @@ func Load() (*Config, error) {
 		},
 		Cookie: CookieConfig{
 			Domain:   os.Getenv("COOKIE_DOMAIN"),
-			Secure:   getEnvBool("COOKIE_SECURE", false),
+			Secure:   getEnvBool("COOKIE_SECURE", cookieSecureDefault),
 			SameSite: getEnv("COOKIE_SAME_SITE", "lax"),
 		},
 		CORS: CORSConfig{

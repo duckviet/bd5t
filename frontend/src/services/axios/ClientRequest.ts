@@ -6,6 +6,12 @@ import axios, {
 } from "axios";
 import { useEditTokenStore } from "@/stores/editTokenStore";
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  (process.env.NODE_ENV === "production"
+    ? "/api/v1"
+    : process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/api/v1");
+
 interface FailedRequestQueueItem {
   resolve: () => void;
   reject: (reason: unknown) => void;
@@ -61,8 +67,7 @@ export class ClientRequest {
 
   private constructor() {
     this.axiosInstance = axios.create({
-      baseURL:
-        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/api/v1",
+      baseURL: API_BASE_URL,
       timeout: 30000,
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
