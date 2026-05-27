@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { BreadcrumbJsonLd } from "next-seo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,34 +18,40 @@ const criteriaDocs = [
   {
     id: "doc_1",
     title: "Quy định xét chọn cấp Trường",
+    slug: "truong",
     reviewLevel: "TRUONG",
-    fileUrl: "#",
+    fileUrl: "1_TC_SV5T_DHNN.pdf",
     description: "Quy định về tiêu chuẩn và quy trình xét chọn danh hiệu Sinh viên 5 Tốt cấp Trường Đại học Ngoại ngữ",
   },
   {
     id: "doc_2",
     title: "Quy định xét chọn cấp ĐHQGHN",
+    slug: "dhqghn",
     reviewLevel: "DHQGHN",
-    fileUrl: "#",
+    fileUrl: "2_TC_SV5T_VNU.pdf",
     description: "Hướng dẫn tiêu chuẩn xét chọn Sinh viên 5 Tốt cấp Đại học Quốc gia Hà Nội",
   },
   {
     id: "doc_3",
     title: "Quy định xét chọn cấp Thành phố",
+    slug: "thanh-pho",
     reviewLevel: "THANH_PHO",
-    fileUrl: "#",
+    fileUrl: "3_TC_SV5T_TWTP.pdf",
     description: "Tiêu chuẩn và thủ tục xét chọn danh hiệu Sinh viên 5 Tốt cấp Thành phố Hà Nội",
   },
   {
     id: "doc_4",
     title: "Quy định xét chọn cấp Trung ương",
+    slug: "trung-uong",
     reviewLevel: "TRUNG_UONG",
-    fileUrl: "#",
+    fileUrl: "4_TC_SV5T_TW.pdf",
     description: "Hướng dẫn xét chọn Sinh viên 5 Tốt cấp Trung ương theo quy định của TW Đoàn",
   },
 ]
 
 export default function CriteriaPage() {
+  const mediaBaseUrl = process.env.NEXT_PUBLIC_MEDIA_BASE_URL || ""
+
   return (
     <div className="min-h-screen py-12">
       <BreadcrumbJsonLd
@@ -71,7 +78,7 @@ export default function CriteriaPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {criteriaDocs.map((doc) => (
-            <Card key={doc.id} className="hover:shadow-lg transition-shadow">
+            <Card key={doc.id} className="hover:shadow-lg transition-all duration-300 border-border hover:border-primary/20 flex flex-col justify-between">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
@@ -90,18 +97,28 @@ export default function CriteriaPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-sm mb-4">
+              <CardContent className="flex flex-col flex-1 justify-between">
+                <p className="text-muted-foreground text-sm mb-6">
                   {doc.description}
                 </p>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <Eye className="h-4 w-4" />
-                    Xem trước
+                  <Button variant="outline" size="sm" asChild>
+                    <Link className="flex gap-2 items-center" href={`/criteria/${doc.slug}`}>
+                      <Eye className="h-4 w-4" />
+                      <span>Xem chi tiết</span>
+                    </Link>
                   </Button>
-                  <Button size="sm" className="gap-1">
-                    <Download className="h-4 w-4" />
-                    Tải xuống
+                  <Button size="sm" className="gap-1" asChild>
+                    <a
+                      href={`${mediaBaseUrl}/${doc.fileUrl}`}
+                      download={doc.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      <span> Tải xuống</span>
+                    </a>
                   </Button>
                 </div>
               </CardContent>
@@ -112,3 +129,4 @@ export default function CriteriaPage() {
     </div>
   )
 }
+
