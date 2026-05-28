@@ -59,6 +59,9 @@
 /leaderboard:
   $ref: ./leaderboard/list.yaml
 
+/leaderboard/{studentId}:
+  $ref: ./leaderboard/detail.yaml
+
 /admin/activities:
   post:
     $ref: ./admin/create-activity.yaml#/post

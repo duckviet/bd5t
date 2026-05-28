@@ -725,6 +725,7 @@ export interface LeaderboardItem {
   /** Current rank position */
   rank?: number;
   userId?: string;
+  studentId?: string;
   /** Display name of the user */
   userName?: string;
   /** @nullable */
@@ -735,6 +736,44 @@ export interface LeaderboardItem {
   totalApproved?: number;
   /** Sum of all approved scores */
   totalScore?: number;
+}
+
+export type LeaderboardCriteriaStatCriteria =
+  (typeof LeaderboardCriteriaStatCriteria)[keyof typeof LeaderboardCriteriaStatCriteria];
+
+export const LeaderboardCriteriaStatCriteria = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
+export interface LeaderboardCriteriaStat {
+  criteria: LeaderboardCriteriaStatCriteria;
+  label: string;
+  /** Number of approved activities/evidences counted for this criterion */
+  approvedActivities: number;
+}
+
+export interface LeaderboardDetail {
+  /** Current rank position */
+  rank: number;
+  userId: string;
+  studentId: string;
+  /** Display name of the user */
+  userName: string;
+  /** @nullable */
+  unitId?: string | null;
+  /** @nullable */
+  unitName?: string | null;
+  /** @nullable */
+  className?: string | null;
+  /** Number of approved activity submissions */
+  totalApproved: number;
+  /** Sum of all approved scores */
+  totalScore: number;
+  criteriaStats: LeaderboardCriteriaStat[];
 }
 
 export type NotificationItemType =
@@ -994,6 +1033,10 @@ export type ListLeaderboardParams = {
 
 export type ListLeaderboard200 = ApiResponseList & {
   data?: LeaderboardItem[];
+};
+
+export type GetLeaderboardDetail200 = ApiResponse & {
+  data?: LeaderboardDetail;
 };
 
 export type ListNotifications200 = ApiResponse & {
@@ -3613,6 +3656,174 @@ export function useListLeaderboard<
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
   const queryOptions = getListLeaderboardQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get leaderboard student detail
+ */
+export const getLeaderboardDetail = (
+  studentId: string,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<GetLeaderboardDetail200>(
+    { url: `/leaderboard/${studentId}`, method: "GET", signal },
+    options,
+  );
+};
+
+export const getGetLeaderboardDetailQueryKey = (studentId: string) => {
+  return [`/leaderboard/${studentId}`] as const;
+};
+
+export const getGetLeaderboardDetailQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLeaderboardDetail>>,
+  TError = ErrorType<NotFoundResponse | InternalServerErrorResponse>,
+>(
+  studentId: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getLeaderboardDetail>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetLeaderboardDetailQueryKey(studentId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getLeaderboardDetail>>
+  > = ({ signal }) => getLeaderboardDetail(studentId, requestOptions, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: studentId !== null && studentId !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLeaderboardDetail>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetLeaderboardDetailQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLeaderboardDetail>>
+>;
+export type GetLeaderboardDetailQueryError = ErrorType<
+  NotFoundResponse | InternalServerErrorResponse
+>;
+
+export function useGetLeaderboardDetail<
+  TData = Awaited<ReturnType<typeof getLeaderboardDetail>>,
+  TError = ErrorType<NotFoundResponse | InternalServerErrorResponse>,
+>(
+  studentId: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getLeaderboardDetail>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLeaderboardDetail>>,
+          TError,
+          Awaited<ReturnType<typeof getLeaderboardDetail>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetLeaderboardDetail<
+  TData = Awaited<ReturnType<typeof getLeaderboardDetail>>,
+  TError = ErrorType<NotFoundResponse | InternalServerErrorResponse>,
+>(
+  studentId: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getLeaderboardDetail>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLeaderboardDetail>>,
+          TError,
+          Awaited<ReturnType<typeof getLeaderboardDetail>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetLeaderboardDetail<
+  TData = Awaited<ReturnType<typeof getLeaderboardDetail>>,
+  TError = ErrorType<NotFoundResponse | InternalServerErrorResponse>,
+>(
+  studentId: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getLeaderboardDetail>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get leaderboard student detail
+ */
+
+export function useGetLeaderboardDetail<
+  TData = Awaited<ReturnType<typeof getLeaderboardDetail>>,
+  TError = ErrorType<NotFoundResponse | InternalServerErrorResponse>,
+>(
+  studentId: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getLeaderboardDetail>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getGetLeaderboardDetailQueryOptions(studentId, options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

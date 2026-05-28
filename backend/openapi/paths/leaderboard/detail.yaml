@@ -1,0 +1,23 @@
+get:
+  summary: Get leaderboard student detail
+  operationId: getLeaderboardDetail
+  tags:
+    - Leaderboard
+  parameters:
+    - $ref: '../../components/parameters/_index.yaml#/studentId'
+  responses:
+    '200':
+      description: Leaderboard student detail
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/leaderboard.yaml#/LeaderboardDetail'
+    '404':
+      $ref: '../../components/responses/error_responses.yaml#/NotFound'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

@@ -8,6 +8,9 @@ LeaderboardItem:
     userId:
       type: string
       format: uuid
+    studentId:
+      type: string
+      example: "22040001"
     userName:
       type: string
       description: Display name of the user
@@ -26,3 +29,69 @@ LeaderboardItem:
       type: integer
       description: Sum of all approved scores
       example: 1250
+
+LeaderboardCriteriaStat:
+  type: object
+  properties:
+    criteria:
+      type: string
+      enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+      example: "DAO_DUC"
+    label:
+      type: string
+      example: "Đạo đức tốt"
+    approvedActivities:
+      type: integer
+      description: Number of approved activities/evidences counted for this criterion
+      example: 3
+  required:
+    - criteria
+    - label
+    - approvedActivities
+
+LeaderboardDetail:
+  type: object
+  properties:
+    rank:
+      type: integer
+      description: Current rank position
+      example: 1
+    userId:
+      type: string
+      format: uuid
+    studentId:
+      type: string
+      example: "22040001"
+    userName:
+      type: string
+      description: Display name of the user
+      example: "Nguyễn Văn A"
+    unitId:
+      type: [string, "null"]
+      format: uuid
+    unitName:
+      type: [string, "null"]
+      example: "Khoa Công nghệ Thông tin"
+    className:
+      type: [string, "null"]
+      example: "K56A1"
+    totalApproved:
+      type: integer
+      description: Number of approved activity submissions
+      example: 15
+    totalScore:
+      type: integer
+      description: Sum of all approved scores
+      example: 1250
+    criteriaStats:
+      type: array
+      items:
+        $ref: '#/LeaderboardCriteriaStat'
+  required:
+    - rank
+    - userId
+    - studentId
+    - userName
+    - totalApproved
+    - totalScore
+    - criteriaStats

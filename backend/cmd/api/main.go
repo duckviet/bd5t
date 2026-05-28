@@ -162,6 +162,7 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 
 		v1.GET("/progress", middleware.AuthRequired(tokenMgr), progressAPI.GetProgress)
 		v1.GET("/leaderboard", leaderboardAPI.ListLeaderboard)
+		v1.GET("/leaderboard/:studentId", leaderboardAPI.GetLeaderboardDetail)
 		v1.GET("/notifications", middleware.AuthRequired(tokenMgr), notificationsAPI.ListNotifications)
 		v1.PATCH("/notifications/read-all", middleware.AuthRequired(tokenMgr), notificationsAPI.MarkAllNotificationsRead)
 		v1.PATCH("/notifications/:id/read", middleware.AuthRequired(tokenMgr), notificationsAPI.MarkNotificationRead)

@@ -10,6 +10,7 @@
 package dto
 
 type StudentSearchItem struct {
+
 	Id string `json:"id"`
 
 	StudentId string `json:"studentId"`

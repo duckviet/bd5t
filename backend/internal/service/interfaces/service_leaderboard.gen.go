@@ -3,5 +3,6 @@ package interfaces
 import "context"
 
 type LeaderboardAPIService interface {
-	ListLeaderboard (ctx context.Context, req interface{}) (interface{}, error)
+	GetLeaderboardDetail(ctx context.Context, req interface{}) (interface{}, error)
+	ListLeaderboard(ctx context.Context, req interface{}) (interface{}, error)
 }

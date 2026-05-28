@@ -9,7 +9,10 @@
 
 package dto
 
-type InviteActivityRequest struct {
+type GetLeaderboardDetail200Response struct {
 
-	UserIds []string `json:"userIds"`
+	// Indicates if the request was successful
+	Success bool `json:"success,omitempty"`
+
+	Data LeaderboardDetail `json:"data,omitempty"`
 }

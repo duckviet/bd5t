@@ -49,6 +49,14 @@ slug:
     type: string
   description: URL-friendly identifier for the resource
 
+studentId:
+  name: studentId
+  in: path
+  required: true
+  schema:
+    type: string
+  description: Student ID used in leaderboard detail routes
+
 uuid:
   name: id
   in: path

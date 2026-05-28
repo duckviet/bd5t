@@ -41,3 +41,15 @@ func (h *LeaderboardAPI) ListLeaderboard(c *gin.Context) {
 		TotalPages: totalPages,
 	})
 }
+
+func (h *LeaderboardAPI) GetLeaderboardDetail(c *gin.Context) {
+	studentID := c.Param("studentId")
+
+	result, err := h.leaderboardService.GetLeaderboardDetail(c.Request.Context(), studentID)
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	response.OK(c, result)
+}

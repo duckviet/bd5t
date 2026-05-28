@@ -10,6 +10,7 @@
 package dto
 
 type InviteActivityResult struct {
+
 	Created int32 `json:"created"`
 
 	Skipped int32 `json:"skipped"`

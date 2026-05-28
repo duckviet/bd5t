@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -9,6 +10,7 @@ import {
   Trophy,
   Medal,
   User,
+  Hash,
   Building2,
   TrendingUp
 } from "lucide-react"
@@ -23,6 +25,7 @@ export function LeaderboardClient() {
   const filteredLeaderboard = leaderboard.filter(
     (user) =>
       (user.userName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.studentId || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.unitName || "").toLowerCase().includes(searchQuery.toLowerCase())
   )
 
@@ -45,6 +48,10 @@ export function LeaderboardClient() {
         return "bg-[rgb(255,255,255)] border-[rgb(220,220,220)] text-[rgb(55,65,81)]"
     }
   }
+
+  const getStudentHref = (studentId?: string) =>
+    studentId ? `/leaderboard/${encodeURIComponent(studentId)}` : undefined
+
   return (
     <div className="min-h-screen py-12">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
@@ -59,14 +66,14 @@ export function LeaderboardClient() {
           {[1, 0, 2].map((idx) => {
             const user = leaderboard[idx]
             if (!user) return null
-            return (
+            const href = getStudentHref(user.studentId)
+            const card = (
               <Card
-                key={user.userId || user.rank}
-                className={cn("text-center",
+                className={cn("h-full text-center transition-all hover:-translate-y-1 hover:shadow-xl",
                   getRankBg(user.rank || idx + 1),
                    idx === 0 ? "md:-mt-6" : "",
                   idx === 1 ? "md:-mt-3" : ""
-            )}
+                )}
               >
                 <CardContent className="p-6">
                   <div className="mb-4">
@@ -76,13 +83,27 @@ export function LeaderboardClient() {
                     <User className="h-8 w-8 text-primary" />
                   </div>
                   <h3 className="font-semibold text-lg mb-1">{user.userName || "N/A"}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">{user.unitName || "Chưa có đơn vị"}</p>
+                  <p className="text-sm text-muted-foreground mb-1">{user.unitName || "Chưa có đơn vị"}</p>
+                  <p className="mb-3 flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                    <Hash className="h-3 w-3" />
+                    {user.studentId || "Chưa có MSSV"}
+                  </p>
                   <Badge variant="default" className="gap-1">
                     <TrendingUp className="h-3 w-3" />
                     {user.totalApproved || 0} hoạt động
                   </Badge>
                 </CardContent>
               </Card>
+            )
+
+            return (
+              href ? (
+                <Link key={user.userId || user.rank} href={href} className="block h-full">
+                  {card}
+                </Link>
+              ) : (
+                <div key={user.userId || user.rank}>{card}</div>
+              )
             )
           })}
         </div>
@@ -108,32 +129,52 @@ export function LeaderboardClient() {
               <div className="text-sm text-muted-foreground">Không có dữ liệu phù hợp.</div>
             )}
             <div className="space-y-2">
-              {!isLoading && !error && filteredLeaderboard.map((user, idx) => (
-                <div
-                  key={user.userId || `${user.rank}-${idx}`}
-                  className={`flex items-center gap-4 p-4 rounded-xl ${
-                    getRankBg(user.rank || idx + 1) || "bg-muted/30 hover:bg-muted/50"
-                  } transition-colors`}
-                >
-                  <div className="w-10 flex justify-center">
-                    {getRankIcon(user.rank || idx + 1)}
-                  </div>
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <User className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium">{user.userName || "N/A"}</div>
-                    <div className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Building2 className="h-3 w-3" />
-                      {user.unitName || "Chưa có đơn vị"}
+              {!isLoading && !error && filteredLeaderboard.map((user, idx) => {
+                const href = getStudentHref(user.studentId)
+                const row = (
+                  <div
+                    className={`flex items-center gap-4 rounded-xl p-4 ${
+                      getRankBg(user.rank || idx + 1) || "bg-muted/30 hover:bg-muted/50"
+                    } transition-colors`}
+                  >
+                    <div className="w-10 flex justify-center">
+                      {getRankIcon(user.rank || idx + 1)}
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <User className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium">{user.userName || "N/A"}</div>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          {user.unitName || "Chưa có đơn vị"}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Hash className="h-3 w-3" />
+                          {user.studentId || "Chưa có MSSV"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-primary">{user.totalApproved || 0}</div>
+                      <div className="text-xs text-muted-foreground">hoạt động</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold text-primary">{user.totalApproved || 0}</div>
-                    <div className="text-xs text-muted-foreground">hoạt động</div>
-                  </div>
-                </div>
-              ))}
+                )
+
+                return href ? (
+                  <Link
+                    key={user.userId || `${user.rank}-${idx}`}
+                    href={href}
+                    className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    {row}
+                  </Link>
+                ) : (
+                  <div key={user.userId || `${user.rank}-${idx}`}>{row}</div>
+                )
+              })}
             </div>
           </CardContent>
         </Card>

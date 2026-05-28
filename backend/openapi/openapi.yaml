@@ -116,6 +116,10 @@ components:
       $ref: "./components/schemas/progress.yaml#/ProgressMatrixCell"
     LeaderboardItem:
       $ref: "./components/schemas/leaderboard.yaml#/LeaderboardItem"
+    LeaderboardCriteriaStat:
+      $ref: "./components/schemas/leaderboard.yaml#/LeaderboardCriteriaStat"
+    LeaderboardDetail:
+      $ref: "./components/schemas/leaderboard.yaml#/LeaderboardDetail"
     NotificationItem:
       $ref: "./components/schemas/notification.yaml#/NotificationItem"
     MarkAllNotificationsReadResult:
@@ -158,6 +162,8 @@ paths:
     $ref: "./paths/progress/get.yaml"
   /leaderboard:
     $ref: "./paths/leaderboard/list.yaml"
+  /leaderboard/{studentId}:
+    $ref: "./paths/leaderboard/detail.yaml"
   /notifications:
     $ref: "./paths/notifications.yaml"
   /notifications/{id}/read:

@@ -17,4 +17,5 @@ type LeaderboardResult struct {
 
 type LeaderboardRepository interface {
 	List(ctx context.Context, filter LeaderboardFilter, page, pageSize int) (*LeaderboardResult, error)
+	GetByStudentID(ctx context.Context, studentID string) (*domain.LeaderboardDetail, error)
 }

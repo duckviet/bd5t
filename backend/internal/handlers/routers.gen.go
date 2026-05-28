@@ -235,6 +235,12 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			handleFunctions.HealthAPI.Readyz,
 		},
 		{
+			"GetLeaderboardDetail",
+			http.MethodGet,
+			"/leaderboard/:studentId",
+			handleFunctions.LeaderboardAPI.GetLeaderboardDetail,
+		},
+		{
 			"ListLeaderboard",
 			http.MethodGet,
 			"/leaderboard",

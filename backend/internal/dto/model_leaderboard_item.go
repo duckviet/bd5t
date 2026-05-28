@@ -16,6 +16,8 @@ type LeaderboardItem struct {
 
 	UserId string `json:"userId,omitempty"`
 
+	StudentId string `json:"studentId,omitempty"`
+
 	// Display name of the user
 	UserName string `json:"userName,omitempty"`
 

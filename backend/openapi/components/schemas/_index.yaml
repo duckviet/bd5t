@@ -81,3 +81,9 @@ ProgressMatrixCell:
 
 LeaderboardItem:
   $ref: "./leaderboard.yaml#/LeaderboardItem"
+
+LeaderboardCriteriaStat:
+  $ref: "./leaderboard.yaml#/LeaderboardCriteriaStat"
+
+LeaderboardDetail:
+  $ref: "./leaderboard.yaml#/LeaderboardDetail"
