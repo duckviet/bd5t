@@ -12,7 +12,7 @@ export const SITE_URL =
 export const ORGANIZATION_NAME =
   "Trường Đại học Ngoại ngữ - Đại học Quốc gia Hà Nội";
 
-export const DEFAULT_OG_IMAGE = "/fallback-cube-box.png";
+export const DEFAULT_OG_IMAGE = "/bd5t-logo.svg";
 
 export function absoluteUrl(path = "/") {
   if (/^https?:\/\//.test(path)) {

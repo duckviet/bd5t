@@ -110,3 +110,36 @@ UserProfile:
     createdAt:
       type: string
       format: date-time
+
+StudentSearchItem:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: "550e8400-e29b-41d4-a716-446655440000"
+    studentId:
+      type: string
+      example: "22040001"
+    displayName:
+      type: string
+      example: "Nguyen Van A"
+    fullName:
+      type: string
+      example: "Nguyen Van A"
+    avatarUrl:
+      type: string
+      example: "https://cdn.example.com/avatar.jpg"
+    unitId:
+      type: [string, "null"]
+      format: uuid
+    unitName:
+      type: [string, "null"]
+      example: "Khoa Cong nghe thong tin"
+    className:
+      type: [string, "null"]
+      example: "K56A1"
+  required:
+    - id
+    - studentId
+    - displayName

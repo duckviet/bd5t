@@ -1,0 +1,37 @@
+post:
+  summary: Invite students to an activity
+  description: Send activity invite notifications to selected students.
+  operationId: inviteActivity
+  tags:
+    - Activities
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameters/_index.yaml#/slug'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/activity_detail.yaml#/InviteActivityRequest'
+  responses:
+    '200':
+      description: Activity invite result
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../../components/schemas/activity_detail.yaml#/InviteActivityResult'
+    '400':
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '404':
+      $ref: '../../components/responses/error_responses.yaml#/NotFound'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

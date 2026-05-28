@@ -28,6 +28,12 @@
 /activities/{slug}:
   $ref: ./activities/detail.yaml
 
+/activities/{slug}/invites:
+  $ref: ./activities/invites.yaml
+
+/students/search:
+  $ref: ./students/search.yaml
+
 /profile:
   get:
     $ref: ./profile/get.yaml#/get

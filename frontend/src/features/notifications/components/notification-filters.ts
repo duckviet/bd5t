@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Clock,
   Lightbulb,
+  UserPlus,
   XCircle,
   type LucideIcon,
 } from "lucide-react"
@@ -72,6 +73,10 @@ const notificationTypeConfig: Record<string, NotificationTypeConfig> = {
     icon: Lightbulb,
     colorClassName: "bg-green-100 text-green-600",
   },
+  ACTIVITY_INVITE: {
+    icon: UserPlus,
+    colorClassName: "bg-sky-100 text-sky-700",
+  },
 }
 
 const fallbackNotificationConfig: NotificationTypeConfig = {
@@ -100,7 +105,8 @@ export function matchesNotificationFilter(
       return (
         notification.type === "SUGGESTION" ||
         notification.type === "ACTIVITY_NEW" ||
-        notification.type === "ACTIVITY_DEADLINE_SOON"
+        notification.type === "ACTIVITY_DEADLINE_SOON" ||
+        notification.type === "ACTIVITY_INVITE"
       )
   }
 }

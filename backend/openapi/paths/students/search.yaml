@@ -1,0 +1,40 @@
+get:
+  summary: Search students
+  description: Search student accounts by student ID or display name.
+  operationId: searchStudents
+  tags:
+    - Students
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - name: q
+      in: query
+      required: true
+      description: Search text. Matches student ID or display name.
+      schema:
+        type: string
+        minLength: 2
+        maxLength: 100
+    - $ref: '../../components/parameters/_index.yaml#/page'
+    - $ref: '../../components/parameters/_index.yaml#/pageSize'
+  responses:
+    '200':
+      description: Paginated students
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponseList'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '../../components/schemas/user.yaml#/StudentSearchItem'
+    '400':
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

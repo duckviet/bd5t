@@ -169,6 +169,39 @@ NotifyDeadlineSoonRequest:
       type: integer
       enum: [3, 7]
 
+InviteActivityRequest:
+  type: object
+  required:
+    - userIds
+  properties:
+    userIds:
+      type: array
+      minItems: 1
+      maxItems: 50
+      items:
+        type: string
+        format: uuid
+      example:
+        - "550e8400-e29b-41d4-a716-446655440001"
+        - "550e8400-e29b-41d4-a716-446655440002"
+
+InviteActivityResult:
+  type: object
+  properties:
+    created:
+      type: integer
+      example: 2
+    skipped:
+      type: integer
+      example: 1
+    matchedUsers:
+      type: integer
+      example: 3
+  required:
+    - created
+    - skipped
+    - matchedUsers
+
 UpdateActivityRequest:
   type: object
   properties:

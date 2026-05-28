@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Calendar, MapPin, ExternalLink, LayoutGrid } from "lucide-react"
 import { CRITERIA, REVIEW_LEVELS } from "@/lib/constants"
 import type { ActivityItem } from "@/services/generated/api"
+import { InviteActivityButton } from "@/features/activities/components/invite-activity-button";
 
 interface ActivityCardProps {
   activity: ActivityItem
@@ -62,7 +63,9 @@ export function ActivityCard({ activity, onViewDetails }: ActivityCardProps) {
               variant="secondary"
               className="text-[10px] uppercase tracking-wider py-0 px-2 font-bold bg-slate-100 text-slate-600 border-none"
             >
-              {REVIEW_LEVELS[activity.reviewLevel as keyof typeof REVIEW_LEVELS] || activity.reviewLevel}
+              {REVIEW_LEVELS[
+                activity.reviewLevel as keyof typeof REVIEW_LEVELS
+              ] || activity.reviewLevel}
             </Badge>
           )}
         </div>
@@ -89,23 +92,28 @@ export function ActivityCard({ activity, onViewDetails }: ActivityCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="p-5 pt-0 flex gap-3">
+      <CardFooter className="grid grid-cols-4 gap-2 p-5 pt-0">
         <Link
           href={`/activities/${activity.slug}`}
-          className="flex-1"
+          className="min-w-0"
           onClick={onViewDetails}
         >
           <Button
             variant="outline"
             size="sm"
-            className="w-full rounded-xl border-slate-200 hover:bg-slate-50"
+            className="w-full rounded-xl border-slate-200 px-2 hover:bg-slate-50"
           >
             Chi tiết
           </Button>
         </Link>
+        <InviteActivityButton
+          slug={activity.slug}
+          activityTitle={activity.title}
+          className="w-full rounded-xl px-2"
+        />
         <Button
           size="sm"
-          className="w-full gap-2 rounded-xl bg-primary hover:bg-primary/90 shadow-sm shadow-primary/20"
+          className="col-span-2 w-full gap-1 rounded-xl bg-primary px-2 shadow-sm shadow-primary/20 hover:bg-primary/90"
           onClick={handleParticipate}
         >
           Tham gia
@@ -113,7 +121,7 @@ export function ActivityCard({ activity, onViewDetails }: ActivityCardProps) {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 interface ActivityGridProps {

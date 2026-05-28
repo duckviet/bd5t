@@ -3,6 +3,8 @@ package handlers
 import (
 	"strconv"
 
+	"github.com/duckviet/bd5t/backend/internal/auth"
+	"github.com/duckviet/bd5t/backend/internal/dto"
 	appErrors "github.com/duckviet/bd5t/backend/internal/errors"
 	svcImpl "github.com/duckviet/bd5t/backend/internal/service/impl"
 	"github.com/duckviet/bd5t/backend/pkg/response"
@@ -10,11 +12,15 @@ import (
 )
 
 type ActivitiesAPI struct {
-	activityService *svcImpl.ActivityService
+	activityService       *svcImpl.ActivityService
+	activityInviteService *svcImpl.ActivityInviteService
 }
 
-func NewActivitiesAPI(activityService *svcImpl.ActivityService) *ActivitiesAPI {
-	return &ActivitiesAPI{activityService: activityService}
+func NewActivitiesAPI(activityService *svcImpl.ActivityService, activityInviteService *svcImpl.ActivityInviteService) *ActivitiesAPI {
+	return &ActivitiesAPI{
+		activityService:       activityService,
+		activityInviteService: activityInviteService,
+	}
 }
 
 func (h *ActivitiesAPI) ListActivities(c *gin.Context) {
@@ -54,6 +60,25 @@ func (h *ActivitiesAPI) GetActivityDetail(c *gin.Context) {
 	}
 
 	result, err := h.activityService.GetActivityDetail(c.Request.Context(), slug)
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	response.OK(c, result)
+}
+
+func (h *ActivitiesAPI) InviteActivity(c *gin.Context) {
+	user := auth.MustGetCurrentUser(c)
+	slug := c.Param("slug")
+
+	var req dto.InviteActivityRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, appErrors.ErrBadRequest("Invalid invite request"))
+		return
+	}
+
+	result, err := h.activityInviteService.InviteActivity(c.Request.Context(), slug, user.ID, &req)
 	if err != nil {
 		response.Error(c, err)
 		return

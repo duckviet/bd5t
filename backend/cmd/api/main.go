@@ -88,10 +88,16 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 
 	activityRepo := repoImpl.NewActivityRepository(db)
 	activityService := svcImpl.NewActivityService(activityRepo)
-	activitiesAPI := handlers.NewActivitiesAPI(activityService)
+
+	notificationRepo := repoImpl.NewNotificationRepository(db)
+	activityInviteService := svcImpl.NewActivityInviteService(activityRepo, notificationRepo, userRepo)
+	activitiesAPI := handlers.NewActivitiesAPI(activityService, activityInviteService)
 
 	profileService := svcImpl.NewProfileService(userRepo, unitRepo)
 	profileAPI := handlers.NewProfileAPI(profileService)
+
+	studentService := svcImpl.NewStudentService(userRepo)
+	studentsAPI := handlers.NewStudentsAPI(studentService)
 
 	r2Client, err := media.NewR2Client(
 		cfg.Media.R2Endpoint,
@@ -120,7 +126,6 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	leaderboardService := svcImpl.NewLeaderboardService(leaderboardRepo)
 	leaderboardAPI := handlers.NewLeaderboardAPI(leaderboardService)
 
-	notificationRepo := repoImpl.NewNotificationRepository(db)
 	notificationService := svcImpl.NewNotificationService(notificationRepo)
 	notificationsAPI := handlers.NewNotificationsAPI(notificationService)
 
@@ -143,6 +148,8 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 		v1.GET("/units", unitsAPI.ListUnits)
 		v1.GET("/activities", activitiesAPI.ListActivities)
 		v1.GET("/activities/:slug", activitiesAPI.GetActivityDetail)
+		v1.POST("/activities/:slug/invites", middleware.AuthRequired(tokenMgr), activitiesAPI.InviteActivity)
+		v1.GET("/students/search", middleware.AuthRequired(tokenMgr), studentsAPI.SearchStudents)
 
 		v1.GET("/profile", middleware.AuthRequired(tokenMgr), profileAPI.GetProfile)
 		v1.PATCH("/profile", middleware.AuthRequired(tokenMgr), profileAPI.UpdateProfile)

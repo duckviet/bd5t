@@ -19,4 +19,5 @@ const (
 	NotificationTypeActivityNew          = "ACTIVITY_NEW"
 	NotificationTypeActivityDeadlineSoon = "ACTIVITY_DEADLINE_SOON"
 	NotificationTypeSuggestion           = "SUGGESTION"
+	NotificationTypeActivityInvite       = "ACTIVITY_INVITE"
 )

@@ -4,20 +4,21 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { 
-  Home, 
-  FileText, 
-  Calendar, 
-  Bell, 
-  User, 
+import {
+  Home,
+  FileText,
+  Calendar,
+  Bell,
+  User,
   LogOut,
   Menu,
-  X
-} from "lucide-react"
+  X,
+} from "lucide-react";
 import { useState } from "react"
 import { useAuthStore } from "@/features/auth/store/authStore"
 import authAction from "@/services/actions/auth.action"
 import { useListNotifications } from "@/services/generated/api"
+import Image from "next/image";
 
 const navItems = [
   { href: "/", label: "Trang chủ", icon: Home },
@@ -57,9 +58,13 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-lg">
-                5T
-              </div>
+              <Image
+                src="/bd5t-logo.svg"
+                alt="5T Logo"
+                width={40}
+                height={40}
+                className="block h-10 w-10"
+              />
               <span className="text-lg font-semibold text-foreground hidden sm:block">
                 Bản đồ 5 Tốt
               </span>
@@ -86,7 +91,9 @@ export function Navbar() {
               })}
               {isAdmin &&
                 adminNavItems.map((item) => {
-                  const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const isActive =
+                    pathname === item.href ||
+                    pathname.startsWith(`${item.href}/`);
                   return (
                     <Link
                       key={item.href}
@@ -197,7 +204,9 @@ export function Navbar() {
               })}
               {isAdmin &&
                 adminNavItems.map((item) => {
-                  const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const isActive =
+                    pathname === item.href ||
+                    pathname.startsWith(`${item.href}/`);
                   return (
                     <Link
                       key={item.href}

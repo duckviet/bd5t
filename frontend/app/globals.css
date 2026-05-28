@@ -12,7 +12,7 @@
   --muted-foreground: #64748B;
   --border: #e0e7ee;
   --input: #F1F5F9;
-  --primary: #44ACFF;
+  --primary: #33539a;
   --primary-foreground: #FFFFFF;
   --secondary: #FE9EC7;
   --secondary-foreground: #FFFFFF;
@@ -91,19 +91,19 @@ body {
     backdrop-filter: blur(12px);
     border: 0.87px solid var(--border);
   }
-  
+
   .glass-dark {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(12px);
     border: 0.87px solid rgba(255, 255, 255, 0.1);
   }
-  
+
   .gradient-border {
     position: relative;
     background: var(--card);
     border-radius: var(--radius);
   }
-  
+
   .gradient-border::before {
     content: '';
     position: absolute;
@@ -129,7 +129,7 @@ input[type="password"]::-ms-clear {
 input[type="password"]::-webkit-credentials-auto-fill-button,
 input[type="password"]::-webkit-textfield-decoration-container {
   display: none !important;
-} 
+}
 
 
 ::-webkit-scrollbar {
@@ -158,4 +158,3 @@ input[type="password"]::-webkit-textfield-decoration-container {
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
 }
-

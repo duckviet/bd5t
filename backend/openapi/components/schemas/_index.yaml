@@ -31,6 +31,9 @@ TokenResponse:
 UpdateProfileRequest:
   $ref: "./user.yaml#/UpdateProfileRequest"
 
+StudentSearchItem:
+  $ref: "./user.yaml#/StudentSearchItem"
+
 UnitItem:
   $ref: "./unit_item.yaml#/UnitItem"
 
@@ -45,6 +48,12 @@ CreateActivityRequest:
 
 UpdateActivityRequest:
   $ref: "./activity_detail.yaml#/UpdateActivityRequest"
+
+InviteActivityRequest:
+  $ref: "./activity_detail.yaml#/InviteActivityRequest"
+
+InviteActivityResult:
+  $ref: "./activity_detail.yaml#/InviteActivityResult"
 
 CriteriaDoc:
   $ref: "./criteria_doc.yaml#/CriteriaDoc"

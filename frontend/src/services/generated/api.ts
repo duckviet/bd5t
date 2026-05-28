@@ -154,6 +154,20 @@ export interface UpdateProfileRequest {
   className?: string;
 }
 
+export interface StudentSearchItem {
+  id: string;
+  studentId: string;
+  displayName: string;
+  fullName?: string;
+  avatarUrl?: string;
+  /** @nullable */
+  unitId?: string | null;
+  /** @nullable */
+  unitName?: string | null;
+  /** @nullable */
+  className?: string | null;
+}
+
 export interface UnitItem {
   id?: string;
   name?: string;
@@ -455,6 +469,20 @@ export interface NotifyDeadlineSoonRequest {
   days: NotifyDeadlineSoonRequestDays;
 }
 
+export interface InviteActivityRequest {
+  /**
+   * @minItems 1
+   * @maxItems 50
+   */
+  userIds: string[];
+}
+
+export interface InviteActivityResult {
+  created: number;
+  skipped: number;
+  matchedUsers: number;
+}
+
 export type EvidenceItemStatus =
   (typeof EvidenceItemStatus)[keyof typeof EvidenceItemStatus];
 
@@ -709,13 +737,25 @@ export interface LeaderboardItem {
   totalScore?: number;
 }
 
+export type NotificationItemType =
+  (typeof NotificationItemType)[keyof typeof NotificationItemType];
+
+export const NotificationItemType = {
+  EVIDENCE_APPROVED: "EVIDENCE_APPROVED",
+  EVIDENCE_REJECTED: "EVIDENCE_REJECTED",
+  ACTIVITY_NEW: "ACTIVITY_NEW",
+  ACTIVITY_DEADLINE_SOON: "ACTIVITY_DEADLINE_SOON",
+  SUGGESTION: "SUGGESTION",
+  ACTIVITY_INVITE: "ACTIVITY_INVITE",
+} as const;
+
 export type NotificationItemData = { [key: string]: unknown };
 
 export interface NotificationItem {
   id: string;
   title: string;
   message: string;
-  type: string;
+  type: NotificationItemType;
   isRead: boolean;
   data?: NotificationItemData;
   createdAt: string;
@@ -835,6 +875,34 @@ export type ListActivities200 = ApiResponseList & {
 
 export type GetActivityDetail200 = ApiResponse & {
   data?: ActivityDetail;
+};
+
+export type InviteActivity200 = ApiResponse & {
+  data?: InviteActivityResult;
+};
+
+export type SearchStudentsParams = {
+  /**
+   * Search text. Matches student ID or display name.
+   * @minLength 2
+   * @maxLength 100
+   */
+  q: string;
+  /**
+   * Page number for pagination
+   * @minimum 1
+   */
+  page?: PageParameter;
+  /**
+   * Number of items per page
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: PageSizeParameter;
+};
+
+export type SearchStudents200 = ApiResponseList & {
+  data?: StudentSearchItem[];
 };
 
 export type GetProfile200 = ApiResponse & {
@@ -2315,6 +2383,266 @@ export function useGetActivityDetail<
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
   const queryOptions = getGetActivityDetailQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Send activity invite notifications to selected students.
+ * @summary Invite students to an activity
+ */
+export const inviteActivity = (
+  slug: string,
+  inviteActivityRequest: BodyType<InviteActivityRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<InviteActivity200>(
+    {
+      url: `/activities/${slug}/invites`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: inviteActivityRequest,
+      signal,
+    },
+    options,
+  );
+};
+
+export const getInviteActivityMutationOptions = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | NotFoundResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof inviteActivity>>,
+    TError,
+    { slug: string; data: BodyType<InviteActivityRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof inviteActivity>>,
+  TError,
+  { slug: string; data: BodyType<InviteActivityRequest> },
+  TContext
+> => {
+  const mutationKey = ["inviteActivity"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof inviteActivity>>,
+    { slug: string; data: BodyType<InviteActivityRequest> }
+  > = (props) => {
+    const { slug, data } = props ?? {};
+
+    return inviteActivity(slug, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type InviteActivityMutationResult = NonNullable<
+  Awaited<ReturnType<typeof inviteActivity>>
+>;
+export type InviteActivityMutationBody = BodyType<InviteActivityRequest>;
+export type InviteActivityMutationError = ErrorType<
+  | BadRequestResponse
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalServerErrorResponse
+>;
+
+/**
+ * @summary Invite students to an activity
+ */
+export const useInviteActivity = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | NotFoundResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof inviteActivity>>,
+      TError,
+      { slug: string; data: BodyType<InviteActivityRequest> },
+      TContext
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof inviteActivity>>,
+  TError,
+  { slug: string; data: BodyType<InviteActivityRequest> },
+  TContext
+> => {
+  return useMutation(getInviteActivityMutationOptions(options), queryClient);
+};
+
+/**
+ * Search student accounts by student ID or display name.
+ * @summary Search students
+ */
+export const searchStudents = (
+  params: SearchStudentsParams,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<SearchStudents200>(
+    { url: `/students/search`, method: "GET", params, signal },
+    options,
+  );
+};
+
+export const getSearchStudentsQueryKey = (params?: SearchStudentsParams) => {
+  return [`/students/search`, ...(params ? [params] : [])] as const;
+};
+
+export const getSearchStudentsQueryOptions = <
+  TData = Awaited<ReturnType<typeof searchStudents>>,
+  TError = ErrorType<
+    BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+  >,
+>(
+  params: SearchStudentsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof searchStudents>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getSearchStudentsQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof searchStudents>>> = ({
+    signal,
+  }) => searchStudents(params, requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof searchStudents>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type SearchStudentsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof searchStudents>>
+>;
+export type SearchStudentsQueryError = ErrorType<
+  BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+>;
+
+export function useSearchStudents<
+  TData = Awaited<ReturnType<typeof searchStudents>>,
+  TError = ErrorType<
+    BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+  >,
+>(
+  params: SearchStudentsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof searchStudents>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchStudents>>,
+          TError,
+          Awaited<ReturnType<typeof searchStudents>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useSearchStudents<
+  TData = Awaited<ReturnType<typeof searchStudents>>,
+  TError = ErrorType<
+    BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+  >,
+>(
+  params: SearchStudentsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof searchStudents>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchStudents>>,
+          TError,
+          Awaited<ReturnType<typeof searchStudents>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useSearchStudents<
+  TData = Awaited<ReturnType<typeof searchStudents>>,
+  TError = ErrorType<
+    BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+  >,
+>(
+  params: SearchStudentsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof searchStudents>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Search students
+ */
+
+export function useSearchStudents<
+  TData = Awaited<ReturnType<typeof searchStudents>>,
+  TError = ErrorType<
+    BadRequestResponse | UnauthorizedResponse | InternalServerErrorResponse
+  >,
+>(
+  params: SearchStudentsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof searchStudents>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getSearchStudentsQueryOptions(params, options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

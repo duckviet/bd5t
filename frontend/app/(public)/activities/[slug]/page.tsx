@@ -21,6 +21,7 @@ import {
 } from "@/lib/constants";
 import { getActivityDetailBySlug, getAllActivities } from "@/lib/server-public-api";
 import { UploadEvidenceButton } from "./upload-evidence-button";
+import { InviteActivityButton } from "@/features/activities/components/invite-activity-button";
 import {
   ORGANIZATION_NAME,
   SITE_NAME,
@@ -303,6 +304,12 @@ export default async function ActivityDetailPage({
                   )}
 
                   <UploadEvidenceButton activityId={activity.id} />
+                  <InviteActivityButton
+                    slug={activity.slug || slug}
+                    activityTitle={activity.title}
+                    size="lg"
+                    className="w-full"
+                  />
                 </div>
 
                 {(activity.contactInfo || activity.organizer) && (

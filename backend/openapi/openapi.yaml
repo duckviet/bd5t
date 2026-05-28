@@ -76,6 +76,8 @@ components:
       $ref: "./components/schemas/user.yaml#/TokenResponse"
     UpdateProfileRequest:
       $ref: "./components/schemas/user.yaml#/UpdateProfileRequest"
+    StudentSearchItem:
+      $ref: "./components/schemas/user.yaml#/StudentSearchItem"
     UnitItem:
       $ref: "./components/schemas/unit_item.yaml#/UnitItem"
     ActivityItem:
@@ -92,6 +94,10 @@ components:
       $ref: "./components/schemas/activity_detail.yaml#/NotifyActivitiesBulkRequest"
     NotifyDeadlineSoonRequest:
       $ref: "./components/schemas/activity_detail.yaml#/NotifyDeadlineSoonRequest"
+    InviteActivityRequest:
+      $ref: "./components/schemas/activity_detail.yaml#/InviteActivityRequest"
+    InviteActivityResult:
+      $ref: "./components/schemas/activity_detail.yaml#/InviteActivityResult"
     CriteriaDoc:
       $ref: "./components/schemas/criteria_doc.yaml#/CriteriaDoc"
     EvidenceItem:
@@ -136,6 +142,10 @@ paths:
     $ref: "./paths/activities/list.yaml"
   /activities/{slug}:
     $ref: "./paths/activities/detail.yaml"
+  /activities/{slug}/invites:
+    $ref: "./paths/activities/invites.yaml"
+  /students/search:
+    $ref: "./paths/students/search.yaml"
   /profile:
     $ref: "./paths/profile.yaml"
   /media/upload:

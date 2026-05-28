@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"errors"
+	"math"
 
 	"github.com/duckviet/bd5t/backend/internal/domain"
 	"github.com/duckviet/bd5t/backend/internal/repository/interfaces"
@@ -126,6 +127,146 @@ func (r *UserRepository) GetByStudentID(ctx context.Context, studentID string) (
 	user.UnitID = unitID
 	user.ClassName = className
 	return &user, nil
+}
+
+func (r *UserRepository) SearchStudents(ctx context.Context, q string, excludeUserID string, page, pageSize int) (*interfaces.StudentSearchResult, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 20
+	}
+	pageSize = int(math.Min(float64(pageSize), 100))
+
+	search := "%" + q + "%"
+	offset := (page - 1) * pageSize
+
+	countQuery := `
+		SELECT COUNT(*)
+		FROM users u
+		WHERE u.role = 'student'
+		  AND u.id::text <> $1
+		  AND (
+		    COALESCE(u.student_id, '') ILIKE $2
+		    OR COALESCE(u.display_name, '') ILIKE $2
+		  )`
+
+	var total int64
+	if err := r.pool.QueryRow(ctx, countQuery, excludeUserID, search).Scan(&total); err != nil {
+		return nil, err
+	}
+
+	query := `
+		SELECT u.id, u.email, u.password_hash, u.student_id, u.display_name,
+		       u.avatar_url, u.unit_id, units.name, u.class_name, u.role,
+		       u.created_at, u.updated_at
+		FROM users u
+		LEFT JOIN units ON units.id = u.unit_id
+		WHERE u.role = 'student'
+		  AND u.id::text <> $1
+		  AND (
+		    COALESCE(u.student_id, '') ILIKE $2
+		    OR COALESCE(u.display_name, '') ILIKE $2
+		  )
+		ORDER BY u.display_name NULLS LAST, u.student_id NULLS LAST, u.created_at DESC
+		LIMIT $3 OFFSET $4`
+
+	rows, err := r.pool.Query(ctx, query, excludeUserID, search, pageSize, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	students := make([]*interfaces.StudentSearchItem, 0)
+	for rows.Next() {
+		var user domain.User
+		var studentID, displayName, avatarURL, unitID, unitName, className *string
+
+		if err := rows.Scan(
+			&user.ID,
+			&user.Email,
+			&user.PasswordHash,
+			&studentID,
+			&displayName,
+			&avatarURL,
+			&unitID,
+			&unitName,
+			&className,
+			&user.Role,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		user.StudentID = studentID
+		user.DisplayName = displayName
+		user.AvatarURL = avatarURL
+		user.UnitID = unitID
+		user.ClassName = className
+		students = append(students, &interfaces.StudentSearchItem{
+			User:     &user,
+			UnitName: unitName,
+		})
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return &interfaces.StudentSearchResult{Students: students, Total: total}, nil
+}
+
+func (r *UserRepository) ListStudentsByIDs(ctx context.Context, userIDs []string, excludeUserID string) ([]*domain.User, error) {
+	if len(userIDs) == 0 {
+		return []*domain.User{}, nil
+	}
+
+	query := `
+		SELECT id, email, password_hash, student_id, display_name, avatar_url, unit_id, class_name, role, created_at, updated_at
+		FROM users
+		WHERE role = 'student'
+		  AND id::text <> $1
+		  AND id::text = ANY($2::text[])`
+
+	rows, err := r.pool.Query(ctx, query, excludeUserID, userIDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	users := make([]*domain.User, 0)
+	for rows.Next() {
+		var user domain.User
+		var studentID, displayName, avatarURL, unitID, className *string
+
+		if err := rows.Scan(
+			&user.ID,
+			&user.Email,
+			&user.PasswordHash,
+			&studentID,
+			&displayName,
+			&avatarURL,
+			&unitID,
+			&className,
+			&user.Role,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		user.StudentID = studentID
+		user.DisplayName = displayName
+		user.AvatarURL = avatarURL
+		user.UnitID = unitID
+		user.ClassName = className
+		users = append(users, &user)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {

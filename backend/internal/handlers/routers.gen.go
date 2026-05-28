@@ -18,13 +18,13 @@ import (
 // Route is the information for every URI.
 type Route struct {
 	// Name is the name of this Route.
-	Name		string
+	Name string
 	// Method is the string for the HTTP method. ex) GET, POST etc..
-	Method		string
+	Method string
 	// Pattern is the pattern of the URI.
-	Pattern	 	string
+	Pattern string
 	// HandlerFunc is the handler function of this route.
-	HandlerFunc	gin.HandlerFunc
+	HandlerFunc gin.HandlerFunc
 }
 
 // NewRouter returns a new router.
@@ -82,17 +82,25 @@ type ApiHandleFunctions struct {
 	ProfileAPI ProfileAPI
 	// Routes for the ProgressAPI part of the API
 	ProgressAPI ProgressAPI
+	// Routes for the StudentsAPI part of the API
+	StudentsAPI StudentsAPI
 	// Routes for the UnitsAPI part of the API
 	UnitsAPI UnitsAPI
 }
 
 func getRoutes(handleFunctions ApiHandleFunctions) []Route {
-	return []Route{ 
+	return []Route{
 		{
 			"GetActivityDetail",
 			http.MethodGet,
 			"/activities/:slug",
 			handleFunctions.ActivitiesAPI.GetActivityDetail,
+		},
+		{
+			"InviteActivity",
+			http.MethodPost,
+			"/activities/:slug/invites",
+			handleFunctions.ActivitiesAPI.InviteActivity,
 		},
 		{
 			"ListActivities",
@@ -273,6 +281,12 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			http.MethodGet,
 			"/progress",
 			handleFunctions.ProgressAPI.GetProgress,
+		},
+		{
+			"SearchStudents",
+			http.MethodGet,
+			"/students/search",
+			handleFunctions.StudentsAPI.SearchStudents,
 		},
 		{
 			"ListUnits",

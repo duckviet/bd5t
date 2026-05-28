@@ -13,6 +13,13 @@ NotificationItem:
       example: "Có hoạt động mới thuộc tiêu chí Thể lực tốt vừa được đăng tải."
     type:
       type: string
+      enum:
+        - EVIDENCE_APPROVED
+        - EVIDENCE_REJECTED
+        - ACTIVITY_NEW
+        - ACTIVITY_DEADLINE_SOON
+        - SUGGESTION
+        - ACTIVITY_INVITE
       example: "ACTIVITY_NEW"
     isRead:
       type: boolean
@@ -43,4 +50,3 @@ MarkAllNotificationsReadResult:
       example: 3
   required:
     - updated
-
