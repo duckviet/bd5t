@@ -20,13 +20,14 @@ func (h *LeaderboardAPI) ListLeaderboard(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
 	unitID := c.Query("unitId")
+	search := c.Query("search")
 
 	var unitIDPtr *string
 	if unitID != "" {
 		unitIDPtr = &unitID
 	}
 
-	result, err := h.leaderboardService.ListLeaderboard(c.Request.Context(), unitIDPtr, page, pageSize)
+	result, err := h.leaderboardService.ListLeaderboard(c.Request.Context(), unitIDPtr, search, page, pageSize)
 	if err != nil {
 		response.Error(c, err)
 		return

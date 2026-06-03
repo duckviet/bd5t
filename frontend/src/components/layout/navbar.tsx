@@ -37,7 +37,7 @@ export function Navbar() {
   const { isAuth, user, isInitialized } = useAuthStore();
   const isAuthenticated = isAuth === true;
   const isAdmin = user?.role?.toLowerCase() === "admin";
-  const notificationsQuery = useListNotifications({
+  const notificationsQuery = useListNotifications(undefined, {
     query: {
       enabled: isInitialized && isAuthenticated,
       retry: false,

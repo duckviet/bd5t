@@ -23,16 +23,25 @@ func NewNotificationRepository(pool *pgxpool.Pool) *NotificationRepository {
 
 var _ interfaces.NotificationRepository = (*NotificationRepository)(nil)
 
-func (r *NotificationRepository) ListByUser(ctx context.Context, userID string) ([]*domain.Notification, error) {
+func (r *NotificationRepository) ListByUser(ctx context.Context, userID string, page, pageSize int) ([]*domain.Notification, int, error) {
+	offset := (page - 1) * pageSize
+
+	var total int
+	countQuery := `SELECT COUNT(*) FROM notifications WHERE user_id = $1`
+	if err := r.pool.QueryRow(ctx, countQuery, userID).Scan(&total); err != nil {
+		return nil, 0, err
+	}
+
 	query := `
 		SELECT id, user_id, title, message, type, is_read, data, created_at
 		FROM notifications
 		WHERE user_id = $1
-		ORDER BY created_at DESC`
+		ORDER BY created_at DESC
+		LIMIT $2 OFFSET $3`
 
-	rows, err := r.pool.Query(ctx, query, userID)
+	rows, err := r.pool.Query(ctx, query, userID, pageSize, offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -40,15 +49,15 @@ func (r *NotificationRepository) ListByUser(ctx context.Context, userID string) 
 	for rows.Next() {
 		notification, err := scanNotification(rows)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		notifications = append(notifications, notification)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return notifications, nil
+	return notifications, total, nil
 }
 
 func (r *NotificationRepository) Create(ctx context.Context, notification *domain.Notification) error {

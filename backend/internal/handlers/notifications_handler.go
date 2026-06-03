@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/duckviet/bd5t/backend/internal/auth"
 	svcImpl "github.com/duckviet/bd5t/backend/internal/service/impl"
 	"github.com/duckviet/bd5t/backend/pkg/response"
@@ -18,13 +20,23 @@ func NewNotificationsAPI(notificationService *svcImpl.NotificationService) *Noti
 func (h *NotificationsAPI) ListNotifications(c *gin.Context) {
 	user := auth.MustGetCurrentUser(c)
 
-	notifications, err := h.notificationService.ListNotifications(c.Request.Context(), user.ID)
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
+
+	result, err := h.notificationService.ListNotifications(c.Request.Context(), user.ID, page, pageSize)
 	if err != nil {
 		response.Error(c, err)
 		return
 	}
 
-	response.OK(c, notifications)
+	totalPages := (result.Total + result.PageSize - 1) / result.PageSize
+
+	response.Paginated(c, result.Items, &response.PaginationMeta{
+		Page:       result.Page,
+		PageSize:   result.PageSize,
+		Total:      int64(result.Total),
+		TotalPages: totalPages,
+	})
 }
 
 func (h *NotificationsAPI) MarkNotificationRead(c *gin.Context) {

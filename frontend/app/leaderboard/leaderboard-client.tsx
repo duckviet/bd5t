@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useMemo } from "react"
+import { useInfiniteQuery } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -12,22 +13,48 @@ import {
   User,
   Hash,
   Building2,
-  TrendingUp
+  TrendingUp,
+  Loader2
 } from "lucide-react"
-import { useListLeaderboard, type LeaderboardItem } from "@/services/generated/api"
+import { listLeaderboard, type LeaderboardItem } from "@/services/generated/api"
 import { cn } from "@/lib/utils"
+import { useDebounce } from "@/hooks/use-debounce"
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll"
 
 export function LeaderboardClient() {
   const [searchQuery, setSearchQuery] = useState("")
-  const { data, isLoading, error } = useListLeaderboard({ pageSize: 100 })
-  const leaderboard: LeaderboardItem[] = data?.data || []
+  const debouncedSearch = useDebounce(searchQuery, 500)
 
-  const filteredLeaderboard = leaderboard.filter(
-    (user) =>
-      (user.userName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (user.studentId || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (user.unitName || "").toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const leaderboardQuery = useInfiniteQuery({
+    queryKey: ["leaderboard", debouncedSearch],
+    queryFn: ({ pageParam }) =>
+      listLeaderboard({
+        page: pageParam as number,
+        pageSize: 15,
+        search: debouncedSearch.trim() || undefined,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const page = lastPage.meta?.page ?? 1
+      const totalPages = lastPage.meta?.totalPages ?? 1
+      return page < totalPages ? page + 1 : undefined
+    },
+  })
+
+  const leaderboard = useMemo(() => {
+    return leaderboardQuery.data?.pages.flatMap((page) => page.data ?? []) ?? []
+  }, [leaderboardQuery.data])
+
+  const isLoading = leaderboardQuery.isLoading
+  const error = leaderboardQuery.error
+  const hasNextPage = leaderboardQuery.hasNextPage
+  const isFetchingNextPage = leaderboardQuery.isFetchingNextPage
+
+  const sentinelRef = useInfiniteScroll({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage: leaderboardQuery.fetchNextPage,
+  })
 
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Trophy className="h-5 w-5 text-yellow-500" />
@@ -62,51 +89,54 @@ export function LeaderboardClient() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {[1, 0, 2].map((idx) => {
-            const user = leaderboard[idx]
-            if (!user) return null
-            const href = getStudentHref(user.studentId)
-            const card = (
-              <Card
-                className={cn("h-full text-center transition-all hover:-translate-y-1 hover:shadow-xl",
-                  getRankBg(user.rank || idx + 1),
-                   idx === 0 ? "md:-mt-6" : "",
-                  idx === 1 ? "md:-mt-3" : ""
-                )}
-              >
-                <CardContent className="p-6">
-                  <div className="mb-4">
-                    {getRankIcon(user.rank || idx + 1)}
-                  </div>
-                  <div className="h-16 w-16 rounded-full bg-primary/10 mx-auto flex items-center justify-center mb-3">
-                    <User className="h-8 w-8 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-1">{user.userName || "N/A"}</h3>
-                  <p className="text-sm text-muted-foreground mb-1">{user.unitName || "Chưa có đơn vị"}</p>
-                  <p className="mb-3 flex items-center justify-center gap-1 text-xs text-muted-foreground">
-                    <Hash className="h-3 w-3" />
-                    {user.studentId || "Chưa có MSSV"}
-                  </p>
-                  <Badge variant="default" className="gap-1">
-                    <TrendingUp className="h-3 w-3" />
-                    {user.totalApproved || 0} hoạt động
-                  </Badge>
-                </CardContent>
-              </Card>
-            )
-
-            return (
-              href ? (
-                <Link key={user.userId || user.rank} href={href} className="block h-full">
-                  {card}
-                </Link>
-              ) : (
-                <div key={user.userId || user.rank}>{card}</div>
+        {/* Top 3 absolute rankings - only show when not searching and we have at least 3 users */}
+        {!debouncedSearch.trim() && leaderboard.length >= 3 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {[1, 0, 2].map((idx) => {
+              const user = leaderboard[idx]
+              if (!user) return null
+              const href = getStudentHref(user.studentId)
+              const card = (
+                <Card
+                  className={cn("h-full text-center transition-all hover:-translate-y-1 hover:shadow-xl",
+                    getRankBg(user.rank || idx + 1),
+                     idx === 0 ? "md:-mt-6" : "",
+                    idx === 1 ? "md:-mt-3" : ""
+                  )}
+                >
+                  <CardContent className="p-6">
+                    <div className="mb-4">
+                      {getRankIcon(user.rank || idx + 1)}
+                    </div>
+                    <div className="h-16 w-16 rounded-full bg-primary/10 mx-auto flex items-center justify-center mb-3">
+                      <User className="h-8 w-8 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-lg mb-1">{user.userName || "N/A"}</h3>
+                    <p className="text-sm text-muted-foreground mb-1">{user.unitName || "Chưa có đơn vị"}</p>
+                    <p className="mb-3 flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                      <Hash className="h-3 w-3" />
+                      {user.studentId || "Chưa có MSSV"}
+                    </p>
+                    <Badge variant="default" className="gap-1">
+                      <TrendingUp className="h-3 w-3" />
+                      {user.totalApproved || 0} hoạt động
+                    </Badge>
+                  </CardContent>
+                </Card>
               )
-            )
-          })}
-        </div>
+
+              return (
+                href ? (
+                  <Link key={user.userId || user.rank} href={href} className="block h-full">
+                    {card}
+                  </Link>
+                ) : (
+                  <div key={user.userId || user.rank}>{card}</div>
+                )
+              )
+            })}
+          </div>
+        )}
 
         <Card>
           <CardHeader>
@@ -121,15 +151,19 @@ export function LeaderboardClient() {
             </div>
           </CardHeader>
           <CardContent>
-            {isLoading && <div className="text-sm text-muted-foreground">Đang tải bảng xếp hạng...</div>}
-            {!isLoading && error && (
-              <div className="text-sm text-destructive">Không thể tải bảng xếp hạng.</div>
+            {isLoading && (
+              <div className="flex justify-center py-6">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
             )}
-            {!isLoading && !error && filteredLeaderboard.length === 0 && (
-              <div className="text-sm text-muted-foreground">Không có dữ liệu phù hợp.</div>
+            {!isLoading && error && (
+              <div className="text-sm text-destructive text-center py-6">Không thể tải bảng xếp hạng.</div>
+            )}
+            {!isLoading && !error && leaderboard.length === 0 && (
+              <div className="text-sm text-muted-foreground text-center py-6">Không có dữ liệu phù hợp.</div>
             )}
             <div className="space-y-2">
-              {!isLoading && !error && filteredLeaderboard.map((user, idx) => {
+              {!isLoading && !error && leaderboard.map((user, idx) => {
                 const href = getStudentHref(user.studentId)
                 const row = (
                   <div
@@ -176,6 +210,15 @@ export function LeaderboardClient() {
                 )
               })}
             </div>
+
+            {/* Infinite Scroll Sentinel */}
+            {hasNextPage && (
+              <div ref={sentinelRef} className="h-12 mt-4 flex items-center justify-center">
+                {isFetchingNextPage && (
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

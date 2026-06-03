@@ -15,4 +15,6 @@ type ListNotifications200Response struct {
 	Success bool `json:"success,omitempty"`
 
 	Data []NotificationItem `json:"data,omitempty"`
+
+	Meta PaginationMeta `json:"meta,omitempty"`
 }

@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link";
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -14,6 +15,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 import { useRegisterMutation } from "@/features/auth/hooks/useAuthMutation"
 import { useListUnits, type RegisterRequest } from "@/services/generated/api";
+import { useAuthStore } from "@/features/auth/store/authStore"
 
 const registerSchema = z
   .object({
@@ -36,6 +38,15 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [selectedUnitId, setSelectedUnitId] = useState("__none__");
   const registerMutation = useRegisterMutation()
+  const router = useRouter()
+  const { isAuth, isInitialized } = useAuthStore()
+
+  useEffect(() => {
+    if (isInitialized && isAuth) {
+      router.replace("/")
+    }
+  }, [isAuth, isInitialized, router])
+
   const { data: unitsData, isLoading: isUnitsLoading } = useListUnits({
     query: { retry: false, refetchOnWindowFocus: false },
   });

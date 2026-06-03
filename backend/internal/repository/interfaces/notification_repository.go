@@ -18,7 +18,7 @@ type ActivityNotificationRecipient struct {
 }
 
 type NotificationRepository interface {
-	ListByUser(ctx context.Context, userID string) ([]*domain.Notification, error)
+	ListByUser(ctx context.Context, userID string, page, pageSize int) ([]*domain.Notification, int, error)
 	Create(ctx context.Context, notification *domain.Notification) error
 	CreateIdempotent(ctx context.Context, notification *domain.Notification) (bool, error)
 	ListActivityNotificationRecipients(ctx context.Context, activityID string, notificationType string) ([]*ActivityNotificationRecipient, error)

@@ -19,6 +19,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { HomeLeaderboardPreview } from "./components/home-leaderboard-preview"
+import { HomeActions } from "./components/home-actions"
 import { SITE_NAME, absoluteUrl, createMetadata } from "@/lib/seo"
 
 export const metadata: Metadata = createMetadata({
@@ -133,19 +134,7 @@ export default function HomePage() {
               tiếp cận, theo dõi và hoàn thành các tiêu chí của phong trào
               &quot;Sinh viên 5 Tốt&quot; một cách thuận tiện và hiệu quả.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/register">
-                <Button size="lg" className="gap-2">
-                  Đăng ký ngay
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/activities">
-                <Button size="lg" variant="outline">
-                  Khám phá hoạt động
-                </Button>
-              </Link>
-            </div>
+            <HomeActions variant="hero" />
           </div>
 
           {/* Trust indicators */}
@@ -281,27 +270,7 @@ export default function HomePage() {
                   Đăng ký ngay để bắt đầu hành trình chinh phục danh hiệu Sinh
                   viên 5 Tốt cùng hàng nghìn sinh viên khác
                 </p>
-                <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-                  <Link href="/register">
-                    <Button
-                      size="lg"
-                      variant="secondary"
-                      className="gap-2 px-8 shadow-lg"
-                    >
-                      Đăng ký ngay
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href="/activities">
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="border-primary-foreground/30 px-8 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-                    >
-                      Khám phá hoạt động
-                    </Button>
-                  </Link>
-                </div>
+                <HomeActions variant="cta" />
               </div>
             </div>
           </Card>

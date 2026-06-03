@@ -24,9 +24,10 @@ type ListLeaderboardResult struct {
 	PageSize int
 }
 
-func (s *LeaderboardService) ListLeaderboard(ctx context.Context, unitID *string, page, pageSize int) (*ListLeaderboardResult, error) {
+func (s *LeaderboardService) ListLeaderboard(ctx context.Context, unitID *string, search string, page, pageSize int) (*ListLeaderboardResult, error) {
 	filter := interfaces.LeaderboardFilter{
 		UnitID: unitID,
+		Search: search,
 	}
 
 	result, err := s.leaderboardRepo.List(ctx, filter, page, pageSize)

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { toast } from "react-toastify"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -114,9 +115,10 @@ export function UploadEvidenceDialog({ open, onOpenChange, onSuccess, initialAct
       setActivityId("")
       onOpenChange(false)
       onSuccess?.()
+      toast.success("Tải lên minh chứng thành công!")
     } catch (err: any) {
       console.error("Upload evidence failed:", err)
-      alert(err?.response?.data?.error?.message || err?.message || "Tải lên thất bại")
+      toast.error(err?.response?.data?.error?.message || err?.message || "Tải lên thất bại")
     } finally {
       setUploading(false)
     }

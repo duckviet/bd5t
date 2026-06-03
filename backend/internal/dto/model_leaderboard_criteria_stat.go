@@ -10,6 +10,7 @@
 package dto
 
 type LeaderboardCriteriaStat struct {
+
 	Criteria string `json:"criteria"`
 
 	Label string `json:"label"`

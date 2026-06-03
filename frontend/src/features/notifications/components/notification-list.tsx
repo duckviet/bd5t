@@ -29,6 +29,9 @@ interface NotificationListProps {
   isError?: boolean
   isMarkingRead?: boolean
   isMarkingAllRead?: boolean
+  hasNextPage?: boolean
+  isFetchingNextPage?: boolean
+  sentinelRef?: React.RefObject<HTMLDivElement | null>
 }
 
 export function NotificationList({
@@ -42,6 +45,9 @@ export function NotificationList({
   isError = false,
   isMarkingRead = false,
   isMarkingAllRead = false,
+  hasNextPage = false,
+  isFetchingNextPage = false,
+  sentinelRef,
 }: NotificationListProps) {
   const unreadCount = notifications.filter((notification) => !notification.isRead).length
   const filteredNotifications = notifications.filter((notification) =>
@@ -130,6 +136,15 @@ export function NotificationList({
               isMarkingRead={isMarkingRead}
             />
           ))
+        )}
+
+        {/* Infinite Scroll Sentinel */}
+        {hasNextPage && (
+          <div ref={sentinelRef} className="h-12 mt-4 flex items-center justify-center">
+            {isFetchingNextPage && (
+              <RefreshCw className="h-5 w-5 animate-spin text-muted-foreground" />
+            )}
+          </div>
         )}
       </div>
     </>

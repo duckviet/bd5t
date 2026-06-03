@@ -8,6 +8,7 @@ import (
 
 type LeaderboardFilter struct {
 	UnitID *string
+	Search string
 }
 
 type LeaderboardResult struct {

@@ -56,6 +56,11 @@ func (r *LeaderboardRepository) List(ctx context.Context, filter interfaces.Lead
 		whereParts = append(whereParts, fmt.Sprintf("unit_id = $%d", len(args)))
 	}
 
+	if filter.Search != "" {
+		args = append(args, "%"+strings.ToLower(filter.Search)+"%")
+		whereParts = append(whereParts, fmt.Sprintf("(LOWER(user_name) LIKE $%d OR LOWER(student_id) LIKE $%d OR LOWER(unit_name) LIKE $%d)", len(args), len(args), len(args)))
+	}
+
 	whereClause := ""
 	if len(whereParts) > 0 {
 		whereClause = " WHERE " + strings.Join(whereParts, " AND ")

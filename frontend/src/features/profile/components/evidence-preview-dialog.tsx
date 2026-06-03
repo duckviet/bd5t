@@ -170,8 +170,8 @@ export function EvidencePreviewDialog({
                 Tệp minh chứng đính kèm
               </span>
               {evidence.fileUrl && (
-                <Button variant="ghost" size="sm" asChild className="h-8 gap-1.5 text-xs text-primary hover:text-primary">
-                  <a href={evidence.fileUrl} target="_blank" rel="noreferrer">
+                <Button variant="ghost" size="sm" asChild className="h-8 gap-1.5 text-xs text-primary hover:text-primary ">
+                  <a href={evidence.fileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5">
                     Mở trong tab mới
                     <ExternalLink className="h-3 w-3" />
                   </a>

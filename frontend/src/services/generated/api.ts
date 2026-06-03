@@ -1029,6 +1029,10 @@ export type ListLeaderboardParams = {
    * Filter by unit/organization ID
    */
   unitId?: UnitIdParameter;
+  /**
+   * Search by student name or student ID
+   */
+  search?: string;
 };
 
 export type ListLeaderboard200 = ApiResponseList & {
@@ -1039,7 +1043,21 @@ export type GetLeaderboardDetail200 = ApiResponse & {
   data?: LeaderboardDetail;
 };
 
-export type ListNotifications200 = ApiResponse & {
+export type ListNotificationsParams = {
+  /**
+   * Page number for pagination
+   * @minimum 1
+   */
+  page?: PageParameter;
+  /**
+   * Number of items per page
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: PageSizeParameter;
+};
+
+export type ListNotifications200 = ApiResponseList & {
   data?: NotificationItem[];
 };
 
@@ -3837,39 +3855,46 @@ export function useGetLeaderboardDetail<
  * @summary List notifications for current user
  */
 export const listNotifications = (
+  params?: ListNotificationsParams,
   options?: SecondParameter<typeof customInstance>,
   signal?: AbortSignal,
 ) => {
   return customInstance<ListNotifications200>(
-    { url: `/notifications`, method: "GET", signal },
+    { url: `/notifications`, method: "GET", params, signal },
     options,
   );
 };
 
-export const getListNotificationsQueryKey = () => {
-  return [`/notifications`] as const;
+export const getListNotificationsQueryKey = (
+  params?: ListNotificationsParams,
+) => {
+  return [`/notifications`, ...(params ? [params] : [])] as const;
 };
 
 export const getListNotificationsQueryOptions = <
   TData = Awaited<ReturnType<typeof listNotifications>>,
   TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof listNotifications>>,
-      TError,
-      TData
-    >
-  >;
-  request?: SecondParameter<typeof customInstance>;
-}) => {
+>(
+  params?: ListNotificationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listNotifications>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getListNotificationsQueryKey();
+  const queryKey =
+    queryOptions?.queryKey ?? getListNotificationsQueryKey(params);
 
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof listNotifications>>
-  > = ({ signal }) => listNotifications(requestOptions, signal);
+  > = ({ signal }) => listNotifications(params, requestOptions, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof listNotifications>>,
@@ -3889,6 +3914,7 @@ export function useListNotifications<
   TData = Awaited<ReturnType<typeof listNotifications>>,
   TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
+  params: undefined | ListNotificationsParams,
   options: {
     query: Partial<
       UseQueryOptions<
@@ -3915,6 +3941,7 @@ export function useListNotifications<
   TData = Awaited<ReturnType<typeof listNotifications>>,
   TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
+  params?: ListNotificationsParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -3941,6 +3968,7 @@ export function useListNotifications<
   TData = Awaited<ReturnType<typeof listNotifications>>,
   TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
+  params?: ListNotificationsParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -3963,6 +3991,7 @@ export function useListNotifications<
   TData = Awaited<ReturnType<typeof listNotifications>>,
   TError = ErrorType<UnauthorizedResponse | InternalServerErrorResponse>,
 >(
+  params?: ListNotificationsParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -3977,7 +4006,7 @@ export function useListNotifications<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getListNotificationsQueryOptions(options);
+  const queryOptions = getListNotificationsQueryOptions(params, options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

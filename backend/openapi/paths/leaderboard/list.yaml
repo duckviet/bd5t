@@ -7,6 +7,11 @@ get:
     - $ref: '../../components/parameters/_index.yaml#/page'
     - $ref: '../../components/parameters/_index.yaml#/pageSize'
     - $ref: '../../components/parameters/_index.yaml#/unitId'
+    - name: search
+      in: query
+      description: Search by student name or student ID
+      schema:
+        type: string
   responses:
     '200':
       description: Leaderboard list

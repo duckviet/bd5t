@@ -6,6 +6,9 @@ get:
   security:
     - bearerAuth: []
     - cookieAuth: []
+  parameters:
+    - $ref: '../components/parameters/_index.yaml#/page'
+    - $ref: '../components/parameters/_index.yaml#/pageSize'
   responses:
     '200':
       description: List of notifications
@@ -13,7 +16,7 @@ get:
         application/json:
           schema:
             allOf:
-              - $ref: '../components/schemas/_common.yaml#/ApiResponse'
+              - $ref: '../components/schemas/_common.yaml#/ApiResponseList'
               - type: object
                 properties:
                   data:

@@ -27,8 +27,15 @@ type ActivityNotificationResult struct {
 	MatchedUsers int `json:"matchedUsers"`
 }
 
-func (s *NotificationService) ListNotifications(ctx context.Context, userID string) ([]*dto.NotificationItem, error) {
-	notifications, err := s.notificationRepo.ListByUser(ctx, userID)
+type ListNotificationsResult struct {
+	Items    []*dto.NotificationItem
+	Total    int
+	Page     int
+	PageSize int
+}
+
+func (s *NotificationService) ListNotifications(ctx context.Context, userID string, page, pageSize int) (*ListNotificationsResult, error) {
+	notifications, total, err := s.notificationRepo.ListByUser(ctx, userID, page, pageSize)
 	if err != nil {
 		logger.Error().Err(err).Str("user_id", userID).Msg("failed to list notifications")
 		return nil, errors.ErrInternalError(err, "failed to list notifications")
@@ -40,7 +47,12 @@ func (s *NotificationService) ListNotifications(ctx context.Context, userID stri
 	}
 
 	logger.Debug().Str("user_id", userID).Int("count", len(items)).Msg("successfully listed notifications")
-	return items, nil
+	return &ListNotificationsResult{
+		Items:    items,
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
+	}, nil
 }
 
 func (s *NotificationService) MarkNotificationRead(ctx context.Context, userID string, notificationID string) (*dto.NotificationItem, error) {
