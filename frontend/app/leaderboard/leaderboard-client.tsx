@@ -16,7 +16,7 @@ import {
   TrendingUp,
   Loader2
 } from "lucide-react"
-import { listLeaderboard, type LeaderboardItem } from "@/services/generated/api"
+import { listLeaderboard, getListLeaderboardQueryKey, type LeaderboardItem } from "@/services/generated/api"
 import { cn } from "@/lib/utils"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll"
@@ -26,7 +26,9 @@ export function LeaderboardClient() {
   const debouncedSearch = useDebounce(searchQuery, 500)
 
   const leaderboardQuery = useInfiniteQuery({
-    queryKey: ["leaderboard", debouncedSearch],
+    queryKey: getListLeaderboardQueryKey({
+      search: debouncedSearch.trim() || undefined,
+    }),
     queryFn: ({ pageParam }) =>
       listLeaderboard({
         page: pageParam as number,

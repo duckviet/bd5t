@@ -22,6 +22,7 @@ import type {
 import {
   BulkReviewEvidenceRequestStatus,
   getGetAdminEvidenceStatsQueryKey,
+  getListLeaderboardQueryKey,
   getListNotificationsQueryKey,
   useBulkReviewEvidence,
   useGetAdminEvidenceStats,
@@ -197,6 +198,7 @@ export default function AdminEvidencesPage() {
     queryClient.invalidateQueries({ queryKey: ["/admin/evidences"] })
     queryClient.invalidateQueries({ queryKey: getGetAdminEvidenceStatsQueryKey() })
     queryClient.invalidateQueries({ queryKey: getListNotificationsQueryKey() })
+    queryClient.invalidateQueries({ queryKey: getListLeaderboardQueryKey() })
   }
 
   const reviewMutation = useReviewEvidence({
