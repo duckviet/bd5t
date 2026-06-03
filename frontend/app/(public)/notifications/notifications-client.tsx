@@ -20,11 +20,11 @@ export function NotificationsClient() {
   const queryClient = useQueryClient()
 
   const notificationsQuery = useInfiniteQuery({
-    queryKey: getListNotificationsQueryKey(),
+    queryKey: [...getListNotificationsQueryKey(), "infinite"],
     queryFn: ({ pageParam }) =>
       listNotifications({
         page: pageParam as number,
-        pageSize: 5,
+        pageSize: 15,
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
