@@ -14,7 +14,7 @@ const awardConfig: Record<string, { readonly label: string; readonly className: 
   },
   [AwardEvidenceItemAwardLevel.BA]: {
     label: "Ba",
-    className: "bg-amber-100 text-amber-800 border-amber-300",
+    className: "bg-orange-100 text-amber-800 border-amber-300",
   },
   [AwardEvidenceItemAwardLevel.KHUYEN_KHICH]: {
     label: "Khuyến khích",

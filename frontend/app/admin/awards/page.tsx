@@ -175,6 +175,11 @@ export default function AdminAwardsPage() {
     setPage(1)
   }
 
+  const currentDetailActivity = useMemo(() => {
+    if (!detailActivity?.activityId) return null
+    return rawActivities.find((act) => act.activityId === detailActivity.activityId) || detailActivity
+  }, [detailActivity, rawActivities])
+
   return (
     <div className="min-h-screen py-8">
       <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
@@ -238,7 +243,7 @@ export default function AdminAwardsPage() {
         )}
 
         <AwardDetailDialog
-          activity={detailActivity}
+          activity={currentDetailActivity}
           open={detailActivity !== null}
           onOpenChange={(open) => {
             if (!open) setDetailActivity(null)
@@ -249,3 +254,4 @@ export default function AdminAwardsPage() {
     </div>
   )
 }
+

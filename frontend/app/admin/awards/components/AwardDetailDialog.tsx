@@ -10,23 +10,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
 import { AwardStatsBadge } from "./AwardStatsBadge"
 import { AwardStudentDetailPanel } from "./AwardStudentDetailPanel"
 import { BulkAwardDialog } from "./BulkAwardDialog"
+import { ConfirmAwardDialog } from "./ConfirmAwardDialog"
+import { DataTable } from "@/components/ui/data-table"
+import { getAwardDetailColumns, type AwardEvidenceRow } from "./award-detail.columns"
 import { cn } from "@/lib/utils"
-import { CRITERIA } from "@/lib/constants"
 import {
-  AwardEvidenceInfoAwardLevel,
   BulkUpdateAwardLevelRequestAwardLevel,
   useBulkUpdateAwardLevel,
   type AwardActivityOverview,
   type AwardStudentOverview,
 } from "@/services/generated/api"
 import { useDebounce } from "@/hooks/use-debounce"
+import { CRITERIA } from "@/lib/constants"
 
 interface AwardDetailDialogProps {
   activity: AwardActivityOverview | null
@@ -57,6 +57,13 @@ export function AwardDetailDialog({
   const [selectedEvidenceIds, setSelectedEvidenceIds] = useState<string[]>([])
   const [selectedStudent, setSelectedStudent] = useState<AwardStudentOverview | null>(null)
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false)
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [pendingUpdate, setPendingUpdate] = useState<{
+    evidenceId: string
+    awardLevel: string
+    studentName?: string
+  } | null>(null)
+  const [localAwardLevels, setLocalAwardLevels] = useState<Record<string, string>>({})
 
   const debouncedSearch = useDebounce(searchQuery, 300)
 
@@ -64,7 +71,7 @@ export function AwardDetailDialog({
     if (!activity?.students) return []
     if (!debouncedSearch.trim()) return activity.students
     const q = debouncedSearch.trim().toLowerCase()
-    return activity.students.filter(
+    return activity?.students.filter(
       (st) =>
         (st.userFullName?.toLowerCase() ?? "").includes(q) ||
         (st.userStudentId?.toLowerCase() ?? "").includes(q),
@@ -84,6 +91,11 @@ export function AwardDetailDialog({
     )
   }, [])
 
+  const handleRowClick = useCallback((student: AwardStudentOverview, evidenceId: string) => {
+    setSelectedStudent(student)
+    toggleEvidence(evidenceId)
+  }, [toggleEvidence])
+
   const toggleAll = useCallback(() => {
     const allIds = filteredStudents.flatMap(
       (st) => st.evidences?.map((ev) => ev.evidenceId).filter(Boolean) as string[],
@@ -102,23 +114,106 @@ export function AwardDetailDialog({
     }
   }, [filteredStudents, selectedEvidenceIds])
 
+  const currentSelectedStudent = useMemo(() => {
+    if (!selectedStudent || !activity?.students) return null
+    return activity?.students.find((st) => st.userId === selectedStudent.userId) || null
+  }, [selectedStudent, activity?.students])
+
+  const tableData = useMemo<AwardEvidenceRow[]>(() => {
+    return filteredStudents.flatMap((student) =>
+      (student.evidences ?? []).map((evidence, evIdx) => ({
+        student,
+        evidence,
+        evIdx,
+      })),
+    )
+  }, [filteredStudents])
+
   const handleSingleUpdate = useCallback(
-    async (evidenceId: string, awardLevel: string) => {
-      try {
-        await bulkUpdateMutation.mutateAsync({
-          data: {
-            ids: [evidenceId],
-            awardLevel: awardLevel as BulkUpdateAwardLevelRequestAwardLevel,
-          },
-        })
-        toast.success("Đã cập nhật cấp giải")
-        onUpdated()
-      } catch (error) {
-        toast.error(getErrorMessage(error, "Không thể cập nhật cấp giải"))
-      }
+    (evidenceId: string, awardLevel: string, studentName: string) => {
+      setLocalAwardLevels((prev) => ({ ...prev, [evidenceId]: awardLevel }))
+      setPendingUpdate({
+        evidenceId,
+        awardLevel,
+        studentName,
+      })
+      setConfirmDialogOpen(true)
     },
-    [bulkUpdateMutation, onUpdated],
+    [],
   )
+
+  const columns = useMemo(() => {
+    return getAwardDetailColumns({
+      selectedEvidenceIds,
+      toggleEvidence,
+      toggleAll,
+      evidenceCount,
+      filteredStudents,
+      localAwardLevels,
+      handleSingleUpdate,
+      isPending: bulkUpdateMutation.isPending,
+    })
+  }, [
+    selectedEvidenceIds,
+    toggleEvidence,
+    toggleAll,
+    evidenceCount,
+    filteredStudents,
+    localAwardLevels,
+    handleSingleUpdate,
+    bulkUpdateMutation.isPending,
+  ])
+
+  const handleOpenChange = useCallback((val: boolean) => {
+    if (!val) {
+      setLocalAwardLevels({})
+      setSelectedStudent(null)
+      setSelectedEvidenceIds([])
+    }
+    onOpenChange(val)
+  }, [onOpenChange])
+
+  const confirmSingleUpdate = useCallback(async () => {
+    if (!pendingUpdate) return
+    try {
+      await bulkUpdateMutation.mutateAsync({
+        data: {
+          ids: [pendingUpdate.evidenceId],
+          awardLevel: pendingUpdate.awardLevel as BulkUpdateAwardLevelRequestAwardLevel,
+        },
+      })
+      toast.success("Đã cập nhật cấp giải")
+      setConfirmDialogOpen(false)
+      setLocalAwardLevels((prev) => {
+        const next = { ...prev }
+        delete next[pendingUpdate.evidenceId]
+        return next
+      })
+      setPendingUpdate(null)
+      onUpdated()
+    } catch (error) {
+      setLocalAwardLevels((prev) => {
+        const next = { ...prev }
+        delete next[pendingUpdate.evidenceId]
+        return next
+      })
+      toast.error(getErrorMessage(error, "Không thể cập nhật cấp giải"))
+      setConfirmDialogOpen(false)
+      setPendingUpdate(null)
+    }
+  }, [pendingUpdate, bulkUpdateMutation, onUpdated])
+
+  const cancelSingleUpdate = useCallback(() => {
+    if (pendingUpdate) {
+      setLocalAwardLevels((prev) => {
+        const next = { ...prev }
+        delete next[pendingUpdate.evidenceId]
+        return next
+      })
+    }
+    setConfirmDialogOpen(false)
+    setPendingUpdate(null)
+  }, [pendingUpdate])
 
   const handleBulkUpdate = useCallback(
     async (awardLevel: string) => {
@@ -142,7 +237,7 @@ export function AwardDetailDialog({
   )
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-[95vw] w-full max-h-[90vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
         <DialogHeader className="shrink-0 border-b px-6 py-4">
           <div className="flex items-center justify-between pr-8">
@@ -183,131 +278,34 @@ export function AwardDetailDialog({
             </div>
 
             {/* Student table */}
-            {filteredStudents.length === 0 ? (
-              <Card>
-                <CardContent className="p-6 text-center text-sm text-muted-foreground">
-                  {debouncedSearch.trim()
-                    ? "Không tìm thấy sinh viên phù hợp"
-                    : "Chưa có sinh viên nào được duyệt minh chứng"}
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="overflow-x-auto rounded-lg border">
-                <table className="min-w-full divide-y divide-border text-sm">
-                  <thead className="bg-muted/50">
-                    <tr>
-                      <th className="w-10 px-4 py-2.5">
-                        <input
-                          type="checkbox"
-                          checked={
-                            evidenceCount > 0 &&
-                            filteredStudents
-                              .flatMap((st) => st.evidences ?? [])
-                              .every((ev) => selectedEvidenceIds.includes(ev.evidenceId ?? ""))
-                          }
-                          onChange={toggleAll}
-                          className="h-4 w-4 rounded border-border"
-                          aria-label="Chọn tất cả"
-                        />
-                      </th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">
-                        Sinh viên
-                      </th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">
-                        Mã SV
-                      </th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">
-                        Lớp
-                      </th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">
-                        Tiêu chí
-                      </th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">
-                        Cấp giải
-                      </th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">
-                        Điểm
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/50 bg-white">
-                    {filteredStudents.map((student) => {
-                      const isThisStudent = selectedStudent?.userId === student.userId
-                      return (student.evidences ?? []).map((evidence, evIdx) => {
-                        const isChecked = Boolean(
-                          evidence.evidenceId &&
-                            selectedEvidenceIds.includes(evidence.evidenceId),
-                        )
-
-                        return (
-                          <tr
-                            key={evidence.evidenceId ?? `${student.userId}-${evIdx}`}
-                            className={cn(
-                              "transition-colors",
-                              isChecked && "bg-primary/5",
-                              isThisStudent && "bg-primary/10",
-                            )}
-                          >
-                            <td className="px-4 py-2.5">
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={() =>
-                                  evidence.evidenceId && toggleEvidence(evidence.evidenceId)
-                                }
-                                className="h-4 w-4 rounded border-border"
-                                aria-label="Chọn"
-                              />
-                            </td>
-                            <td className="px-4 py-2.5">
-                              <button
-                                type="button"
-                                onClick={() => setSelectedStudent(
-                                  selectedStudent?.userId === student.userId ? null : student,
-                                )}
-                                className="flex items-center gap-1.5 font-medium whitespace-nowrap text-left hover:text-primary transition-colors"
-                              >
-                                <User className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                                {student.userFullName || "—"}
-                              </button>
-                            </td>
-                            <td className="px-4 py-2.5 text-muted-foreground whitespace-nowrap">
-                              {student.userStudentId || "—"}
-                            </td>
-                            <td className="px-4 py-2.5 text-muted-foreground whitespace-nowrap">
-                              {student.className || "—"}
-                            </td>
-                            <td className="px-4 py-2.5">
-                              <Badge variant="outline" className="text-xs">
-                                {CRITERIA[evidence.criteria as keyof typeof CRITERIA] ??
-                                  evidence.criteria}
-                              </Badge>
-                            </td>
-                            <td className="px-4 py-2.5">
-                              <AwardLevelSelect
-                                value={evidence.awardLevel ?? AwardEvidenceInfoAwardLevel.NONE}
-                                evidenceId={evidence.evidenceId ?? ""}
-                                onChange={handleSingleUpdate}
-                                disabled={bulkUpdateMutation.isPending}
-                              />
-                            </td>
-                            <td className="px-4 py-2.5">{evidence.score ?? "—"}</td>
-                          </tr>
-                        )
-                      })
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <DataTable
+              data={tableData}
+              columns={columns}
+              onRowClick={(row) => row.evidence.evidenceId && handleRowClick(row.student, row.evidence.evidenceId)}
+              rowClassName={(row) => {
+                const isChecked = Boolean(
+                  row.evidence.evidenceId && selectedEvidenceIds.includes(row.evidence.evidenceId),
+                )
+                const isThisStudent = selectedStudent?.userId === row.student.userId
+                return cn(
+                  isChecked && "bg-primary/5 hover:bg-primary/5",
+                  isThisStudent && "bg-primary/10 hover:bg-primary/10",
+                )
+              }}
+              emptyMessage={
+                debouncedSearch.trim()
+                  ? "Không tìm thấy sinh viên phù hợp"
+                  : "Chưa có sinh viên nào được duyệt minh chứng"
+              }
+            />
           </div>
 
           {/* Right pane: student detail panel */}
           <div className="w-[420px] shrink-0 border-l overflow-y-auto bg-white flex flex-col">
-            {selectedStudent && activity ? (
+            {currentSelectedStudent && activity ? (
               <AwardStudentDetailPanel
                 activity={activity}
-                student={selectedStudent}
+                student={currentSelectedStudent}
                 onClose={() => setSelectedStudent(null)}
               />
             ) : (
@@ -371,41 +369,15 @@ export function AwardDetailDialog({
         onOpenChange={setBulkDialogOpen}
         onConfirm={handleBulkUpdate}
       />
+
+      <ConfirmAwardDialog
+        open={confirmDialogOpen}
+        onOpenChange={cancelSingleUpdate}
+        onConfirm={confirmSingleUpdate}
+        isPending={bulkUpdateMutation.isPending}
+        studentName={pendingUpdate?.studentName}
+        awardLevel={pendingUpdate?.awardLevel ?? ""}
+      />
     </Dialog>
-  )
-}
-
-function AwardLevelSelect({
-  value,
-  evidenceId,
-  onChange,
-  disabled,
-}: {
-  value: string
-  evidenceId: string
-  onChange: (evidenceId: string, awardLevel: string) => void
-  disabled: boolean
-}) {
-  const options = [
-    { value: AwardEvidenceInfoAwardLevel.NONE, label: "Không có giải" },
-    { value: AwardEvidenceInfoAwardLevel.KHUYEN_KHICH, label: "Khuyến khích" },
-    { value: AwardEvidenceInfoAwardLevel.BA, label: "Ba" },
-    { value: AwardEvidenceInfoAwardLevel.NHI, label: "Nhì" },
-    { value: AwardEvidenceInfoAwardLevel.NHAT, label: "Nhất" },
-  ]
-
-  return (
-    <select
-      value={value ?? AwardEvidenceInfoAwardLevel.NONE}
-      onChange={(e) => onChange(evidenceId, e.target.value)}
-      disabled={disabled}
-      className="max-w-[140px] rounded-md border border-input bg-white px-2 py-1 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-    >
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
   )
 }

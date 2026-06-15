@@ -605,11 +605,20 @@ func (r *EvidenceRepository) ListAwardActivities(ctx context.Context, search *st
 	}
 
 	evidenceQuery := fmt.Sprintf(`
-		SELECT e.id, e.user_id, e.activity_id, e.score, e.award_level, e.criterion_type,
+		SELECT e.id, e.user_id, e.activity_id, e.score, e.award_level,
+			   COALESCE(e.criterion_type, selected_c.code, activity_codes.criteria[1]) as criterion_type,
 			   e.file_url, e.description, e.created_at,
 			   u.display_name, u.student_id, u.class_name
 		FROM evidences e
 		JOIN users u ON u.id = e.user_id
+		LEFT JOIN activity_criteria selected_ac ON e.activity_criteria_id = selected_ac.id
+		LEFT JOIN criteria selected_c ON selected_ac.criteria_id = selected_c.id
+		LEFT JOIN LATERAL (
+			SELECT COALESCE(array_agg(c.code ORDER BY c.code) FILTER (WHERE c.code IS NOT NULL), '{}') as criteria
+			FROM activity_criteria ac
+			JOIN criteria c ON ac.criteria_id = c.id
+			WHERE ac.activity_id = e.activity_id
+		) activity_codes ON TRUE
 		WHERE e.activity_id IN (%s) AND e.status = 'approved'
 		ORDER BY e.activity_id, u.display_name, e.created_at`,
 		strings.Join(evidencePlaceholders, ","))
