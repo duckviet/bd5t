@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #FFFFFF;
+  --background: #f3f3f5;
   --foreground: #0F172A;
   --card: #FFFFFF;
   --card-foreground: #0F172A;
@@ -157,4 +157,9 @@ input[type="password"]::-webkit-textfield-decoration-container {
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
+}
+
+.badge-outline {
+  filter:
+    drop-shadow(0 2px 0 white) drop-shadow(0 -2px 0 white) drop-shadow(2px 0 0 white) drop-shadow(-2px 0 0 white) drop-shadow(2px 2px 0 white) drop-shadow(-2px -2px 0 white) drop-shadow(2px -2px 0 white) drop-shadow(-2px 2px 0 white);
 }

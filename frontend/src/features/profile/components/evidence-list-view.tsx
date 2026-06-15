@@ -67,10 +67,10 @@ export function EvidenceListView({
         const status = (ev.status ?? "pending") as EvidenceItemStatus;
         const StatusIcon = statusIconMap[status];
         return (
-          <div
+          <Card
             key={ev.id}
             onClick={() => onSelect(ev)}
-            className="flex items-start gap-4 p-4 rounded-xl border border-border hover:bg-muted/50 transition-colors group cursor-pointer"
+            className="flex items-start gap-4 p-4 rounded-xl hover:bg-white/50 transition-colors group cursor-pointer"
           >
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
               <FileText className="h-5 w-5 text-primary" />
@@ -104,7 +104,7 @@ export function EvidenceListView({
                 <StatusIcon className="h-3 w-3 mr-1" />
                 {
                   EVIDENCE_STATUS[
-                    status.toUpperCase() as keyof typeof EVIDENCE_STATUS
+                  status.toUpperCase() as keyof typeof EVIDENCE_STATUS
                   ]
                 }
               </Badge>
@@ -131,7 +131,7 @@ export function EvidenceListView({
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
-          </div>
+          </Card>
         );
       })}
     </div>
@@ -175,10 +175,10 @@ export function EvidenceGridView({
         const status = (ev.status ?? "pending") as EvidenceItemStatus;
         const StatusIcon = statusIconMap[status];
         return (
-          <div
+          <Card
             key={ev.id}
             onClick={() => onSelect(ev)}
-            className="relative flex flex-col px-4 pb-2 pt-4 rounded-xl border border-border hover:bg-muted/50 transition-colors group cursor-pointer"
+            className="relative flex flex-col px-4 pb-2 pt-4 rounded-xl hover:bg-white/80 transition-colors group cursor-pointer"
           >
             <div className="flex flex-1 items-start gap-4 mb-3">
               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -214,7 +214,7 @@ export function EvidenceGridView({
                   <StatusIcon className="h-3 w-3 mr-1" />
                   {
                     EVIDENCE_STATUS[
-                      status.toUpperCase() as keyof typeof EVIDENCE_STATUS
+                    status.toUpperCase() as keyof typeof EVIDENCE_STATUS
                     ]
                   }
                 </Badge>
@@ -243,7 +243,7 @@ export function EvidenceGridView({
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         );
       })}
     </div>

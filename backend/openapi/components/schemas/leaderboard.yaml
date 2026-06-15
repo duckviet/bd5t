@@ -29,6 +29,10 @@ LeaderboardItem:
       type: integer
       description: Sum of all approved scores
       example: 1250
+    highestAwardLevel:
+      type: [string, "null"]
+      enum: [NONE, KHUYEN_KHICH, BA, NHI, NHAT]
+      description: Highest award level achieved by the student across all approved evidences
 
 LeaderboardCriteriaStat:
   type: object
@@ -44,6 +48,25 @@ LeaderboardCriteriaStat:
       type: integer
       description: Number of approved activities/evidences counted for this criterion
       example: 3
+    score:
+      type: integer
+      description: Total score for the criterion after participation and award points
+      example: 150
+    maxScore:
+      type: integer
+      example: 200
+    participationScore:
+      type: integer
+      description: Score from approved participation count
+      example: 50
+    awardScore:
+      type: integer
+      description: Score from the highest award level within the criterion
+      example: 100
+    awardLevel:
+      type: string
+      enum: [NONE, KHUYEN_KHICH, BA, NHI, NHAT]
+      example: "NHAT"
   required:
     - criteria
     - label
@@ -87,6 +110,10 @@ LeaderboardDetail:
       type: array
       items:
         $ref: '#/LeaderboardCriteriaStat'
+    awards:
+      type: array
+      items:
+        $ref: '#/LeaderboardAward'
   required:
     - rank
     - userId
@@ -95,3 +122,22 @@ LeaderboardDetail:
     - totalApproved
     - totalScore
     - criteriaStats
+    - awards
+
+LeaderboardAward:
+  type: object
+  properties:
+    activityTitle:
+      type: string
+      example: "Olympic Tin học sinh viên"
+    reviewLevel:
+      type: [string, "null"]
+      enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
+      example: "TRUONG"
+    awardLevel:
+      type: string
+      enum: [NONE, KHUYEN_KHICH, BA, NHI, NHAT]
+      example: "NHAT"
+  required:
+    - activityTitle
+    - awardLevel

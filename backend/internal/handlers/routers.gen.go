@@ -115,6 +115,12 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			handleFunctions.AdminAPI.BulkReviewEvidence,
 		},
 		{
+			"BulkUpdateAwardLevel",
+			http.MethodPut,
+			"/admin/evidences/awards/bulk",
+			handleFunctions.AdminAPI.BulkUpdateAwardLevel,
+		},
+		{
 			"CreateActivity",
 			http.MethodPost,
 			"/admin/activities",
@@ -143,6 +149,12 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			http.MethodGet,
 			"/admin/evidences",
 			handleFunctions.AdminAPI.ListAdminEvidences,
+		},
+		{
+			"ListAwardActivities",
+			http.MethodGet,
+			"/admin/awards/activities",
+			handleFunctions.AdminAPI.ListAwardActivities,
 		},
 		{
 			"NotifyActivitiesBulk",

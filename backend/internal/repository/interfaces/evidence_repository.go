@@ -16,6 +16,15 @@ type EvidenceFilter struct {
 	UnitID        *string
 	ClassName     *string
 	Sort          *string
+	AwardLevel    *string
+	AwardOnly     *bool
+}
+
+type AwardEvidenceFilter struct {
+	ActivityID *string
+	AwardLevel *string
+	UnitID     *string
+	Search     *string
 }
 
 type EvidenceListResult struct {
@@ -37,5 +46,8 @@ type EvidenceRepository interface {
 	GetByID(ctx context.Context, id string) (*domain.Evidence, error)
 	Create(ctx context.Context, evidence *domain.Evidence) error
 	Delete(ctx context.Context, id string) error
-	UpdateStatus(ctx context.Context, id string, status string, reviewNote *string, reviewedBy string, score *int) error
+	UpdateStatus(ctx context.Context, id string, status string, reviewNote *string, reviewedBy string, score *int, awardLevel *string) error
+	ListAwardEvidences(ctx context.Context, filter AwardEvidenceFilter, page, pageSize int) (*EvidenceListResult, error)
+	BulkUpdateAwardLevel(ctx context.Context, ids []string, awardLevel *string) error
+	ListAwardActivities(ctx context.Context, search *string, page, pageSize int) ([]*domain.AwardActivityOverview, int, error)
 }

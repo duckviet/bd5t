@@ -483,6 +483,22 @@ export interface InviteActivityResult {
   matchedUsers: number;
 }
 
+/**
+ * Award level assigned by reviewer when evidence is approved
+ * @nullable
+ */
+export type EvidenceItemAwardLevel =
+  | (typeof EvidenceItemAwardLevel)[keyof typeof EvidenceItemAwardLevel]
+  | null;
+
+export const EvidenceItemAwardLevel = {
+  NONE: "NONE",
+  KHUYEN_KHICH: "KHUYEN_KHICH",
+  BA: "BA",
+  NHI: "NHI",
+  NHAT: "NHAT",
+} as const;
+
 export type EvidenceItemStatus =
   (typeof EvidenceItemStatus)[keyof typeof EvidenceItemStatus];
 
@@ -580,6 +596,11 @@ export interface EvidenceItem {
    * @nullable
    */
   score?: number | null;
+  /**
+   * Award level assigned by reviewer when evidence is approved
+   * @nullable
+   */
+  awardLevel?: EvidenceItemAwardLevel;
   fileUrl?: string;
   description?: string;
   status?: EvidenceItemStatus;
@@ -635,6 +656,22 @@ export const ReviewEvidenceRequestStatus = {
   rejected: "rejected",
 } as const;
 
+/**
+ * Optional award level assigned by reviewer when approving
+ * @nullable
+ */
+export type ReviewEvidenceRequestAwardLevel =
+  | (typeof ReviewEvidenceRequestAwardLevel)[keyof typeof ReviewEvidenceRequestAwardLevel]
+  | null;
+
+export const ReviewEvidenceRequestAwardLevel = {
+  NONE: "NONE",
+  KHUYEN_KHICH: "KHUYEN_KHICH",
+  BA: "BA",
+  NHI: "NHI",
+  NHAT: "NHAT",
+} as const;
+
 export interface ReviewEvidenceRequest {
   /** Review decision */
   status: ReviewEvidenceRequestStatus;
@@ -647,10 +684,10 @@ export interface ReviewEvidenceRequest {
   /** Allow re-reviewing already reviewed evidence */
   forceOverride?: boolean;
   /**
-   * Optional score assigned by reviewer when approving
+   * Optional award level assigned by reviewer when approving
    * @nullable
    */
-  score?: number | null;
+  awardLevel?: ReviewEvidenceRequestAwardLevel;
 }
 
 /**
@@ -687,6 +724,209 @@ export interface AdminEvidenceStats {
   total: number;
 }
 
+export type AwardEvidenceItemCriteriaItem =
+  (typeof AwardEvidenceItemCriteriaItem)[keyof typeof AwardEvidenceItemCriteriaItem];
+
+export const AwardEvidenceItemCriteriaItem = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
+/**
+ * @nullable
+ */
+export type AwardEvidenceItemAwardLevel =
+  | (typeof AwardEvidenceItemAwardLevel)[keyof typeof AwardEvidenceItemAwardLevel]
+  | null;
+
+export const AwardEvidenceItemAwardLevel = {
+  NONE: "NONE",
+  KHUYEN_KHICH: "KHUYEN_KHICH",
+  BA: "BA",
+  NHI: "NHI",
+  NHAT: "NHAT",
+} as const;
+
+export interface AwardEvidenceItem {
+  id?: string;
+  userId?: string;
+  /** @nullable */
+  userFullName?: string | null;
+  /** @nullable */
+  userStudentId?: string | null;
+  /** @nullable */
+  userClassName?: string | null;
+  /** @nullable */
+  userUnitId?: string | null;
+  /** @nullable */
+  userUnitName?: string | null;
+  activityId?: string;
+  activityTitle?: string;
+  criteria?: AwardEvidenceItemCriteriaItem[];
+  /**
+   * Current score assigned to this evidence
+   * @nullable
+   */
+  score?: number | null;
+  /** @nullable */
+  awardLevel?: AwardEvidenceItemAwardLevel;
+  /** @nullable */
+  reviewedAt?: string | null;
+}
+
+/**
+ * @nullable
+ */
+export type AwardActivityOverviewReviewLevel =
+  | (typeof AwardActivityOverviewReviewLevel)[keyof typeof AwardActivityOverviewReviewLevel]
+  | null;
+
+export const AwardActivityOverviewReviewLevel = {
+  TRUONG: "TRUONG",
+  DHQGHN: "DHQGHN",
+  THANH_PHO: "THANH_PHO",
+  TRUNG_UONG: "TRUNG_UONG",
+} as const;
+
+export type AwardActivityOverviewCriteriaItem =
+  (typeof AwardActivityOverviewCriteriaItem)[keyof typeof AwardActivityOverviewCriteriaItem];
+
+export const AwardActivityOverviewCriteriaItem = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
+export interface AwardActivityStats {
+  NHAT?: number;
+  NHI?: number;
+  BA?: number;
+  KHUYEN_KHICH?: number;
+  NONE?: number;
+}
+
+export type AwardEvidenceInfoCriteria =
+  (typeof AwardEvidenceInfoCriteria)[keyof typeof AwardEvidenceInfoCriteria];
+
+export const AwardEvidenceInfoCriteria = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
+/**
+ * @nullable
+ */
+export type AwardEvidenceInfoAwardLevel =
+  | (typeof AwardEvidenceInfoAwardLevel)[keyof typeof AwardEvidenceInfoAwardLevel]
+  | null;
+
+export const AwardEvidenceInfoAwardLevel = {
+  NONE: "NONE",
+  KHUYEN_KHICH: "KHUYEN_KHICH",
+  BA: "BA",
+  NHI: "NHI",
+  NHAT: "NHAT",
+} as const;
+
+export interface AwardEvidenceInfo {
+  evidenceId?: string;
+  criteria?: AwardEvidenceInfoCriteria;
+  /** @nullable */
+  awardLevel?: AwardEvidenceInfoAwardLevel;
+  /** @nullable */
+  score?: number | null;
+  /** @nullable */
+  fileUrl?: string | null;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  createdAt?: string | null;
+}
+
+export interface AwardStudentOverview {
+  userId?: string;
+  /** @nullable */
+  userFullName?: string | null;
+  /** @nullable */
+  userStudentId?: string | null;
+  /** @nullable */
+  className?: string | null;
+  evidences?: AwardEvidenceInfo[];
+}
+
+export interface AwardActivityOverview {
+  activityId?: string;
+  activityTitle?: string;
+  /** @nullable */
+  reviewLevel?: AwardActivityOverviewReviewLevel;
+  criteria?: AwardActivityOverviewCriteriaItem[];
+  awardStats?: AwardActivityStats;
+  totalStudents?: number;
+  students?: AwardStudentOverview[];
+}
+
+export type BulkUpdateAwardLevelRequestAwardLevel =
+  (typeof BulkUpdateAwardLevelRequestAwardLevel)[keyof typeof BulkUpdateAwardLevelRequestAwardLevel];
+
+export const BulkUpdateAwardLevelRequestAwardLevel = {
+  NONE: "NONE",
+  KHUYEN_KHICH: "KHUYEN_KHICH",
+  BA: "BA",
+  NHI: "NHI",
+  NHAT: "NHAT",
+} as const;
+
+export interface BulkUpdateAwardLevelRequest {
+  /** @minItems 1 */
+  ids: string[];
+  awardLevel: BulkUpdateAwardLevelRequestAwardLevel;
+}
+
+export type ProgressMatrixCriteriaScoresItemCriteria =
+  (typeof ProgressMatrixCriteriaScoresItemCriteria)[keyof typeof ProgressMatrixCriteriaScoresItemCriteria];
+
+export const ProgressMatrixCriteriaScoresItemCriteria = {
+  DAO_DUC: "DAO_DUC",
+  HOC_TAP: "HOC_TAP",
+  THE_LUC: "THE_LUC",
+  TINH_NGUYEN: "TINH_NGUYEN",
+  HOI_NHAP: "HOI_NHAP",
+} as const;
+
+export type ProgressMatrixCriteriaScoresItemAwardLevel =
+  (typeof ProgressMatrixCriteriaScoresItemAwardLevel)[keyof typeof ProgressMatrixCriteriaScoresItemAwardLevel];
+
+export const ProgressMatrixCriteriaScoresItemAwardLevel = {
+  NONE: "NONE",
+  KHUYEN_KHICH: "KHUYEN_KHICH",
+  BA: "BA",
+  NHI: "NHI",
+  NHAT: "NHAT",
+} as const;
+
+export type ProgressMatrixCriteriaScoresItem = {
+  criteria?: ProgressMatrixCriteriaScoresItemCriteria;
+  label?: string;
+  /** Total score for the criterion after participation and award points */
+  score?: number;
+  maxScore?: number;
+  /** Score from approved participation count */
+  participationScore?: number;
+  /** Score from the highest award level within the criterion */
+  awardScore?: number;
+  /** Number of approved activities counted for this criterion */
+  approvedActivityCount?: number;
+  awardLevel?: ProgressMatrixCriteriaScoresItemAwardLevel;
+};
+
 export type ProgressMatrixCellCompletedCriteriaItemCriteriaType =
   (typeof ProgressMatrixCellCompletedCriteriaItemCriteriaType)[keyof typeof ProgressMatrixCellCompletedCriteriaItemCriteriaType];
 
@@ -719,7 +959,24 @@ export interface ProgressMatrixCell {
 export interface ProgressMatrix {
   userId?: string;
   activities?: ProgressMatrixCell[];
+  criteriaScores?: ProgressMatrixCriteriaScoresItem[];
 }
+
+/**
+ * Highest award level achieved by the student across all approved evidences
+ * @nullable
+ */
+export type LeaderboardItemHighestAwardLevel =
+  | (typeof LeaderboardItemHighestAwardLevel)[keyof typeof LeaderboardItemHighestAwardLevel]
+  | null;
+
+export const LeaderboardItemHighestAwardLevel = {
+  NONE: "NONE",
+  KHUYEN_KHICH: "KHUYEN_KHICH",
+  BA: "BA",
+  NHI: "NHI",
+  NHAT: "NHAT",
+} as const;
 
 export interface LeaderboardItem {
   /** Current rank position */
@@ -736,6 +993,11 @@ export interface LeaderboardItem {
   totalApproved?: number;
   /** Sum of all approved scores */
   totalScore?: number;
+  /**
+   * Highest award level achieved by the student across all approved evidences
+   * @nullable
+   */
+  highestAwardLevel?: LeaderboardItemHighestAwardLevel;
 }
 
 export type LeaderboardCriteriaStatCriteria =
@@ -749,12 +1011,63 @@ export const LeaderboardCriteriaStatCriteria = {
   HOI_NHAP: "HOI_NHAP",
 } as const;
 
+export type LeaderboardCriteriaStatAwardLevel =
+  (typeof LeaderboardCriteriaStatAwardLevel)[keyof typeof LeaderboardCriteriaStatAwardLevel];
+
+export const LeaderboardCriteriaStatAwardLevel = {
+  NONE: "NONE",
+  KHUYEN_KHICH: "KHUYEN_KHICH",
+  BA: "BA",
+  NHI: "NHI",
+  NHAT: "NHAT",
+} as const;
+
 export interface LeaderboardCriteriaStat {
   criteria: LeaderboardCriteriaStatCriteria;
   label: string;
   /** Number of approved activities/evidences counted for this criterion */
   approvedActivities: number;
+  /** Total score for the criterion after participation and award points */
+  score?: number;
+  maxScore?: number;
+  /** Score from approved participation count */
+  participationScore?: number;
+  /** Score from the highest award level within the criterion */
+  awardScore?: number;
+  awardLevel?: LeaderboardCriteriaStatAwardLevel;
 }
+
+/**
+ * @nullable
+ */
+export type LeaderboardDetailAwardsItemReviewLevel =
+  | (typeof LeaderboardDetailAwardsItemReviewLevel)[keyof typeof LeaderboardDetailAwardsItemReviewLevel]
+  | null;
+
+export const LeaderboardDetailAwardsItemReviewLevel = {
+  TRUONG: "TRUONG",
+  DHQGHN: "DHQGHN",
+  THANH_PHO: "THANH_PHO",
+  TRUNG_UONG: "TRUNG_UONG",
+} as const;
+
+export type LeaderboardDetailAwardsItemAwardLevel =
+  (typeof LeaderboardDetailAwardsItemAwardLevel)[keyof typeof LeaderboardDetailAwardsItemAwardLevel];
+
+export const LeaderboardDetailAwardsItemAwardLevel = {
+  NONE: "NONE",
+  KHUYEN_KHICH: "KHUYEN_KHICH",
+  BA: "BA",
+  NHI: "NHI",
+  NHAT: "NHAT",
+} as const;
+
+export type LeaderboardDetailAwardsItem = {
+  activityTitle: string;
+  /** @nullable */
+  reviewLevel?: LeaderboardDetailAwardsItemReviewLevel;
+  awardLevel: LeaderboardDetailAwardsItemAwardLevel;
+};
 
 export interface LeaderboardDetail {
   /** Current rank position */
@@ -774,6 +1087,7 @@ export interface LeaderboardDetail {
   /** Sum of all approved scores */
   totalScore: number;
   criteriaStats: LeaderboardCriteriaStat[];
+  awards: LeaderboardDetailAwardsItem[];
 }
 
 export type NotificationItemType =
@@ -786,6 +1100,7 @@ export const NotificationItemType = {
   ACTIVITY_DEADLINE_SOON: "ACTIVITY_DEADLINE_SOON",
   SUGGESTION: "SUGGESTION",
   ACTIVITY_INVITE: "ACTIVITY_INVITE",
+  AWARD_RECEIVED: "AWARD_RECEIVED",
 } as const;
 
 export type NotificationItemData = { [key: string]: unknown };
@@ -1259,6 +1574,32 @@ export type BulkReviewEvidence200 = ApiResponse & {
 
 export type ReviewEvidence200 = ApiResponse & {
   data?: EvidenceItem;
+};
+
+export type ListAwardActivitiesParams = {
+  /**
+   * Page number for pagination
+   * @minimum 1
+   */
+  page?: PageParameter;
+  /**
+   * Number of items per page
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * Search by activity title
+   */
+  search?: string;
+};
+
+export type ListAwardActivities200 = ApiResponseList & {
+  data?: AwardActivityOverview[];
+};
+
+export type BulkUpdateAwardLevel200 = ApiResponse & {
+  data?: AwardEvidenceItem[];
 };
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -5572,4 +5913,288 @@ export const useReviewEvidence = <
   TContext
 > => {
   return useMutation(getReviewEvidenceMutationOptions(options), queryClient);
+};
+
+/**
+ * @summary List activities with award overview for award management
+ */
+export const listAwardActivities = (
+  params?: ListAwardActivitiesParams,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<ListAwardActivities200>(
+    { url: `/admin/awards/activities`, method: "GET", params, signal },
+    options,
+  );
+};
+
+export const getListAwardActivitiesQueryKey = (
+  params?: ListAwardActivitiesParams,
+) => {
+  return [`/admin/awards/activities`, ...(params ? [params] : [])] as const;
+};
+
+export const getListAwardActivitiesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAwardActivities>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAwardActivitiesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAwardActivities>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListAwardActivitiesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listAwardActivities>>
+  > = ({ signal }) => listAwardActivities(params, requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAwardActivities>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ListAwardActivitiesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAwardActivities>>
+>;
+export type ListAwardActivitiesQueryError = ErrorType<
+  UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+>;
+
+export function useListAwardActivities<
+  TData = Awaited<ReturnType<typeof listAwardActivities>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params: undefined | ListAwardActivitiesParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAwardActivities>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAwardActivities>>,
+          TError,
+          Awaited<ReturnType<typeof listAwardActivities>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useListAwardActivities<
+  TData = Awaited<ReturnType<typeof listAwardActivities>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAwardActivitiesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAwardActivities>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAwardActivities>>,
+          TError,
+          Awaited<ReturnType<typeof listAwardActivities>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useListAwardActivities<
+  TData = Awaited<ReturnType<typeof listAwardActivities>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAwardActivitiesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAwardActivities>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary List activities with award overview for award management
+ */
+
+export function useListAwardActivities<
+  TData = Awaited<ReturnType<typeof listAwardActivities>>,
+  TError = ErrorType<
+    UnauthorizedResponse | ForbiddenResponse | InternalServerErrorResponse
+  >,
+>(
+  params?: ListAwardActivitiesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listAwardActivities>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getListAwardActivitiesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Bulk update award levels for multiple approved evidences
+ */
+export const bulkUpdateAwardLevel = (
+  bulkUpdateAwardLevelRequest: BodyType<BulkUpdateAwardLevelRequest>,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal,
+) => {
+  return customInstance<BulkUpdateAwardLevel200>(
+    {
+      url: `/admin/evidences/awards/bulk`,
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      data: bulkUpdateAwardLevelRequest,
+      signal,
+    },
+    options,
+  );
+};
+
+export const getBulkUpdateAwardLevelMutationOptions = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bulkUpdateAwardLevel>>,
+    TError,
+    { data: BodyType<BulkUpdateAwardLevelRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof bulkUpdateAwardLevel>>,
+  TError,
+  { data: BodyType<BulkUpdateAwardLevelRequest> },
+  TContext
+> => {
+  const mutationKey = ["bulkUpdateAwardLevel"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof bulkUpdateAwardLevel>>,
+    { data: BodyType<BulkUpdateAwardLevelRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return bulkUpdateAwardLevel(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type BulkUpdateAwardLevelMutationResult = NonNullable<
+  Awaited<ReturnType<typeof bulkUpdateAwardLevel>>
+>;
+export type BulkUpdateAwardLevelMutationBody =
+  BodyType<BulkUpdateAwardLevelRequest>;
+export type BulkUpdateAwardLevelMutationError = ErrorType<
+  | BadRequestResponse
+  | UnauthorizedResponse
+  | ForbiddenResponse
+  | InternalServerErrorResponse
+>;
+
+/**
+ * @summary Bulk update award levels for multiple approved evidences
+ */
+export const useBulkUpdateAwardLevel = <
+  TError = ErrorType<
+    | BadRequestResponse
+    | UnauthorizedResponse
+    | ForbiddenResponse
+    | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof bulkUpdateAwardLevel>>,
+      TError,
+      { data: BodyType<BulkUpdateAwardLevelRequest> },
+      TContext
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof bulkUpdateAwardLevel>>,
+  TError,
+  { data: BodyType<BulkUpdateAwardLevelRequest> },
+  TContext
+> => {
+  return useMutation(
+    getBulkUpdateAwardLevelMutationOptions(options),
+    queryClient,
+  );
 };

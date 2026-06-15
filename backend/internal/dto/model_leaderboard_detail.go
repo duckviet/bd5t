@@ -34,4 +34,6 @@ type LeaderboardDetail struct {
 	TotalScore int32 `json:"totalScore"`
 
 	CriteriaStats []LeaderboardCriteriaStat `json:"criteriaStats"`
+
+	Awards []LeaderboardDetailAwardsInner `json:"awards"`
 }

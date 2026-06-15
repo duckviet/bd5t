@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/duckviet/bd5t/backend/internal/domain"
@@ -11,6 +12,20 @@ import (
 	"github.com/duckviet/bd5t/backend/internal/repository/interfaces"
 	"github.com/duckviet/bd5t/backend/pkg/pointer"
 )
+
+type AwardEvidenceFilter struct {
+	ActivityID *string
+	AwardLevel *string
+	UnitID     *string
+	Search     *string
+}
+
+type AwardEvidenceResult struct {
+	Evidences []*dto.EvidenceItem
+	Total     int
+	Page      int
+	PageSize  int
+}
 
 type AdminService struct {
 	evidenceRepo     interfaces.EvidenceRepository
@@ -123,19 +138,25 @@ func (s *AdminService) ReviewEvidence(ctx context.Context, adminID, evidenceID s
 		reviewNote = req.ReviewNote
 	}
 
-	// Convert optional score from request to *int for repository
-	var scorePtr *int
-	if req.Score != nil {
-		v := int(*req.Score)
-		scorePtr = &v
+	var awardLevelPtr *string
+	if req.AwardLevel != nil && *req.AwardLevel != string(domain.AwardLevelNone) {
+		awardLevelPtr = req.AwardLevel
 	}
 
-	if err := s.evidenceRepo.UpdateStatus(ctx, evidenceID, req.Status, reviewNote, adminID, scorePtr); err != nil {
+	var scorePtr *int
+	if req.Status == domain.StatusApproved {
+		score := awardScoreForLevel(awardLevelPtr)
+		scorePtr = &score
+	}
+
+	if err := s.evidenceRepo.UpdateStatus(ctx, evidenceID, req.Status, reviewNote, adminID, scorePtr, awardLevelPtr); err != nil {
 		return nil, errors.ErrInternalError(err, "failed to update evidence status")
 	}
 
 	evidence.Status = req.Status
 	evidence.ReviewNote = reviewNote
+	evidence.AwardLevel = awardLevelPtr
+	evidence.Score = scorePtr
 	reviewedAt := time.Now()
 	evidence.ReviewedAt = &reviewedAt
 	evidence.ReviewedBy = &adminID
@@ -160,7 +181,75 @@ func (s *AdminService) ReviewEvidence(ctx context.Context, adminID, evidenceID s
 		return nil, errors.ErrInternalError(err, "failed to create review notification")
 	}
 
+	if updatedEvidence.Status == domain.StatusApproved && updatedEvidence.AwardLevel != nil && *updatedEvidence.AwardLevel != string(domain.AwardLevelNone) && *updatedEvidence.AwardLevel != "" {
+		if err := s.createAwardNotification(ctx, updatedEvidence); err != nil {
+			return nil, errors.ErrInternalError(err, "failed to create award notification")
+		}
+	}
+
 	return mapper.DomainToEvidenceItem(updatedEvidence), nil
+}
+
+func (s *AdminService) createAwardNotification(ctx context.Context, evidence *domain.Evidence) error {
+	if evidence.AwardLevel == nil || *evidence.AwardLevel == "" || *evidence.AwardLevel == string(domain.AwardLevelNone) {
+		return nil
+	}
+
+	activity, err := s.activityRepo.GetByID(ctx, evidence.ActivityID)
+	if err != nil {
+		return err
+	}
+
+	var activitySlug string
+	var activityTitle string
+	if activity != nil {
+		activityTitle = activity.Title
+		if activity.Slug != nil {
+			activitySlug = *activity.Slug
+		}
+	} else {
+		activityTitle = evidence.ActivityTitle
+	}
+
+	awardLabel := getAwardLevelLabel(*evidence.AwardLevel)
+	title := "Bạn đã nhận được giải thưởng!"
+	var message string
+	if activityTitle != "" {
+		message = fmt.Sprintf("Chúc mừng! Bạn đã nhận được giải %s cho hoạt động \"%s\".", awardLabel, activityTitle)
+	} else {
+		message = fmt.Sprintf("Chúc mừng! Bạn đã nhận được giải %s cho hoạt động.", awardLabel)
+	}
+
+	data := map[string]interface{}{
+		"evidenceId":   evidence.ID,
+		"activityId":   evidence.ActivityID,
+		"awardLevel":   *evidence.AwardLevel,
+		"activitySlug": activitySlug,
+	}
+
+	return s.notificationRepo.Create(ctx, &domain.Notification{
+		UserID:  evidence.UserID,
+		Title:   title,
+		Message: message,
+		Type:    domain.NotificationTypeAwardReceived,
+		IsRead:  false,
+		Data:    data,
+	})
+}
+
+func getAwardLevelLabel(level string) string {
+	switch level {
+	case "NHAT":
+		return "Nhất"
+	case "NHI":
+		return "Nhì"
+	case "BA":
+		return "Ba"
+	case "KHUYEN_KHICH":
+		return "Khuyến khích"
+	default:
+		return level
+	}
 }
 
 func (s *AdminService) createEvidenceReviewNotification(ctx context.Context, evidence *domain.Evidence) error {
@@ -420,6 +509,165 @@ func (s *AdminService) NotifyActivitiesBulk(ctx context.Context, activityIDs []s
 	return s.notificationSvc.NotifyActivitiesBulk(ctx, activityIDs, notificationType)
 }
 
+type AwardActivityOverviewDTO struct {
+	ActivityID    string            `json:"activityId"`
+	ActivityTitle string            `json:"activityTitle"`
+	ReviewLevel   *string           `json:"reviewLevel,omitempty"`
+	Criteria      []string          `json:"criteria,omitempty"`
+	AwardStats    AwardStatsDTO     `json:"awardStats"`
+	TotalStudents int               `json:"totalStudents"`
+	Students      []AwardStudentDTO `json:"students,omitempty"`
+}
+
+type AwardStatsDTO struct {
+	Nhat        int `json:"NHAT"`
+	Nhi         int `json:"NHI"`
+	Ba          int `json:"BA"`
+	KhuyenKhich int `json:"KHUYEN_KHICH"`
+	None        int `json:"NONE"`
+}
+
+type AwardStudentDTO struct {
+	UserID        string             `json:"userId"`
+	UserFullName  *string            `json:"userFullName,omitempty"`
+	UserStudentID *string            `json:"userStudentId,omitempty"`
+	ClassName     *string            `json:"className,omitempty"`
+	Evidences     []AwardEvidenceDTO `json:"evidences,omitempty"`
+}
+
+type AwardEvidenceDTO struct {
+	EvidenceID  string     `json:"evidenceId"`
+	Criteria    string     `json:"criteria"`
+	AwardLevel  *string    `json:"awardLevel,omitempty"`
+	Score       *int       `json:"score,omitempty"`
+	FileURL     *string    `json:"fileUrl,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	CreatedAt   *time.Time `json:"createdAt,omitempty"`
+}
+
+type ListAwardActivitiesResult struct {
+	Activities []*AwardActivityOverviewDTO
+	Total      int
+	Page       int
+	PageSize   int
+}
+
+func (s *AdminService) ListAwardActivities(ctx context.Context, search *string, page, pageSize int) (*ListAwardActivitiesResult, error) {
+	activities, total, err := s.evidenceRepo.ListAwardActivities(ctx, search, page, pageSize)
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to list award activities")
+	}
+
+	dtos := make([]*AwardActivityOverviewDTO, len(activities))
+	for i, a := range activities {
+		students := make([]AwardStudentDTO, len(a.Students))
+		for j, st := range a.Students {
+			evidences := make([]AwardEvidenceDTO, len(st.Evidences))
+			for k, ev := range st.Evidences {
+				evidences[k] = AwardEvidenceDTO{
+					EvidenceID:  ev.EvidenceID,
+					Criteria:    ev.Criteria,
+					AwardLevel:  ev.AwardLevel,
+					Score:       ev.Score,
+					FileURL:     ev.FileURL,
+					Description: ev.Description,
+					CreatedAt:   ev.CreatedAt,
+				}
+			}
+			students[j] = AwardStudentDTO{
+				UserID:        st.UserID,
+				UserFullName:  st.UserFullName,
+				UserStudentID: st.UserStudentID,
+				ClassName:     st.ClassName,
+				Evidences:     evidences,
+			}
+		}
+
+		dtos[i] = &AwardActivityOverviewDTO{
+			ActivityID:    a.ActivityID,
+			ActivityTitle: a.ActivityTitle,
+			ReviewLevel:   a.ReviewLevel,
+			Criteria:      a.Criteria,
+			TotalStudents: a.TotalStudents,
+			AwardStats: AwardStatsDTO{
+				Nhat:        a.AwardStats.Nhat,
+				Nhi:         a.AwardStats.Nhi,
+				Ba:          a.AwardStats.Ba,
+				KhuyenKhich: a.AwardStats.KhuyenKhich,
+				None:        a.AwardStats.None,
+			},
+			Students: students,
+		}
+	}
+
+	return &ListAwardActivitiesResult{
+		Activities: dtos,
+		Total:      total,
+		Page:       page,
+		PageSize:   pageSize,
+	}, nil
+}
+
 func (s *AdminService) NotifyDeadlineSoon(ctx context.Context, days int) (*ActivityNotificationResult, error) {
 	return s.notificationSvc.NotifyDeadlineSoon(ctx, days)
+}
+
+func (s *AdminService) ListAwardEvidences(ctx context.Context, filter AwardEvidenceFilter, page, pageSize int) (*AwardEvidenceResult, error) {
+	repoFilter := interfaces.AwardEvidenceFilter{
+		ActivityID: filter.ActivityID,
+		AwardLevel: filter.AwardLevel,
+		UnitID:     filter.UnitID,
+		Search:     filter.Search,
+	}
+
+	result, err := s.evidenceRepo.ListAwardEvidences(ctx, repoFilter, page, pageSize)
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to list award evidences")
+	}
+
+	items := make([]*dto.EvidenceItem, len(result.Evidences))
+	for i, evidence := range result.Evidences {
+		items[i] = mapper.DomainToEvidenceItem(evidence)
+	}
+
+	return &AwardEvidenceResult{
+		Evidences: items,
+		Total:     result.Total,
+		Page:      page,
+		PageSize:  pageSize,
+	}, nil
+}
+
+func (s *AdminService) BulkUpdateAwardLevel(ctx context.Context, ids []string, awardLevel string) ([]*dto.EvidenceItem, error) {
+	if len(ids) == 0 {
+		return nil, errors.ErrBadRequest("No evidences selected")
+	}
+
+	var awardLevelPtr *string
+	if awardLevel != string(domain.AwardLevelNone) {
+		awardLevelPtr = &awardLevel
+	}
+
+	if err := s.evidenceRepo.BulkUpdateAwardLevel(ctx, ids, awardLevelPtr); err != nil {
+		return nil, errors.ErrInternalError(err, "failed to bulk update award levels")
+	}
+
+	result := make([]*dto.EvidenceItem, 0, len(ids))
+	for _, id := range ids {
+		evidence, err := s.evidenceRepo.GetByID(ctx, id)
+		if err != nil || evidence == nil {
+			continue
+		}
+		if evidence.IsApproved() {
+			if err := s.progressSvc.RecalculateForUserActivity(ctx, evidence.UserID, evidence.ActivityID); err != nil {
+				continue
+			}
+			if evidence.AwardLevel != nil && *evidence.AwardLevel != "" && *evidence.AwardLevel != string(domain.AwardLevelNone) {
+				_ = s.createAwardNotification(ctx, evidence)
+			}
+		}
+		result = append(result, mapper.DomainToEvidenceItem(evidence))
+	}
+
+	return result, nil
 }

@@ -110,6 +110,18 @@ components:
       $ref: "./components/schemas/evidence.yaml#/BulkReviewEvidenceRequest"
     AdminEvidenceStats:
       $ref: "./components/schemas/evidence.yaml#/AdminEvidenceStats"
+    AwardEvidenceItem:
+      $ref: "./components/schemas/award.yaml#/AwardEvidenceItem"
+    AwardActivityOverview:
+      $ref: "./components/schemas/award.yaml#/AwardActivityOverview"
+    AwardActivityStats:
+      $ref: "./components/schemas/award.yaml#/AwardActivityStats"
+    AwardStudentOverview:
+      $ref: "./components/schemas/award.yaml#/AwardStudentOverview"
+    AwardEvidenceInfo:
+      $ref: "./components/schemas/award.yaml#/AwardEvidenceInfo"
+    BulkUpdateAwardLevelRequest:
+      $ref: "./components/schemas/award.yaml#/BulkUpdateAwardLevelRequest"
     ProgressMatrix:
       $ref: "./components/schemas/progress.yaml#/ProgressMatrix"
     ProgressMatrixCell:
@@ -188,3 +200,7 @@ paths:
     $ref: "./paths/admin/review-evidences-bulk.yaml"
   /admin/evidences/{id}/review:
     $ref: "./paths/admin/review-evidence.yaml"
+  /admin/awards/activities:
+    $ref: "./paths/admin/awards-list.yaml"
+  /admin/evidences/awards/bulk:
+    $ref: "./paths/admin/awards-bulk-update.yaml"

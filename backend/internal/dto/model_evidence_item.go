@@ -48,6 +48,9 @@ type EvidenceItem struct {
 	// Score assigned by reviewer when evidence is approved; null = not reviewed
 	Score *int32 `json:"score,omitempty"`
 
+	// Award level assigned by reviewer when evidence is approved
+	AwardLevel *string `json:"awardLevel,omitempty"`
+
 	FileUrl string `json:"fileUrl,omitempty"`
 
 	Description string `json:"description,omitempty"`

@@ -14,4 +14,6 @@ type ProgressMatrix struct {
 	UserId string `json:"userId,omitempty"`
 
 	Activities []ProgressMatrixCell `json:"activities,omitempty"`
+
+	CriteriaScores []ProgressMatrixCriteriaScoresInner `json:"criteriaScores,omitempty"`
 }

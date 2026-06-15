@@ -11,10 +11,11 @@ import (
 
 type LeaderboardService struct {
 	leaderboardRepo interfaces.LeaderboardRepository
+	evidenceRepo    interfaces.EvidenceRepository
 }
 
-func NewLeaderboardService(leaderboardRepo interfaces.LeaderboardRepository) *LeaderboardService {
-	return &LeaderboardService{leaderboardRepo: leaderboardRepo}
+func NewLeaderboardService(leaderboardRepo interfaces.LeaderboardRepository, evidenceRepo interfaces.EvidenceRepository) *LeaderboardService {
+	return &LeaderboardService{leaderboardRepo: leaderboardRepo, evidenceRepo: evidenceRepo}
 }
 
 type ListLeaderboardResult struct {
@@ -57,16 +58,58 @@ func (s *LeaderboardService) GetLeaderboardDetail(ctx context.Context, studentID
 		return nil, errors.ErrNotFound("Student")
 	}
 
-	stats := make([]dto.LeaderboardCriteriaStat, 0, len(detail.CriteriaStats))
-	for _, stat := range detail.CriteriaStats {
+	approved := domain.StatusApproved
+	evidences, err := s.evidenceRepo.List(ctx, detail.UserID, interfaces.EvidenceFilter{Status: &approved}, 1, 1000)
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to list approved evidences")
+	}
+
+	criteriaScores := calculateCriteriaScores(evidences.Evidences)
+	stats := make([]dto.LeaderboardCriteriaStat, 0, len(criteriaScores))
+	totalScore := 0
+	totalApproved := 0
+	seenActivities := map[string]struct{}{}
+	for _, evidence := range evidences.Evidences {
+		if evidence == nil || !evidence.IsApproved() {
+			continue
+		}
+		if _, ok := seenActivities[evidence.ActivityID]; !ok {
+			seenActivities[evidence.ActivityID] = struct{}{}
+		}
+	}
+	totalApproved = len(seenActivities)
+
+	for _, stat := range criteriaScores {
+		totalScore += stat.Score
 		stats = append(stats, dto.LeaderboardCriteriaStat{
 			Criteria:           stat.Criteria,
 			Label:              criteriaLabel(stat.Criteria, stat.Label),
-			ApprovedActivities: int32(stat.ApprovedActivities),
+			ApprovedActivities: int32(stat.ApprovedActivityCount),
+			Score:              int32(stat.Score),
+			MaxScore:           int32(stat.MaxScore),
+			ParticipationScore: int32(stat.ParticipationScore),
+			AwardScore:         int32(stat.AwardScore),
+			AwardLevel:         string(stat.AwardLevel),
 		})
 	}
 
+	awards := make([]dto.LeaderboardDetailAwardsInner, 0)
+	for _, evidence := range evidences.Evidences {
+		if evidence == nil || !evidence.IsApproved() {
+			continue
+		}
+		if evidence.AwardLevel != nil && *evidence.AwardLevel != "" && *evidence.AwardLevel != "NONE" {
+			awards = append(awards, dto.LeaderboardDetailAwardsInner{
+				ActivityTitle: evidence.ActivityTitle,
+				ReviewLevel:   evidence.ReviewLevel,
+				AwardLevel:    *evidence.AwardLevel,
+			})
+		}
+	}
+
 	row := leaderboardItemToDTO(&detail.LeaderboardItem)
+	row.TotalApproved = int32(totalApproved)
+	row.TotalScore = int32(totalScore)
 	return &dto.LeaderboardDetail{
 		Rank:          row.Rank,
 		UserId:        row.UserId,
@@ -78,6 +121,7 @@ func (s *LeaderboardService) GetLeaderboardDetail(ctx context.Context, studentID
 		TotalApproved: row.TotalApproved,
 		TotalScore:    row.TotalScore,
 		CriteriaStats: stats,
+		Awards:        awards,
 	}, nil
 }
 
@@ -87,12 +131,13 @@ func leaderboardItemToDTO(item *domain.LeaderboardItem) *dto.LeaderboardItem {
 	}
 
 	row := &dto.LeaderboardItem{
-		Rank:          int32(item.Rank),
-		UserId:        item.UserID,
-		StudentId:     item.StudentID,
-		UserName:      item.UserName,
-		TotalApproved: int32(item.TotalApproved),
-		TotalScore:    int32(item.TotalScore),
+		Rank:              int32(item.Rank),
+		UserId:            item.UserID,
+		StudentId:         item.StudentID,
+		UserName:          item.UserName,
+		TotalApproved:     int32(item.TotalApproved),
+		TotalScore:        int32(item.TotalScore),
+		HighestAwardLevel: item.HighestAwardLevel,
 	}
 	if item.UnitID != nil {
 		row.UnitId = item.UnitID

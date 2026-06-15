@@ -66,6 +66,9 @@ func DomainToEvidenceItem(e *domain.Evidence) *dto.EvidenceItem {
 		v := int32(*e.Score)
 		item.Score = &v
 	}
+	if e.AwardLevel != nil {
+		item.AwardLevel = e.AwardLevel
+	}
 
 	return item
 }

@@ -23,6 +23,7 @@ interface EvidenceVaultProps {
   >;
   activityCriteriaMap: ActivityCriteriaMap;
   activities: ActivityItem[];
+  className?: string;
 }
 
 export function EvidenceVault({
@@ -32,9 +33,10 @@ export function EvidenceVault({
   statusBadgeVariant,
   activityCriteriaMap,
   activities,
+  className,
 }: EvidenceVaultProps) {
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">Kho lưu trữ minh chứng</CardTitle>
         <Button size="sm" className="gap-1" onClick={onUpload}>

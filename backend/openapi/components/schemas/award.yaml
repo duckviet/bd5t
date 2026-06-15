@@ -1,0 +1,133 @@
+AwardEvidenceItem:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    userId:
+      type: string
+      format: uuid
+    userFullName:
+      type: [string, "null"]
+    userStudentId:
+      type: [string, "null"]
+    userClassName:
+      type: [string, "null"]
+    userUnitId:
+      type: [string, "null"]
+      format: uuid
+    userUnitName:
+      type: [string, "null"]
+    activityId:
+      type: string
+      format: uuid
+    activityTitle:
+      type: string
+    criteria:
+      type: array
+      items:
+        type: string
+        enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+    score:
+      type: [integer, "null"]
+      description: Current score assigned to this evidence
+    awardLevel:
+      type: [string, "null"]
+      enum: [NONE, KHUYEN_KHICH, BA, NHI, NHAT]
+    reviewedAt:
+      type: [string, "null"]
+      format: date-time
+
+AwardActivityOverview:
+  type: object
+  properties:
+    activityId:
+      type: string
+      format: uuid
+    activityTitle:
+      type: string
+    reviewLevel:
+      type: [string, "null"]
+      enum: [TRUONG, DHQGHN, THANH_PHO, TRUNG_UONG]
+    criteria:
+      type: array
+      items:
+        type: string
+        enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+    awardStats:
+      $ref: "#/AwardActivityStats"
+    totalStudents:
+      type: integer
+    students:
+      type: array
+      items:
+        $ref: "#/AwardStudentOverview"
+
+AwardActivityStats:
+  type: object
+  properties:
+    NHAT:
+      type: integer
+    NHI:
+      type: integer
+    BA:
+      type: integer
+    KHUYEN_KHICH:
+      type: integer
+    NONE:
+      type: integer
+
+AwardStudentOverview:
+  type: object
+  properties:
+    userId:
+      type: string
+      format: uuid
+    userFullName:
+      type: [string, "null"]
+    userStudentId:
+      type: [string, "null"]
+    className:
+      type: [string, "null"]
+    evidences:
+      type: array
+      items:
+        $ref: "#/AwardEvidenceInfo"
+
+AwardEvidenceInfo:
+  type: object
+  properties:
+    evidenceId:
+      type: string
+      format: uuid
+    criteria:
+      type: string
+      enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+    awardLevel:
+      type: [string, "null"]
+      enum: [NONE, KHUYEN_KHICH, BA, NHI, NHAT]
+    score:
+      type: [integer, "null"]
+    fileUrl:
+      type: [string, "null"]
+    description:
+      type: [string, "null"]
+    createdAt:
+      type: [string, "null"]
+      format: date-time
+
+BulkUpdateAwardLevelRequest:
+  type: object
+  required:
+    - ids
+    - awardLevel
+  properties:
+    ids:
+      type: array
+      minItems: 1
+      items:
+        type: string
+        format: uuid
+    awardLevel:
+      type: string
+      enum: [NONE, KHUYEN_KHICH, BA, NHI, NHAT]

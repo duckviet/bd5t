@@ -43,6 +43,10 @@ EvidenceItem:
     score:
       type: [integer, "null"]
       description: Score assigned by reviewer when evidence is approved; null = not reviewed
+    awardLevel:
+      type: [string, "null"]
+      enum: [NONE, KHUYEN_KHICH, BA, NHI, NHAT]
+      description: Award level assigned by reviewer when evidence is approved
     fileUrl:
       type: string
       format: uri
@@ -121,9 +125,10 @@ ReviewEvidenceRequest:
       type: boolean
       default: false
       description: Allow re-reviewing already reviewed evidence
-    score:
-      type: [integer, "null"]
-      description: Optional score assigned by reviewer when approving
+    awardLevel:
+      type: [string, "null"]
+      enum: [NONE, KHUYEN_KHICH, BA, NHI, NHAT]
+      description: Optional award level assigned by reviewer when approving
 
 BulkReviewEvidenceRequest:
   type: object

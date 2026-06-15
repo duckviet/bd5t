@@ -1,15 +1,16 @@
 package domain
 
 type LeaderboardItem struct {
-	Rank          int
-	UserID        string
-	StudentID     string
-	UserName      string
-	UnitID        *string
-	UnitName      *string
-	ClassName     *string
-	TotalApproved int
-	TotalScore    int
+	Rank              int
+	UserID            string
+	StudentID         string
+	UserName          string
+	UnitID            *string
+	UnitName          *string
+	ClassName         *string
+	TotalApproved     int
+	TotalScore        int
+	HighestAwardLevel *string
 }
 
 type LeaderboardCriteriaStat struct {

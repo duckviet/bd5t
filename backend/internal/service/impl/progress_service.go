@@ -33,6 +33,13 @@ func (s *ProgressService) GetProgress(ctx context.Context, userID string) (*dto.
 		return nil, errors.ErrInternalError(err, "failed to get progress")
 	}
 
+	approved := domain.StatusApproved
+	evidenceList, err := s.evidenceRepo.List(ctx, userID, interfaces.EvidenceFilter{Status: &approved}, 1, 1000)
+	if err != nil {
+		return nil, errors.ErrInternalError(err, "failed to get approved evidences")
+	}
+	criteriaScores := calculateCriteriaScores(evidenceList.Evidences)
+
 	matrix := &dto.ProgressMatrix{
 		UserId:     userID,
 		Activities: make([]dto.ProgressMatrixCell, 0, len(progressList)),
@@ -71,6 +78,20 @@ func (s *ProgressService) GetProgress(ctx context.Context, userID string) (*dto.
 		matrix.Activities = append(matrix.Activities, cell)
 	}
 
+	matrix.CriteriaScores = make([]dto.ProgressMatrixCriteriaScoresInner, 0, len(criteriaScores))
+	for _, score := range criteriaScores {
+		matrix.CriteriaScores = append(matrix.CriteriaScores, dto.ProgressMatrixCriteriaScoresInner{
+			Criteria:              score.Criteria,
+			Label:                 score.Label,
+			Score:                 int32(score.Score),
+			MaxScore:              int32(score.MaxScore),
+			ParticipationScore:    int32(score.ParticipationScore),
+			AwardScore:            int32(score.AwardScore),
+			ApprovedActivityCount: int32(score.ApprovedActivityCount),
+			AwardLevel:            string(score.AwardLevel),
+		})
+	}
+
 	return matrix, nil
 }
 
@@ -81,44 +102,8 @@ func (s *ProgressService) RecalculateProgress(ctx context.Context, userID string
 	}
 
 	for _, activity := range activities.Activities {
-		criteriaDocs, err := s.activityRepo.GetCriteriaDocsByActivityID(ctx, activity.ID)
-		if err != nil {
-			continue
-		}
-
-		var totalScore int
-		var completedCriteria []domain.CompletedCriteria
-
-		for _, cd := range criteriaDocs {
-			approvedCount := 0
-			for i := 0; i < cd.MaxScore; i++ {
-				approvedCount++
-			}
-
-			completedCriteria = append(completedCriteria, domain.CompletedCriteria{
-				CriteriaID:       cd.CriteriaID,
-				CriteriaType:     string(cd.CriteriaType),
-				CriteriaTitle:    cd.Title,
-				CriteriaDocID:    cd.ID,
-				CriteriaDocTitle: cd.Title,
-				Score:            cd.MaxScore,
-				EvidenceCount:    approvedCount,
-			})
-			totalScore += cd.MaxScore
-		}
-
-		progress := &domain.Progress{
-			UserID:     userID,
-			ActivityID: activity.ID,
-			TotalScore: totalScore,
-		}
-
-		if len(completedCriteria) > 0 {
-			progress.CompletedCriteria = completedCriteria
-		}
-
-		if err := s.progressRepo.Upsert(ctx, progress); err != nil {
-			return errors.ErrInternalError(err, "failed to upsert progress")
+		if err := s.RecalculateForUserActivity(ctx, userID, activity.ID); err != nil {
+			return err
 		}
 	}
 
@@ -135,17 +120,37 @@ func (s *ProgressService) RecalculateForUserActivity(ctx context.Context, userID
 		return errors.ErrInternalError(err, "failed to list evidences for progress recalc")
 	}
 
-	var total int
-	for _, e := range res.Evidences {
-		if e.IsApproved() && e.Score != nil {
-			total += *e.Score
+	scores := calculateCriteriaScores(res.Evidences)
+	completedCriteria := make([]domain.CompletedCriteria, 0, len(scores))
+	total := 0
+	for _, score := range scores {
+		if score.Score == 0 {
+			continue
 		}
+
+		completedCriteria = append(completedCriteria, domain.CompletedCriteria{
+			CriteriaID:         score.Criteria,
+			CriteriaType:       score.Criteria,
+			CriteriaTitle:      score.Label,
+			CriteriaDocID:      score.Criteria,
+			CriteriaDocTitle:   score.Label,
+			Score:              score.Score,
+			ParticipationScore: score.ParticipationScore,
+			AwardScore:         score.AwardScore,
+			AwardLevel:         string(score.AwardLevel),
+			EvidenceCount:      score.ApprovedActivityCount,
+		})
+		total += score.Score
 	}
 
 	progress := &domain.Progress{
 		UserID:     userID,
 		ActivityID: activityID,
 		TotalScore: total,
+	}
+
+	if len(completedCriteria) > 0 {
+		progress.CompletedCriteria = completedCriteria
 	}
 
 	if err := s.progressRepo.Upsert(ctx, progress); err != nil {

@@ -156,7 +156,7 @@ export function ActivityTable({
                 key={activity.id}
                 className={cn(
                   "transition-colors hover:bg-primary/5",
-                  idx % 2 === 0 ? "bg-white" : "bg-muted/20",
+                  idx % 2 === 0 ? "bg-white" : "bg-white/60",
                 )}
               >
                 <td className="px-4 py-3">

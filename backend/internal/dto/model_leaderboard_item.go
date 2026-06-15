@@ -30,4 +30,7 @@ type LeaderboardItem struct {
 
 	// Sum of all approved scores
 	TotalScore int32 `json:"totalScore,omitempty"`
+
+	// Highest award level achieved by the student across all approved evidences
+	HighestAwardLevel *string `json:"highestAwardLevel,omitempty"`
 }

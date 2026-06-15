@@ -1,0 +1,36 @@
+put:
+  summary: Bulk update award levels for multiple approved evidences
+  operationId: bulkUpdateAwardLevel
+  tags:
+    - Admin
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/award.yaml#/BulkUpdateAwardLevelRequest'
+  responses:
+    '200':
+      description: Award levels updated successfully
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponse'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '../../components/schemas/award.yaml#/AwardEvidenceItem'
+    '400':
+      $ref: '../../components/responses/error_responses.yaml#/BadRequest'
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '403':
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

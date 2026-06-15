@@ -1,30 +1,25 @@
 "use client"
 
-import { useState, useMemo, type ComponentType } from "react"
-import {
-  CheckCircle2,
-  Clock,
-  XCircle,
-  AlertCircle,
-  RefreshCw,
-} from "lucide-react";
+import { useState, useMemo } from "react"
+import { AlertCircle, RefreshCw } from "lucide-react";
 import {
   type CriterionType,
   type ReviewLevel,
 } from "@/lib/constants";
 
-import { ProfileCard } from "@/features/profile/components/profile-card"
-import { QuickStats } from "@/features/profile/components/quick-stats"
-import { ProgressMatrix } from "@/features/profile/components/progress-matrix"
-import { EvidenceVault } from "@/features/profile/components/evidence-vault"
-import { EvidenceView } from "@/features/profile/components/evidence-view"
 import { EditProfileDialog } from "@/features/profile/components/edit-profile-dialog"
 import { UploadEvidenceDialog } from "@/components/evidence/upload-evidence-dialog"
+import {
+  createEmptyProgressPresenceMatrix,
+  type ActivityCriteriaMap,
+  type EvidenceViewType,
+  type ProgressPresenceMatrix,
+} from "@/entities/profile"
+import { ProfileDashboard, ProfileEvidenceScreen } from "@/widgets/profile"
 import type {
-  EvidenceViewType,
-  ProgressPresenceMatrix,
-  ActivityCriteriaMap,
-} from "@/features/profile/types";
+  EvidenceItem,
+  ActivityItem,
+} from "@/services/generated/api";
 import {
   getEvidenceCriteria,
   normalizeCriteria,
@@ -33,66 +28,12 @@ import {
   useMe,
   useListActivities,
   useListEvidences,
+  useGetProgress,
   type UserProfile,
-  type EvidenceItem,
   type EvidenceItemStatus,
-  type ActivityItem,
 } from "@/services/generated/api";
 import { Button } from "@/components/ui/button";
 import { ProfileSkeleton } from "@/components/common/loading";
-
-function createEmptyMatrix(): ProgressPresenceMatrix {
-  return {
-    DAO_DUC: {
-      TRUONG: false,
-      DHQGHN: false,
-      THANH_PHO: false,
-      TRUNG_UONG: false,
-    },
-    HOC_TAP: {
-      TRUONG: false,
-      DHQGHN: false,
-      THANH_PHO: false,
-      TRUNG_UONG: false,
-    },
-    THE_LUC: {
-      TRUONG: false,
-      DHQGHN: false,
-      THANH_PHO: false,
-      TRUNG_UONG: false,
-    },
-    TINH_NGUYEN: {
-      TRUONG: false,
-      DHQGHN: false,
-      THANH_PHO: false,
-      TRUNG_UONG: false,
-    },
-    HOI_NHAP: {
-      TRUONG: false,
-      DHQGHN: false,
-      THANH_PHO: false,
-      TRUNG_UONG: false,
-    },
-  };
-}
-
-const statusBadgeVariant: Record<
-  EvidenceItemStatus,
-  "success" | "secondary" | "destructive"
-> = {
-  pending: "secondary",
-  approved: "success",
-  rejected: "destructive",
-};
-
-const statusIcon: Record<
-  EvidenceItemStatus,
-  ComponentType<{ className?: string }>
-> = {
-  pending: Clock,
-  approved: CheckCircle2,
-  rejected: XCircle,
-};
 
 export default function ProfilePage() {
   const [viewMode, setViewMode] = useState<"profile" | "evidences">("profile")
@@ -131,12 +72,19 @@ export default function ProfilePage() {
   } = useListActivities(undefined, {
     query: { retry: false, refetchOnWindowFocus: false },
   });
+  const { data: progressData } = useGetProgress({
+    query: { retry: false, refetchOnWindowFocus: false },
+  });
 
   const apiUser = user ?? meData?.data ?? null;
   const evidences = useMemo(() => evidencesData?.data ?? [], [evidencesData]);
   const activities = useMemo(
     () => activitiesData?.data ?? [],
     [activitiesData],
+  );
+  const criteriaScores = useMemo(
+    () => progressData?.data?.criteriaScores ?? [],
+    [progressData],
   );
 
   const activityCriteriaMap = useMemo<ActivityCriteriaMap>(() => {
@@ -153,7 +101,7 @@ export default function ProfilePage() {
   }, [activities]);
 
   const progressMatrix = useMemo<ProgressPresenceMatrix>(() => {
-    const matrix = createEmptyMatrix();
+    const matrix = createEmptyProgressPresenceMatrix();
 
     evidences.forEach((ev: EvidenceItem) => {
       if (ev.status !== "approved") {
@@ -173,14 +121,6 @@ export default function ProfilePage() {
 
     return matrix;
   }, [activities, activityCriteriaMap, evidences]);
-
-  const completedCount = useMemo(
-    () => evidences.filter((evidence) => evidence.status === "approved").length,
-    [evidences],
-  );
-  const totalCount = evidences.length;
-  const progressPercent =
-    totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
 
   const filteredEvidences = evidences.filter((ev: EvidenceItem) => {
     const q = searchQuery.toLowerCase();
@@ -210,47 +150,27 @@ export default function ProfilePage() {
   if (viewMode === "evidences") {
     return (
       <>
-        {isLoadingEvidences ? (
-          <div className="min-h-screen py-12">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <ProfileSkeleton />
-            </div>
-          </div>
-        ) : evidencesError ? (
-          <div className="min-h-screen py-12 flex items-center justify-center">
-            <div className="text-center">
-              <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-              <p className="text-destructive mb-4">
-                Không thể tải danh sách minh chứng
-              </p>
-              <Button onClick={() => refetchEvidences()} variant="outline">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Thử lại
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <EvidenceView
-            items={filteredEvidences}
-            totalCount={evidences.length}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            filterStatus={filterStatus}
-            onStatusChange={setFilterStatus}
-            filterCriterion={filterCriterion}
-            onCriterionChange={setFilterCriterion}
-            filterLevel={filterLevel}
-            onLevelChange={setFilterLevel}
-            viewType={viewType}
-            onViewTypeChange={setViewType}
-            onBack={() => setViewMode("profile")}
-            onUpload={() => setUploadOpen(true)}
-            statusBadgeVariant={statusBadgeVariant}
-            statusIcon={statusIcon}
-            activityCriteriaMap={activityCriteriaMap}
-            activities={activities}
-          />
-        )}
+        <ProfileEvidenceScreen
+          isLoading={isLoadingEvidences}
+          error={evidencesError}
+          filteredEvidences={filteredEvidences}
+          totalCount={evidences.length}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          filterStatus={filterStatus}
+          onStatusChange={setFilterStatus}
+          filterCriterion={filterCriterion}
+          onCriterionChange={setFilterCriterion}
+          filterLevel={filterLevel}
+          onLevelChange={setFilterLevel}
+          viewType={viewType}
+          onViewTypeChange={setViewType}
+          onBack={() => setViewMode("profile")}
+          onUpload={() => setUploadOpen(true)}
+          onRetry={() => refetchEvidences()}
+          activityCriteriaMap={activityCriteriaMap}
+          activities={activities}
+        />
         <UploadEvidenceDialog
           key={uploadKey}
           open={uploadOpen}
@@ -286,29 +206,17 @@ export default function ProfilePage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1">
-              {apiUser && (
-                <ProfileCard user={apiUser} onEdit={() => setEditOpen(true)} />
-              )}
-              <QuickStats
-                completed={completedCount}
-                total={totalCount}
-                percent={progressPercent}
-              />
-            </div>
-            <div className="lg:col-span-2 space-y-6">
-              <ProgressMatrix data={progressMatrix} />
-              <EvidenceVault
-                items={evidences}
-                onViewAll={() => setViewMode("evidences")}
-                onUpload={() => setUploadOpen(true)}
-                statusBadgeVariant={statusBadgeVariant}
-                activityCriteriaMap={activityCriteriaMap}
-                activities={activities}
-              />
-            </div>
-          </div>
+          <ProfileDashboard
+            user={apiUser}
+            criteriaScores={criteriaScores}
+            progressMatrix={progressMatrix}
+            evidences={evidences}
+            activityCriteriaMap={activityCriteriaMap}
+            activities={activities}
+            onEditProfile={() => setEditOpen(true)}
+            onViewEvidences={() => setViewMode("evidences")}
+            onUploadEvidence={() => setUploadOpen(true)}
+          />
         )}
       </div>
 

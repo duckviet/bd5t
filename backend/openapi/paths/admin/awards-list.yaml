@@ -1,0 +1,36 @@
+get:
+  summary: List activities with award overview for award management
+  operationId: listAwardActivities
+  tags:
+    - Admin
+  security:
+    - bearerAuth: []
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameters/_index.yaml#/page'
+    - $ref: '../../components/parameters/_index.yaml#/pageSize'
+    - name: search
+      in: query
+      description: Search by activity title
+      schema:
+        type: string
+  responses:
+    '200':
+      description: List of activities with award overview
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../components/schemas/_common.yaml#/ApiResponseList'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '../../components/schemas/award.yaml#/AwardActivityOverview'
+    '401':
+      $ref: '../../components/responses/error_responses.yaml#/Unauthorized'
+    '403':
+      $ref: '../../components/responses/error_responses.yaml#/Forbidden'
+    '500':
+      $ref: '../../components/responses/error_responses.yaml#/InternalServerError'

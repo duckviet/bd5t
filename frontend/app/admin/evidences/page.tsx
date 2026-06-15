@@ -21,6 +21,7 @@ import type {
 } from "@/services/generated/api"
 import {
   BulkReviewEvidenceRequestStatus,
+  ReviewEvidenceRequestAwardLevel,
   getGetAdminEvidenceStatsQueryKey,
   getListLeaderboardQueryKey,
   getListNotificationsQueryKey,
@@ -66,6 +67,22 @@ function formatDate(value?: string) {
   return value ? new Date(value).toLocaleDateString("vi-VN") : "Chưa xác định"
 }
 
+function getAwardLevelLabel(level?: string | null) {
+  switch (level) {
+    case "KHUYEN_KHICH":
+      return "Khuyến khích"
+    case "BA":
+      return "Giải Ba"
+    case "NHI":
+      return "Giải Nhì"
+    case "NHAT":
+      return "Giải Nhất"
+    case "NONE":
+    default:
+      return "Không có giải"
+  }
+}
+
 function escapeCsvCell(value: unknown) {
   return `"${String(value ?? "").replace(/"/g, '""')}"`
 }
@@ -82,6 +99,7 @@ function exportEvidencesCsv(evidences: EvidenceItem[]) {
     "Trạng thái",
     "Ngày nộp",
     "Điểm",
+    "Cấp giải",
     "Ghi chú duyệt",
     "File",
   ]
@@ -101,6 +119,7 @@ function exportEvidencesCsv(evidences: EvidenceItem[]) {
       getStatusLabel(evidence.status),
       formatDate(evidence.createdAt),
       evidence.score ?? "",
+      getAwardLevelLabel(evidence.awardLevel),
       evidence.reviewNote ?? "",
       evidence.fileUrl ?? "",
     ]
@@ -132,6 +151,9 @@ export default function AdminEvidencesPage() {
   const [selectedEvidence, setSelectedEvidence] = useState<EvidenceItem | null>(null)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [reviewNote, setReviewNote] = useState("")
+  const [awardLevel, setAwardLevel] = useState<ReviewEvidenceRequestAwardLevel>(
+    ReviewEvidenceRequestAwardLevel.NONE,
+  )
   const [bulkNote, setBulkNote] = useState("")
   const previousPendingRef = useRef<number | null>(null)
   const queryClient = useQueryClient()
@@ -198,7 +220,12 @@ export default function AdminEvidencesPage() {
     queryClient.invalidateQueries({ queryKey: ["/admin/evidences"] })
     queryClient.invalidateQueries({ queryKey: getGetAdminEvidenceStatsQueryKey() })
     queryClient.invalidateQueries({ queryKey: getListNotificationsQueryKey() })
-    queryClient.invalidateQueries({ queryKey: getListLeaderboardQueryKey() })
+    queryClient.invalidateQueries({
+      predicate: (query) =>
+        query.queryKey[0] === "/leaderboard" ||
+        (typeof query.queryKey[0] === "string" && query.queryKey[0].startsWith("/leaderboard")),
+    })
+    queryClient.invalidateQueries({ queryKey: ["/admin/awards/activities"] })
   }
 
   const reviewMutation = useReviewEvidence({
@@ -207,6 +234,7 @@ export default function AdminEvidencesPage() {
         const reviewed = response.data ?? null
         if (reviewed) {
           setSelectedEvidence(reviewed)
+          setAwardLevel(reviewed.awardLevel ?? ReviewEvidenceRequestAwardLevel.NONE)
         }
         setReviewNote("")
         invalidateAdminEvidenceData()
@@ -235,11 +263,17 @@ export default function AdminEvidencesPage() {
   const handleReview = (status: ReviewDecision) => {
     if (!selectedEvidence?.id) return
 
+    const normalizedAwardLevel =
+      status === "approved" && awardLevel !== ReviewEvidenceRequestAwardLevel.NONE
+        ? awardLevel
+        : undefined
+
     reviewMutation.mutate({
       id: selectedEvidence.id,
       data: {
         status,
         reviewNote: reviewNote.trim() || undefined,
+        awardLevel: normalizedAwardLevel,
       },
     })
   }
@@ -268,6 +302,7 @@ export default function AdminEvidencesPage() {
   const handleSelectEvidence = (evidence: EvidenceItem) => {
     setSelectedEvidence(evidence)
     setReviewNote(evidence.reviewNote ?? "")
+    setAwardLevel(evidence.awardLevel ?? ReviewEvidenceRequestAwardLevel.NONE)
   }
 
   const clearFilters = () => {
@@ -426,8 +461,10 @@ export default function AdminEvidencesPage() {
             <EvidenceDetailPanel
               evidence={selectedEvidence}
               reviewNote={reviewNote}
+              awardLevel={awardLevel}
               isReviewing={reviewMutation.isPending}
               onReviewNoteChange={setReviewNote}
+              onAwardLevelChange={setAwardLevel}
               onReview={handleReview}
             />
           </div>

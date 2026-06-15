@@ -17,4 +17,17 @@ type LeaderboardCriteriaStat struct {
 
 	// Number of approved activities/evidences counted for this criterion
 	ApprovedActivities int32 `json:"approvedActivities"`
+
+	// Total score for the criterion after participation and award points
+	Score int32 `json:"score,omitempty"`
+
+	MaxScore int32 `json:"maxScore,omitempty"`
+
+	// Score from approved participation count
+	ParticipationScore int32 `json:"participationScore,omitempty"`
+
+	// Score from the highest award level within the criterion
+	AwardScore int32 `json:"awardScore,omitempty"`
+
+	AwardLevel string `json:"awardLevel,omitempty"`
 }

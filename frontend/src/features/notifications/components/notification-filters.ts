@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Clock,
   Lightbulb,
+  Trophy,
   UserPlus,
   XCircle,
   type LucideIcon,
@@ -77,6 +78,10 @@ const notificationTypeConfig: Record<string, NotificationTypeConfig> = {
     icon: UserPlus,
     colorClassName: "bg-sky-100 text-sky-700",
   },
+  AWARD_RECEIVED: {
+    icon: Trophy,
+    colorClassName: "bg-yellow-100 text-yellow-700",
+  },
 }
 
 const fallbackNotificationConfig: NotificationTypeConfig = {
@@ -98,7 +103,7 @@ export function matchesNotificationFilter(
     case "unread":
       return !notification.isRead
     case "approved":
-      return notification.type === "EVIDENCE_APPROVED"
+      return notification.type === "EVIDENCE_APPROVED" || notification.type === "AWARD_RECEIVED"
     case "rejected":
       return notification.type === "EVIDENCE_REJECTED"
     case "activity":

@@ -24,6 +24,7 @@ type Evidence struct {
 	ReviewNote         *string
 	ReviewedBy         *string
 	ReviewedAt         *time.Time
+	AwardLevel         *string
 	CriterionType      *string
 	Criteria           []string
 	ReviewLevel        *string

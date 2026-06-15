@@ -77,7 +77,14 @@ func (r *LeaderboardRepository) List(ctx context.Context, filter interfaces.Lead
 	queryArgs := append([]interface{}{}, args...)
 	queryArgs = append(queryArgs, pageSize, offset)
 	query := leaderboardRankingCTE + fmt.Sprintf(`
-		SELECT rank, user_id, student_id, user_name, unit_id, unit_name, class_name, total_approved, total_score
+		SELECT rank, user_id, student_id, user_name, unit_id, unit_name, class_name, total_approved, total_score,
+			(SELECT e2.award_level FROM evidences e2
+			 WHERE e2.user_id = ranked.user_id AND e2.status = 'approved'
+			   AND e2.award_level IS NOT NULL AND e2.award_level != 'NONE'
+			 ORDER BY CASE e2.award_level
+				 WHEN 'NHAT' THEN 5 WHEN 'NHI' THEN 4 WHEN 'BA' THEN 3 WHEN 'KHUYEN_KHICH' THEN 2 ELSE 1
+			 END DESC
+			 LIMIT 1) as highest_award_level
 		FROM ranked%s
 		ORDER BY rank ASC
 		LIMIT $%d OFFSET $%d`, whereClause, len(queryArgs)-1, len(queryArgs))
@@ -103,6 +110,7 @@ func (r *LeaderboardRepository) List(ctx context.Context, filter interfaces.Lead
 			&className,
 			&item.TotalApproved,
 			&item.TotalScore,
+			&item.HighestAwardLevel,
 		)
 		if err != nil {
 			return nil, err

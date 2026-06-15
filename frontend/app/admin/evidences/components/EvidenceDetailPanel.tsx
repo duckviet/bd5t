@@ -4,19 +4,27 @@ import { Calendar, RefreshCw, CheckCircle2, XCircle, ImageIcon } from "lucide-re
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { StudentAvatar } from "./StudentAvatar"
 import { EvidenceFilePreview } from "./EvidenceFilePreview"
 import { REVIEW_LEVELS, EVIDENCE_STATUS } from "@/lib/constants"
 import { getEvidenceCriteriaLabel } from "@/features/profile/evidence-criteria"
-import type { EvidenceItem, EvidenceItemStatus } from "@/services/generated/api"
+import {
+  EvidenceItemAwardLevel,
+  ReviewEvidenceRequestAwardLevel,
+  type EvidenceItem,
+  type EvidenceItemStatus,
+} from "@/services/generated/api"
 
 type ReviewDecision = "approved" | "rejected"
 
 interface EvidenceDetailPanelProps {
   evidence: EvidenceItem | null
   reviewNote: string
+  awardLevel: ReviewEvidenceRequestAwardLevel
   isReviewing: boolean
   onReviewNoteChange: (value: string) => void
+  onAwardLevelChange: (value: ReviewEvidenceRequestAwardLevel) => void
   onReview: (status: ReviewDecision) => void
 }
 
@@ -38,11 +46,29 @@ function formatDate(value?: string) {
   return value ? new Date(value).toLocaleDateString("vi-VN") : "Chưa xác định"
 }
 
+function getAwardLevelLabel(level?: string | null) {
+  switch (level) {
+    case "KHUYEN_KHICH":
+      return "Khuyến khích"
+    case "BA":
+      return "Giải Ba"
+    case "NHI":
+      return "Giải Nhì"
+    case "NHAT":
+      return "Giải Nhất"
+    case "NONE":
+    default:
+      return "Không có giải"
+  }
+}
+
 export function EvidenceDetailPanel({
   evidence,
   reviewNote,
+  awardLevel,
   isReviewing,
   onReviewNoteChange,
+  onAwardLevelChange,
   onReview,
 }: EvidenceDetailPanelProps) {
   if (!evidence) {
@@ -107,6 +133,10 @@ export function EvidenceDetailPanel({
               <Badge variant={statusBadgeVariant[status]}>{getStatusLabel(status)}</Badge>
             </div>
             <div>
+              <div className="mb-1 text-sm font-medium">Cấp giải</div>
+              <Badge variant="outline">{getAwardLevelLabel(evidence.awardLevel)}</Badge>
+            </div>
+            <div>
               <div className="mb-1 text-sm font-medium">Lớp</div>
               <div className="text-sm text-muted-foreground">{evidence.userClassName || "Chưa có"}</div>
             </div>
@@ -142,6 +172,31 @@ export function EvidenceDetailPanel({
               value={reviewNote}
               onChange={(event) => onReviewNoteChange(event.target.value)}
             />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium" htmlFor="award-level">
+              Cấp giải
+            </label>
+            <Select
+              value={awardLevel ?? ReviewEvidenceRequestAwardLevel.NONE}
+              onValueChange={(value) => onAwardLevelChange(value as ReviewEvidenceRequestAwardLevel)}
+              disabled={isReviewing || status !== "pending"}
+            >
+              <SelectTrigger id="award-level" className="bg-white">
+                <SelectValue placeholder="Chọn cấp giải" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={EvidenceItemAwardLevel.NONE}>Không có giải</SelectItem>
+                <SelectItem value={EvidenceItemAwardLevel.KHUYEN_KHICH}>Khuyến khích</SelectItem>
+                <SelectItem value={EvidenceItemAwardLevel.BA}>Giải Ba</SelectItem>
+                <SelectItem value={EvidenceItemAwardLevel.NHI}>Giải Nhì</SelectItem>
+                <SelectItem value={EvidenceItemAwardLevel.NHAT}>Giải Nhất</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="mt-1 text-xs text-muted-foreground">
+              Chỉ áp dụng khi duyệt minh chứng.
+            </div>
           </div>
         </div>
 

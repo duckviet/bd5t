@@ -88,7 +88,7 @@ export function EvidencePreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-6 rounded-2xl border bg-background/95 backdrop-blur-md shadow-2xl overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-6 rounded-2xl border backdrop-blur-md shadow-2xl overflow-hidden">
         <DialogHeader className="border-b pb-4 shrink-0">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">

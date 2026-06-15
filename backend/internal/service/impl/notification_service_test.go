@@ -24,8 +24,8 @@ func newFakeNotificationRepository() *fakeNotificationRepository {
 	}
 }
 
-func (r *fakeNotificationRepository) ListByUser(context.Context, string) ([]*domain.Notification, error) {
-	return nil, nil
+func (r *fakeNotificationRepository) ListByUser(context.Context, string, int, int) ([]*domain.Notification, int, error) {
+	return nil, 0, nil
 }
 
 func (r *fakeNotificationRepository) Create(context.Context, *domain.Notification) error {

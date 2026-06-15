@@ -1,211 +1,79 @@
 "use client"
 
+import { useMemo } from "react"
 import Link from "next/link"
 import {
   ArrowLeft,
   Award,
-  BookOpen,
   Building2,
-  Dumbbell,
-  Globe2,
   GraduationCap,
   Hash,
-  HeartHandshake,
   Loader2,
   Medal,
-  ShieldCheck,
   Trophy,
   User,
-  type LucideIcon,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
+import { AwardLevelBadge } from "@/entities/award"
 import {
-  LeaderboardCriteriaStatCriteria,
+  getSpecificBadges,
+  summarizeScores,
+} from "@/entities/badge"
+import { RadarChart } from "@/shared/ui"
+import {
   useGetLeaderboardDetail,
-  type LeaderboardCriteriaStat,
-  type LeaderboardDetail,
 } from "@/services/generated/api"
 
-const criteriaMeta: Record<
-  LeaderboardCriteriaStatCriteria,
-  { label: string; icon: LucideIcon; className: string }
-> = {
-  DAO_DUC: {
-    label: "Đạo đức tốt",
-    icon: ShieldCheck,
-    className: "bg-emerald-100 text-emerald-700",
-  },
-  HOC_TAP: {
-    label: "Học tập tốt",
-    icon: BookOpen,
-    className: "bg-blue-100 text-blue-700",
-  },
-  THE_LUC: {
-    label: "Thể lực tốt",
-    icon: Dumbbell,
-    className: "bg-rose-100 text-rose-700",
-  },
-  TINH_NGUYEN: {
-    label: "Tình nguyện tốt",
-    icon: HeartHandshake,
-    className: "bg-amber-100 text-amber-700",
-  },
-  HOI_NHAP: {
-    label: "Hội nhập tốt",
-    icon: Globe2,
-    className: "bg-violet-100 text-violet-700",
-  },
-}
-
-const criteriaOrder = Object.keys(criteriaMeta) as LeaderboardCriteriaStatCriteria[]
-
-function getStatMap(stats: LeaderboardCriteriaStat[] = []) {
-  return new Map(stats.map((stat) => [stat.criteria, stat]))
-}
-
-function getDisplayStat(
-  statMap: Map<LeaderboardCriteriaStatCriteria, LeaderboardCriteriaStat>,
-  criteria: LeaderboardCriteriaStatCriteria,
-) {
-  return (
-    statMap.get(criteria) ?? {
-      criteria,
-      label: criteriaMeta[criteria].label,
-      approvedActivities: 0,
-    }
-  )
-}
-
-function getPoint(index: number, value: number, max: number, radius: number, center: number) {
-  const angle = -Math.PI / 2 + (index * 2 * Math.PI) / criteriaOrder.length
-  const distance = (value / max) * radius
-
-  return {
-    x: center + Math.cos(angle) * distance,
-    y: center + Math.sin(angle) * distance,
-  }
-}
-
-function LeaderboardRadarChart({ detail }: { detail: LeaderboardDetail }) {
-  const statMap = getStatMap(detail.criteriaStats)
-  const values = criteriaOrder.map(
-    (criteria) => getDisplayStat(statMap, criteria).approvedActivities,
-  )
-  const maxValue = Math.max(1, ...values)
-  const center = 140
-  const radius = 92
-  const polygonPoints = values
-    .map((value, index) => {
-      const point = getPoint(index, value, maxValue, radius, center)
-      return `${point.x},${point.y}`
-    })
-    .join(" ")
-
-  return (
-    <div className="aspect-square w-full max-w-md">
-      <svg viewBox="0 0 280 280" role="img" aria-label="Biểu đồ radar 5 tiêu chí" className="h-full w-full">
-        {[1, 0.66, 0.33].map((scale) => {
-          const ring = criteriaOrder
-            .map((_, index) => {
-              const point = getPoint(index, maxValue * scale, maxValue, radius, center)
-              return `${point.x},${point.y}`
-            })
-            .join(" ")
-
-          return (
-            <polygon
-              key={scale}
-              points={ring}
-              fill="none"
-              stroke="currentColor"
-              strokeDasharray={scale === 1 ? "4 4" : undefined}
-              className="text-slate-200"
-            />
-          )
-        })}
-
-        {criteriaOrder.map((criteria, index) => {
-          const axis = getPoint(index, maxValue, maxValue, radius, center)
-          const label = getPoint(index, maxValue, maxValue, radius + 26, center)
-
-          return (
-            <g key={criteria}>
-              <line x1={center} y1={center} x2={axis.x} y2={axis.y} className="stroke-slate-200" />
-              <text
-                x={label.x}
-                y={label.y}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                className="fill-slate-500 text-[10px] font-medium"
-              >
-                {criteriaMeta[criteria].label}
-              </text>
-            </g>
-          )
-        })}
-
-        <polygon
-          points={polygonPoints}
-          className="fill-primary/25 stroke-primary"
-          strokeWidth={3}
-          strokeLinejoin="round"
-        />
-
-        {values.map((value, index) => {
-          const point = getPoint(index, value, maxValue, radius, center)
-
-          return (
-            <circle
-              key={criteriaOrder[index]}
-              cx={point.x}
-              cy={point.y}
-              r={5}
-              className="fill-background stroke-primary"
-              strokeWidth={3}
-            />
-          )
-        })}
-
-        <text x={center} y={center + 4} textAnchor="middle" className="fill-slate-400 text-xs">
-          0
-        </text>
-      </svg>
-    </div>
-  )
-}
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string
-  value: string | number
-  icon: LucideIcon
-}) {
-  return (
-    <Card>
-      <CardContent className="flex items-center gap-3 p-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="h-5 w-5" />
-        </div>
-        <div className="min-w-0">
-          <div className="text-xs text-muted-foreground">{label}</div>
-          <div className="truncate text-xl font-bold">{value}</div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
+import { StatCard } from "./components/stat-card"
+import { BadgeCollection } from "./components/badge-collection"
+import { AwardsList } from "./components/awards-list"
 
 export function LeaderboardDetailClient({ studentId }: { studentId: string }) {
   const detailQuery = useGetLeaderboardDetail(studentId, {
     query: { retry: false, refetchOnWindowFocus: false },
   })
   const detail = detailQuery.data?.data
+
+  const awardSummary = useMemo(() => {
+    const stats = detail?.criteriaStats ?? []
+    const levelOrder = ["NHAT", "NHI", "BA", "KHUYEN_KHICH", "NONE"]
+    let highestLevel: string | null = null
+    let totalAwardScore = 0
+    let totalParticipationScore = 0
+
+    for (const s of stats) {
+      if (s.awardLevel && levelOrder.includes(s.awardLevel)) {
+        const idx = levelOrder.indexOf(s.awardLevel)
+        const currentIdx = highestLevel ? levelOrder.indexOf(highestLevel) : -1
+        if (currentIdx === -1 || idx < currentIdx) {
+          highestLevel = s.awardLevel
+        }
+      }
+      totalAwardScore += s.awardScore ?? 0
+      totalParticipationScore += s.participationScore ?? 0
+    }
+
+    return { highestLevel, totalAwardScore, totalParticipationScore }
+  }, [detail?.criteriaStats])
+
+  const unlockedBadges = useMemo(() => {
+    if (!detail?.criteriaStats) return []
+    const summary = summarizeScores(detail.criteriaStats)
+    const list = [
+      ...getSpecificBadges(summary),
+    ].filter((b) => b.unlocked)
+
+    const map = new Map<string, typeof list[number]>()
+    for (const badge of list) {
+      if (!map.has(badge.id)) {
+        map.set(badge.id, badge)
+      }
+    }
+    return Array.from(map.values())
+  }, [detail?.criteriaStats])
 
   if (detailQuery.isLoading) {
     return (
@@ -233,8 +101,6 @@ export function LeaderboardDetailClient({ studentId }: { studentId: string }) {
       </div>
     )
   }
-
-  const statMap = getStatMap(detail.criteriaStats)
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-10">
@@ -283,41 +149,47 @@ export function LeaderboardDetailClient({ studentId }: { studentId: string }) {
               <div className="mt-6 grid gap-3 sm:grid-cols-3">
                 <StatCard label="Thứ hạng" value={`#${detail.rank}`} icon={Medal} />
                 <StatCard label="Hoạt động đã duyệt" value={detail.totalApproved} icon={Award} />
-                <StatCard label="Tổng điểm" value={detail.totalScore} icon={Trophy} />
+                <Card>
+                  <CardContent className="flex items-center gap-3 p-4 bg-white h-full">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <Trophy className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-muted-foreground">Cấp giải cao nhất</div>
+                      <div className="mt-1">
+                        <AwardLevelBadge level={awardSummary.highestLevel} />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Radar 5 tiêu chí</CardTitle>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-              <LeaderboardRadarChart detail={detail} />
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {criteriaOrder.map((criteria) => {
-            const stat = getDisplayStat(statMap, criteria)
-            const meta = criteriaMeta[criteria]
-            const Icon = meta.icon
-
-            return (
-              <Card key={criteria}>
-                <CardContent className="p-4">
-                  <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${meta.className}`}>
-                    <Icon className="h-5 w-5" />
+              <div className="mt-6 border-t pt-6 space-y-3">
+                <div className="text-sm font-semibold text-slate-500">Chi tiết điểm</div>
+                <div className="grid gap-4 grid-cols-3">
+                  <div className="bg-slate-50/50 rounded-xl p-4 flex flex-col justify-between border border-slate-100">
+                    <span className="text-xs text-muted-foreground font-medium">Điểm tham gia</span>
+                    <span className="text-2xl font-extrabold text-slate-700 mt-1">{awardSummary.totalParticipationScore}</span>
                   </div>
-                  <div className="text-sm font-semibold">{meta.label}</div>
-                  <div className="mt-2 text-2xl font-bold">{stat.approvedActivities}</div>
-                  <div className="text-xs text-muted-foreground">hoạt động đã duyệt</div>
-                </CardContent>
-              </Card>
-            )
-          })}
+                  <div className="bg-slate-50/50 rounded-xl p-4 flex flex-col justify-between border border-slate-100">
+                    <span className="text-xs text-muted-foreground font-medium">Điểm giải thưởng</span>
+                    <span className="text-2xl font-extrabold text-yellow-600 mt-1">+{awardSummary.totalAwardScore}</span>
+                  </div>
+                  <div className="bg-primary/5 rounded-xl p-4 flex flex-col justify-between border border-primary/10">
+                    <span className="text-xs text-primary/80 font-semibold">Tổng điểm</span>
+                    <span className="text-2xl font-black text-primary mt-1">{detail.totalScore}</span>
+                  </div>
+                </div>
+              </div>
+
+              <BadgeCollection unlockedBadges={unlockedBadges} />
+            </CardContent>
+          </Card>
+
+          <RadarChart stats={detail.criteriaStats} />
         </div>
+
+        <AwardsList awards={detail.awards} />
       </div>
     </div>
   )

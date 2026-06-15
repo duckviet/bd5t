@@ -8,6 +8,44 @@ ProgressMatrix:
       type: array
       items:
         $ref: "#/ProgressMatrixCell"
+    criteriaScores:
+      type: array
+      items:
+        $ref: "#/ProgressCriteriaScore"
+
+ProgressCriteriaScore:
+  type: object
+  properties:
+    criteria:
+      type: string
+      enum: [DAO_DUC, HOC_TAP, THE_LUC, TINH_NGUYEN, HOI_NHAP]
+      example: "DAO_DUC"
+    label:
+      type: string
+      example: "Đạo đức tốt"
+    score:
+      type: integer
+      description: Total score for the criterion after participation and award points
+      example: 150
+    maxScore:
+      type: integer
+      example: 200
+    participationScore:
+      type: integer
+      description: Score from approved participation count
+      example: 50
+    awardScore:
+      type: integer
+      description: Score from the highest award level within the criterion
+      example: 100
+    approvedActivityCount:
+      type: integer
+      description: Number of approved activities counted for this criterion
+      example: 2
+    awardLevel:
+      type: string
+      enum: [NONE, KHUYEN_KHICH, BA, NHI, NHAT]
+      example: "NHAT"
 
 ProgressMatrixCell:
   type: object

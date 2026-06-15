@@ -20,6 +20,7 @@ NotificationItem:
         - ACTIVITY_DEADLINE_SOON
         - SUGGESTION
         - ACTIVITY_INVITE
+        - AWARD_RECEIVED
       example: "ACTIVITY_NEW"
     isRead:
       type: boolean

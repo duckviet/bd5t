@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   X,
+  Trophy,
 } from "lucide-react";
 import { useState } from "react"
 import { useAuthStore } from "@/features/auth/store/authStore"
@@ -29,6 +30,7 @@ const navItems = [
 const adminNavItems = [
   { href: "/admin/activities", label: "QL hoạt động", icon: Calendar },
   { href: "/admin/evidences", label: "Duyệt minh chứng", icon: FileText },
+  { href: "/admin/awards", label: "Quản lý giải", icon: Trophy },
 ]
 
 export function Navbar() {
@@ -71,7 +73,7 @@ export function Navbar() {
             </Link>
 
             <nav className="hidden md:flex items-center gap-1">
-              {navItems.map((item) => {
+              {!isAdmin && navItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link

@@ -123,7 +123,7 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 	progressAPI := handlers.NewProgressAPI(progressService)
 
 	leaderboardRepo := repoImpl.NewLeaderboardRepository(db)
-	leaderboardService := svcImpl.NewLeaderboardService(leaderboardRepo)
+	leaderboardService := svcImpl.NewLeaderboardService(leaderboardRepo, evidenceRepo)
 	leaderboardAPI := handlers.NewLeaderboardAPI(leaderboardService)
 
 	notificationService := svcImpl.NewNotificationService(notificationRepo)
@@ -180,6 +180,9 @@ func setupRouter(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
 			adminGroup.POST("/activities", middleware.AdminRequired(tokenMgr), adminAPI.CreateActivity)
 			adminGroup.POST("/activities/:id/:notificationAction", middleware.AdminRequired(tokenMgr), adminAPI.HandleActivityNotificationAction)
 			adminGroup.PATCH("/activities/:id", middleware.AdminRequired(tokenMgr), adminAPI.UpdateActivity)
+			adminGroup.GET("/awards/activities", middleware.AdminRequired(tokenMgr), adminAPI.ListAwardActivities)
+			adminGroup.PUT("/evidences/awards/bulk", middleware.AdminRequired(tokenMgr), adminAPI.BulkUpdateAwardLevel)
+			adminGroup.GET("/evidences/awards", middleware.AdminRequired(tokenMgr), adminAPI.ListAwardEvidences)
 			adminGroup.DELETE("/activities/:id", middleware.AdminRequired(tokenMgr), adminAPI.DeleteActivity)
 		}
 	}

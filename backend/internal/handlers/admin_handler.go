@@ -314,4 +314,117 @@ func (h *AdminAPI) NotifyDeadlineSoon(c *gin.Context) {
 	response.OK(c, result)
 }
 
+func (h *AdminAPI) ListAwardActivities(c *gin.Context) {
+	page := 1
+	pageSize := 20
+	if p := c.Query("page"); p != "" {
+		if _, err := fmt.Sscanf(p, "%d", &page); err != nil {
+			page = 1
+		}
+	}
+	if ps := c.Query("pageSize"); ps != "" {
+		if _, err := fmt.Sscanf(ps, "%d", &pageSize); err != nil {
+			pageSize = 20
+		}
+	}
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 20
+	}
+
+	var search *string
+	if value := c.Query("search"); value != "" {
+		search = &value
+	}
+
+	result, err := h.adminService.ListAwardActivities(c.Request.Context(), search, page, pageSize)
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	totalPages := (result.Total + result.PageSize - 1) / result.PageSize
+	response.Paginated(c, result.Activities, &response.PaginationMeta{
+		Page:       result.Page,
+		PageSize:   result.PageSize,
+		Total:      int64(result.Total),
+		TotalPages: totalPages,
+	})
+}
+
+func (h *AdminAPI) ListAwardEvidences(c *gin.Context) {
+	page := 1
+	pageSize := 20
+	if p := c.Query("page"); p != "" {
+		if _, err := fmt.Sscanf(p, "%d", &page); err != nil {
+			page = 1
+		}
+	}
+	if ps := c.Query("pageSize"); ps != "" {
+		if _, err := fmt.Sscanf(ps, "%d", &pageSize); err != nil {
+			pageSize = 20
+		}
+	}
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 20
+	}
+
+	var filter svcImpl.AwardEvidenceFilter
+	if value := c.Query("activityId"); value != "" {
+		filter.ActivityID = &value
+	}
+	if value := c.Query("awardLevel"); value != "" {
+		filter.AwardLevel = &value
+	}
+	if value := c.Query("unitId"); value != "" && value != "all" {
+		filter.UnitID = &value
+	}
+	if value := c.Query("search"); value != "" {
+		filter.Search = &value
+	}
+
+	result, err := h.adminService.ListAwardEvidences(c.Request.Context(), filter, page, pageSize)
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	totalPages := (result.Total + result.PageSize - 1) / result.PageSize
+	response.Paginated(c, result.Evidences, &response.PaginationMeta{
+		Page:       result.Page,
+		PageSize:   result.PageSize,
+		Total:      int64(result.Total),
+		TotalPages: totalPages,
+	})
+}
+
+func (h *AdminAPI) BulkUpdateAwardLevel(c *gin.Context) {
+	var req struct {
+		IDs        []string `json:"ids"`
+		AwardLevel string   `json:"awardLevel"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, appErrors.ErrBadRequest("Invalid request body"))
+		return
+	}
+
+	if len(req.IDs) == 0 {
+		response.Error(c, appErrors.ErrBadRequest("No evidences selected"))
+		return
+	}
+
+	result, err := h.adminService.BulkUpdateAwardLevel(c.Request.Context(), req.IDs, req.AwardLevel)
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	response.OK(c, result)
+}
+
 var _ interface{} = (*AdminAPI)(nil)
