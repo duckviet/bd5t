@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/responsive-dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { Drawer, DrawerContent } from "@/components/ui/drawer"
 import { AwardStatsBadge } from "./AwardStatsBadge"
 import { AwardStudentDetailPanel } from "./AwardStudentDetailPanel"
 import { BulkAwardDialog } from "./BulkAwardDialog"
@@ -52,6 +54,7 @@ export function AwardDetailDialog({
   onOpenChange,
   onUpdated,
 }: AwardDetailDialogProps) {
+  const { isMobile } = useMediaQuery()
   const bulkUpdateMutation = useBulkUpdateAwardLevel()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedEvidenceIds, setSelectedEvidenceIds] = useState<string[]>([])
@@ -238,7 +241,7 @@ export function AwardDetailDialog({
 
   return (
     <ResponsiveDialog open={open} onOpenChange={handleOpenChange}>
-      <ResponsiveDialogContent className="max-w-[95vw] w-full max-h-[90vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
+      <ResponsiveDialogContent className="md:max-w-[95vw] w-full max-h-[90vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
         <ResponsiveDialogHeader className="shrink-0 border-b px-6 py-4">
           <div className="flex items-center justify-between pr-8">
             <ResponsiveDialogTitle className="text-lg font-bold truncate">
@@ -278,30 +281,32 @@ export function AwardDetailDialog({
             </div>
 
             {/* Student table */}
-            <DataTable
-              data={tableData}
-              columns={columns}
-              onRowClick={(row) => row.evidence.evidenceId && handleRowClick(row.student, row.evidence.evidenceId)}
-              rowClassName={(row) => {
-                const isChecked = Boolean(
-                  row.evidence.evidenceId && selectedEvidenceIds.includes(row.evidence.evidenceId),
-                )
-                const isThisStudent = selectedStudent?.userId === row.student.userId
-                return cn(
-                  isChecked && "bg-primary/5 hover:bg-primary/5",
-                  isThisStudent && "bg-primary/10 hover:bg-primary/10",
-                )
-              }}
-              emptyMessage={
-                debouncedSearch.trim()
-                  ? "Không tìm thấy sinh viên phù hợp"
-                  : "Chưa có sinh viên nào được duyệt minh chứng"
-              }
-            />
+            <div className="overflow-x-auto w-full">
+              <DataTable
+                data={tableData}
+                columns={columns}
+                onRowClick={(row) => row.evidence.evidenceId && handleRowClick(row.student, row.evidence.evidenceId)}
+                rowClassName={(row) => {
+                  const isChecked = Boolean(
+                    row.evidence.evidenceId && selectedEvidenceIds.includes(row.evidence.evidenceId),
+                  )
+                  const isThisStudent = selectedStudent?.userId === row.student.userId
+                  return cn(
+                    isChecked && "bg-primary/5 hover:bg-primary/5",
+                    isThisStudent && "bg-primary/10 hover:bg-primary/10",
+                  )
+                }}
+                emptyMessage={
+                  debouncedSearch.trim()
+                    ? "Không tìm thấy sinh viên phù hợp"
+                    : "Chưa có sinh viên nào được duyệt minh chứng"
+                }
+              />
+            </div>
           </div>
 
           {/* Right pane: student detail panel */}
-          <div className="w-[420px] shrink-0 border-l overflow-y-auto bg-white flex flex-col">
+          <div className="hidden md:flex w-[420px] shrink-0 border-l overflow-y-auto bg-white flex-col">
             {currentSelectedStudent && activity ? (
               <AwardStudentDetailPanel
                 activity={activity}
@@ -378,6 +383,27 @@ export function AwardDetailDialog({
         studentName={pendingUpdate?.studentName}
         awardLevel={pendingUpdate?.awardLevel ?? ""}
       />
+
+      {isMobile && (
+        <Drawer
+          open={!!selectedStudent}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedStudent(null)
+            }
+          }}
+        >
+          <DrawerContent className="p-4 overflow-y-auto top-0">
+            {currentSelectedStudent && activity && (
+              <AwardStudentDetailPanel
+                activity={activity}
+                student={currentSelectedStudent}
+                onClose={() => setSelectedStudent(null)}
+              />
+            )}
+          </DrawerContent>
+        </Drawer>
+      )}
     </ResponsiveDialog>
   )
 }
