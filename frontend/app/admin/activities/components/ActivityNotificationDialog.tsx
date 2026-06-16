@@ -4,13 +4,13 @@ import { Bell } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog"
 import { CRITERIA, REVIEW_LEVELS } from "@/lib/constants"
 import type { ActivityItem } from "@/services/generated/api"
 
@@ -61,14 +61,14 @@ export function ActivityNotificationDialog({
   const selectedOption = notificationOptions.find((option) => option.value === notificationType)
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>Gửi thông báo hoạt động</DialogTitle>
-          <DialogDescription>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="max-w-3xl">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Gửi thông báo hoạt động</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             Kiểm tra hoạt động, loại thông báo và nhóm sinh viên sẽ được hệ thống tự động lọc trước khi gửi.
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
@@ -157,7 +157,7 @@ export function ActivityNotificationDialog({
           </div>
         </div>
 
-        <DialogFooter>
+        <ResponsiveDialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
             Hủy
           </Button>
@@ -165,8 +165,8 @@ export function ActivityNotificationDialog({
             <Bell className="h-4 w-4" />
             Gửi thông báo
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }

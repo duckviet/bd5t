@@ -5,11 +5,11 @@ import { toast } from "react-toastify"
 import { RefreshCw, Search, X, User } from "lucide-react"
 
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { AwardStatsBadge } from "./AwardStatsBadge"
@@ -237,13 +237,13 @@ export function AwardDetailDialog({
   )
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-[95vw] w-full max-h-[90vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
-        <DialogHeader className="shrink-0 border-b px-6 py-4">
+    <ResponsiveDialog open={open} onOpenChange={handleOpenChange}>
+      <ResponsiveDialogContent className="max-w-[95vw] w-full max-h-[90vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
+        <ResponsiveDialogHeader className="shrink-0 border-b px-6 py-4">
           <div className="flex items-center justify-between pr-8">
-            <DialogTitle className="text-lg font-bold truncate">
+            <ResponsiveDialogTitle className="text-lg font-bold truncate">
               {activity?.activityTitle ?? "Chi tiết"}
-            </DialogTitle>
+            </ResponsiveDialogTitle>
           </div>
           {activity && (
             <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -258,7 +258,7 @@ export function AwardDetailDialog({
               </span>
             </div>
           )}
-        </DialogHeader>
+        </ResponsiveDialogHeader>
 
         <div className="flex flex-1 overflow-hidden">
           {/* Left pane: student evidence table */}
@@ -360,7 +360,7 @@ export function AwardDetailDialog({
             </div>
           )}
         </div>
-      </DialogContent>
+      </ResponsiveDialogContent>
 
       <BulkAwardDialog
         open={bulkDialogOpen}
@@ -378,6 +378,6 @@ export function AwardDetailDialog({
         studentName={pendingUpdate?.studentName}
         awardLevel={pendingUpdate?.awardLevel ?? ""}
       />
-    </Dialog>
+    </ResponsiveDialog>
   )
 }

@@ -2,12 +2,12 @@
 
 import { Badge } from "@/components/ui/badge"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog"
 import { CRITERIA, REVIEW_LEVELS } from "@/lib/constants"
 import type { ActivityItem } from "@/services/generated/api"
 
@@ -25,14 +25,14 @@ export function ActivityViewDialog({
   if (!activity) return null
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{activity.title || "Chi tiết hoạt động"}</DialogTitle>
-          <DialogDescription>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="max-w-2xl">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>{activity.title || "Chi tiết hoạt động"}</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             Thông tin quản trị, số liệu minh chứng và cấu hình điểm của hoạt động
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
         <div className="grid gap-4 py-2 sm:grid-cols-2">
           <div>
@@ -96,7 +96,7 @@ export function ActivityViewDialog({
             </div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }

@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { StudentAvatar } from "./StudentAvatar"
 import { EvidenceFilePreview } from "./EvidenceFilePreview"
-import { REVIEW_LEVELS, EVIDENCE_STATUS } from "@/lib/constants"
-import { getEvidenceCriteriaLabel } from "@/features/profile/evidence-criteria"
+import { REVIEW_LEVELS, EVIDENCE_STATUS, CRITERIA } from "@/lib/constants"
+import { getEvidenceCriteria, getEvidenceCriteriaLabel } from "@/features/profile/evidence-criteria"
 import {
   EvidenceItemAwardLevel,
   ReviewEvidenceRequestAwardLevel,
@@ -73,7 +73,7 @@ export function EvidenceDetailPanel({
 }: EvidenceDetailPanelProps) {
   if (!evidence) {
     return (
-      <Card className="sticky top-24">
+      <Card className="md:sticky md:top-24">
         <CardContent className="p-8 text-center text-muted-foreground">
           Chọn một minh chứng để xem chi tiết
         </CardContent>
@@ -84,7 +84,7 @@ export function EvidenceDetailPanel({
   const status = (evidence.status ?? "pending") as EvidenceItemStatus
 
   return (
-    <Card className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
+    <Card className="md:sticky md:top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
       <CardHeader className="border-b p-4">
         <CardTitle className="text-lg">Chi tiết minh chứng</CardTitle>
       </CardHeader>
@@ -113,7 +113,19 @@ export function EvidenceDetailPanel({
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <div className="mb-1 text-sm font-medium">Tiêu chí</div>
-              <Badge variant="outline">{getEvidenceCriteriaLabel(evidence, {}, [])}</Badge>
+              <div className="flex flex-wrap gap-1.5">
+                {(() => {
+                  const criteriaList = getEvidenceCriteria(evidence, {}, [])
+                  if (criteriaList.length === 0) {
+                    return <Badge variant="outline">Chưa xác định tiêu chí</Badge>
+                  }
+                  return criteriaList.map((criterion) => (
+                    <Badge key={criterion} variant="outline">
+                      {CRITERIA[criterion]}
+                    </Badge>
+                  ))
+                })()}
+              </div>
             </div>
             <div>
               <div className="mb-1 text-sm font-medium">Cấp xét</div>

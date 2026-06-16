@@ -5,8 +5,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { StudentAvatar } from "./StudentAvatar"
-import { getEvidenceCriteriaLabel } from "@/features/profile/evidence-criteria"
-import { EVIDENCE_STATUS } from "@/lib/constants"
+import { getEvidenceCriteria, getEvidenceCriteriaLabel } from "@/features/profile/evidence-criteria"
+import { EVIDENCE_STATUS, CRITERIA } from "@/lib/constants"
 import type { EvidenceItem, EvidenceItemStatus } from "@/services/generated/api"
 
 interface EvidenceListProps {
@@ -69,7 +69,7 @@ export function EvidenceList({
             onClick={() => onSelectEvidence(evidence)}
           >
             <CardContent className="p-4">
-              <div className="flex items-start gap-3">
+              <div className="flex items-start w-full min-w-0 gap-3">
                 <input
                   type="checkbox"
                   checked={isChecked}
@@ -79,22 +79,34 @@ export function EvidenceList({
                   aria-label="Chọn minh chứng"
                 />
                 <StudentAvatar evidence={evidence} />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold">
-                    {evidence.activityTitle || evidence.description || "Minh chứng"}
-                  </div>
-                  <div className="mt-1 text-xs text-muted-foreground">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold max-w-[60vw]">
+                    {evidence.activityTitle || "Minh chứng"}
+                  </p>
+                  <div className="mt-1 truncate text-xs text-muted-foreground">
                     {evidence.userFullName || "Sinh viên"} -{" "}
                     {evidence.userStudentId || "Chưa có mã SV"}
                   </div>
-                  <div className="mt-1 text-xs text-muted-foreground">
+                  <div className="mt-1 truncate text-xs text-muted-foreground">
                     {[evidence.userClassName, evidence.userUnitName].filter(Boolean).join(" - ") ||
                       "Chưa có lớp/khoa"}
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className="text-xs">
-                      {getEvidenceCriteriaLabel(evidence, {}, [])}
-                    </Badge>
+                    {(() => {
+                      const criteriaList = getEvidenceCriteria(evidence, {}, [])
+                      if (criteriaList.length === 0) {
+                        return (
+                          <Badge variant="outline" className="text-xs">
+                            Chưa xác định tiêu chí
+                          </Badge>
+                        )
+                      }
+                      return criteriaList.map((criterion) => (
+                        <Badge key={criterion} variant="outline" className="text-xs">
+                          {CRITERIA[criterion]}
+                        </Badge>
+                      ))
+                    })()}
                     <Badge variant={statusBadgeVariant[status]} className="text-xs">
                       {getStatusLabel(status)}
                     </Badge>

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-toastify"
 import { Download } from "lucide-react"
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { Drawer, DrawerContent } from "@/components/ui/drawer"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -138,6 +140,7 @@ function exportEvidencesCsv(evidences: EvidenceItem[]) {
 }
 
 export default function AdminEvidencesPage() {
+  const { isMobile } = useMediaQuery()
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [criteriaFilter, setCriteriaFilter] = useState<CriteriaFilter>("all")
@@ -408,7 +411,7 @@ export default function AdminEvidencesPage() {
                 </Card>
               ))}
             </div>
-            <Card>
+            <Card className="hidden lg:block">
               <CardContent className="p-8">
                 <LoadingSkeleton className="mb-4 h-6 w-1/2" />
                 <LoadingSkeleton className="h-72 w-full" />
@@ -458,6 +461,31 @@ export default function AdminEvidencesPage() {
               />
             </div>
 
+            <div className="hidden lg:block">
+              <EvidenceDetailPanel
+                evidence={selectedEvidence}
+                reviewNote={reviewNote}
+                awardLevel={awardLevel}
+                isReviewing={reviewMutation.isPending}
+                onReviewNoteChange={setReviewNote}
+                onAwardLevelChange={setAwardLevel}
+                onReview={handleReview}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {isMobile && (
+        <Drawer
+          open={!!selectedEvidence}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedEvidence(null)
+            }
+          }}
+        >
+          <DrawerContent className="p-4 overflow-y-auto top-0">
             <EvidenceDetailPanel
               evidence={selectedEvidence}
               reviewNote={reviewNote}
@@ -467,9 +495,9 @@ export default function AdminEvidencesPage() {
               onAwardLevelChange={setAwardLevel}
               onReview={handleReview}
             />
-          </div>
-        )}
-      </div>
+          </DrawerContent>
+        </Drawer>
+      )}
     </div>
   )
 }

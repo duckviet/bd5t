@@ -2,13 +2,13 @@
 
 import { useState } from "react"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog"
 import { Button } from "@/components/ui/button"
 import {
   Select,
@@ -50,15 +50,15 @@ export function BulkAwardDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Cập nhật giải thưởng hàng loạt</DialogTitle>
-          <DialogDescription>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent>
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Cập nhật giải thưởng hàng loạt</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             Bạn sắp cập nhật cấp giải cho <strong>{count}</strong> minh chứng đã được duyệt.
             Hành động này sẽ ghi đè cấp giải hiện tại.
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="flex flex-col gap-2">
@@ -78,7 +78,7 @@ export function BulkAwardDialog({
           </div>
         </div>
 
-        <DialogFooter className="gap-2">
+        <ResponsiveDialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
             Hủy
           </Button>
@@ -86,8 +86,8 @@ export function BulkAwardDialog({
             {isPending && <RefreshCw className="h-4 w-4 animate-spin" />}
             Cập nhật {count} minh chứng
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }

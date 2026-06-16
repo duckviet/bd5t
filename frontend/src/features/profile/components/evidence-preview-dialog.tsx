@@ -1,12 +1,12 @@
 "use client"
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -87,9 +87,9 @@ export function EvidencePreviewDialog({
   }[status] || Clock
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-6 rounded-2xl border backdrop-blur-md shadow-2xl overflow-hidden">
-        <DialogHeader className="border-b pb-4 shrink-0">
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-6 rounded-2xl border backdrop-blur-md shadow-2xl overflow-hidden">
+        <ResponsiveDialogHeader className="border-b pb-4 shrink-0">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusColors[status]}`}>
@@ -100,15 +100,15 @@ export function EvidencePreviewDialog({
                 {REVIEW_LEVELS[evidence.reviewLevel || "TRUONG"]}
               </Badge>
             </div>
-            <DialogTitle className="text-xl font-bold tracking-tight mt-1">
+            <ResponsiveDialogTitle className="text-xl font-bold tracking-tight mt-1">
               {evidence.activityTitle || evidence.description || "Chi tiết minh chứng"}
-            </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+            </ResponsiveDialogTitle>
+            <ResponsiveDialogDescription className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
               <Calendar className="h-3.5 w-3.5" />
               Nộp lúc: {formatDate(evidence.createdAt)}
-            </DialogDescription>
+            </ResponsiveDialogDescription>
           </div>
-        </DialogHeader>
+        </ResponsiveDialogHeader>
 
         <div className="flex-1 overflow-y-auto py-4 space-y-6 pr-1">
           {/* Info Section */}
@@ -220,7 +220,7 @@ export function EvidencePreviewDialog({
             </div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }

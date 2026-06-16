@@ -4,12 +4,13 @@ import { useState, useRef, useEffect } from "react"
 import { toast } from "react-toastify"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+} from "@/components/ui/responsive-dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -128,16 +129,16 @@ export function UploadEvidenceDialog({ open, onOpenChange, onSuccess, initialAct
   const isPDF = file?.type === "application/pdf"
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
-        <DialogHeader>
-          <DialogTitle>Tải lên minh chứng</DialogTitle>
-          <DialogDescription>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="sm:max-w-xl">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Tải lên minh chứng</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             Chọn tệp minh chứng và thông tin liên quan
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
-        <div className="space-y-5">
+        <div className="space-y-5 overflow-y-auto max-h-[55vh] pr-1 py-1">
           <div className="space-y-2">
             <Label htmlFor="activity">Hoạt động</Label>
             <Select value={activityId} onValueChange={setActivityId} disabled={activitiesLoading || !!initialActivityId}>
@@ -238,7 +239,7 @@ export function UploadEvidenceDialog({ open, onOpenChange, onSuccess, initialAct
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-2">
+        <ResponsiveDialogFooter className="pt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={uploading}>
             Hủy
           </Button>
@@ -250,8 +251,8 @@ export function UploadEvidenceDialog({ open, onOpenChange, onSuccess, initialAct
             )}
             {uploading ? "Đang tải lên..." : "Tải lên"}
           </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }

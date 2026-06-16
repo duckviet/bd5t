@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,12 +8,12 @@ import { Label } from "@/components/ui/label"
 import { ImageIcon, Loader2, Upload, X } from "lucide-react"
 import { toast } from "react-toastify"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogFooter,
+} from "@/components/ui/responsive-dialog"
 import {
   Select,
   SelectContent,
@@ -25,6 +25,7 @@ import { CRITERIA, type CriterionType, REVIEW_LEVELS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import {
   uploadMedia,
+  useGetActivityDetail,
   type ActivityItem,
   type CreateActivityRequest,
   type ActivityItemReviewLevel,
@@ -58,6 +59,27 @@ export function ActivityDialog({
   const [isDraggingThumbnail, setIsDraggingThumbnail] = useState(false)
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false)
   const thumbnailInputRef = useRef<HTMLInputElement>(null)
+
+  const [hasLoadedDescription, setHasLoadedDescription] = useState(false)
+
+  const { data: detailData } = useGetActivityDetail(
+    editingActivity?.slug || "",
+    {
+      query: {
+        enabled: !!editingActivity?.slug,
+      },
+    }
+  )
+
+  useEffect(() => {
+    if (detailData?.data?.description && !hasLoadedDescription) {
+      onFormDataChange({
+        ...formData,
+        description: detailData.data.description,
+      })
+      setHasLoadedDescription(true)
+    }
+  }, [detailData, hasLoadedDescription, formData, onFormDataChange])
 
   const set = (field: keyof ActivityFormData, value: unknown) => {
     onFormDataChange({ ...formData, [field]: value })
@@ -128,13 +150,13 @@ export function ActivityDialog({
   const isSubmitting = isPending || isUploadingThumbnail
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl gap-0 p-0">
-        <DialogHeader className="p-4">
-          <DialogTitle>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="max-w-4xl gap-0 p-0 w-full">
+        <ResponsiveDialogHeader className="p-4">
+          <ResponsiveDialogTitle>
             {editingActivity ? "Sửa hoạt động" : "Thêm hoạt động mới"}
-          </DialogTitle>
-        </DialogHeader>
+          </ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
 
         <form onSubmit={handleSubmit} className="">
           <div className="space-y-4 py-4 px-1 max-h-[60vh] overflow-y-auto px-4 py-2">
@@ -355,6 +377,39 @@ export function ActivityDialog({
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="targetAudience">Đối tượng tham gia</Label>
+              <textarea
+                id="targetAudience"
+                className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={formData.targetAudience || ""}
+                onChange={(e) => set("targetAudience", e.target.value)}
+                placeholder="Nhập đối tượng tham gia"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rules">Thể lệ</Label>
+              <textarea
+                id="rules"
+                className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={formData.rules || ""}
+                onChange={(e) => set("rules", e.target.value)}
+                placeholder="Nhập thể lệ tham gia"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rewards">Cơ cấu giải thưởng</Label>
+              <textarea
+                id="rewards"
+                className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={formData.rewards || ""}
+                onChange={(e) => set("rewards", e.target.value)}
+                placeholder="Nhập cơ cấu giải thưởng"
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="description">Mô tả chi tiết</Label>
               <textarea
                 id="description"
@@ -366,7 +421,7 @@ export function ActivityDialog({
             </div>
           </div>
 
-          <DialogFooter className="p-4">
+          <ResponsiveDialogFooter className="p-4">
             <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
               Hủy
             </Button>
@@ -378,9 +433,9 @@ export function ActivityDialog({
               )}
               {editingActivity ? "Lưu thay đổi" : "Thêm hoạt động"}
             </Button>
-          </DialogFooter>
+          </ResponsiveDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }

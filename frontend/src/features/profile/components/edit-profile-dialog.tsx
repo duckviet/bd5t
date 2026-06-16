@@ -4,11 +4,12 @@ import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogFooter,
+} from "@/components/ui/responsive-dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Camera, Loader2 } from "lucide-react";
@@ -115,10 +116,10 @@ function EditProfileDialogContent({
   };
 
   return (
-    <DialogContent className="sm:max-w-lg">
-      <DialogHeader>
-        <DialogTitle>Chỉnh sửa thông tin cá nhân</DialogTitle>
-      </DialogHeader>
+    <ResponsiveDialogContent className="sm:max-w-lg">
+      <ResponsiveDialogHeader>
+        <ResponsiveDialogTitle>Chỉnh sửa thông tin cá nhân</ResponsiveDialogTitle>
+      </ResponsiveDialogHeader>
 
       <div className="flex justify-center mb-4">
         <div className="relative">
@@ -181,7 +182,7 @@ function EditProfileDialogContent({
         </p>
       </div>
 
-      <div className="flex justify-end gap-3 pt-2">
+      <ResponsiveDialogFooter className="pt-2">
         <Button
           variant="outline"
           onClick={() => {
@@ -201,8 +202,8 @@ function EditProfileDialogContent({
             "Lưu thay đổi"
           )}
         </Button>
-      </div>
-    </DialogContent>
+      </ResponsiveDialogFooter>
+    </ResponsiveDialogContent>
   );
 }
 
@@ -213,7 +214,7 @@ export function EditProfileDialog({
   onSave,
 }: EditProfileDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
       {open ? (
         <EditProfileDialogContent
           key={user.id ?? "profile-edit"}
@@ -222,6 +223,6 @@ export function EditProfileDialog({
           onOpenChange={onOpenChange}
         />
       ) : null}
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

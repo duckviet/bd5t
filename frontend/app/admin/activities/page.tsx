@@ -7,14 +7,7 @@ import { Bell, Download, Plus, Trash2, ToggleLeft, ToggleRight } from "lucide-re
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+
 import { CRITERIA, REVIEW_LEVELS } from "@/lib/constants"
 import {
   ListAdminActivitiesCriteria,
@@ -202,6 +195,9 @@ export default function AdminActivitiesPage() {
     isActive: true,
     criteria: [],
     notifyMatchedUsers: false,
+    rules: "",
+    targetAudience: "",
+    rewards: "",
   })
 
   const activities = useMemo<ActivityItem[]>(
@@ -241,6 +237,9 @@ export default function AdminActivitiesPage() {
       isActive: true,
       criteria: [],
       notifyMatchedUsers: false,
+      rules: "",
+      targetAudience: "",
+      rewards: "",
     })
     setIsDialogOpen(true)
   }
@@ -260,6 +259,9 @@ export default function AdminActivitiesPage() {
       isActive: activity.isActive ?? true,
       criteria: activity.criteria || [],
       notifyMatchedUsers: false,
+      rules: activity.rules || "",
+      targetAudience: activity.targetAudience || "",
+      rewards: activity.rewards || "",
     })
     setIsDialogOpen(true)
   }

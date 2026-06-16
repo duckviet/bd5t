@@ -257,7 +257,7 @@ export function EvidenceFilters({
             {/* Ngày nộp group */}
             <div className="flex flex-col gap-1.5 sm:col-span-2 md:col-span-2 lg:col-span-2">
               <span className="text-xs font-medium text-muted-foreground">Ngày nộp</span>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <div className="flex flex-1 items-center gap-2">
                   <span className="text-xs text-muted-foreground shrink-0 w-6">Từ</span>
                   <Input

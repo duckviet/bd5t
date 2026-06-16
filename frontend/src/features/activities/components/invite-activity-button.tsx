@@ -8,13 +8,13 @@ import { toast } from "react-toastify"
 import { Badge } from "@/components/ui/badge"
 import { Button, type ButtonProps } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog"
 import { Input } from "@/components/ui/input"
 import {
   getListNotificationsQueryKey,
@@ -206,12 +206,12 @@ function InviteFriendsDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-hidden p-0">
-        <DialogHeader className="border-b px-5 py-4">
-          <DialogTitle>Mời bạn bè</DialogTitle>
-          <DialogDescription>{activityTitle || "Hoạt động đã chọn"}</DialogDescription>
-        </DialogHeader>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="max-h-[90vh] max-w-2xl overflow-hidden p-0">
+        <ResponsiveDialogHeader className="border-b px-5 py-4">
+          <ResponsiveDialogTitle>Mời bạn bè</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>{activityTitle || "Hoạt động đã chọn"}</ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
         <div className="space-y-4 overflow-y-auto px-5 py-4">
           <div className="relative">
@@ -307,7 +307,7 @@ function InviteFriendsDialog({
           </div>
         </div>
 
-        <DialogFooter className="border-t px-5 py-4">
+        <ResponsiveDialogFooter className="border-t px-5 py-4">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={inviteMutation.isPending}>
             Hủy
           </Button>
@@ -319,8 +319,8 @@ function InviteFriendsDialog({
             )}
             Mời
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }
