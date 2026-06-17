@@ -59,19 +59,23 @@ export function DraggableBadge({
           </div>
         )}
 
-        {/* Glowing effect under active badges */}
-        {/* {badge.isActive && (
-          <div className="absolute inset-0 -z-10 bg-amber-400/20 blur-lg rounded-full animate-pulse" />
-        )} */}
+        {/* Glowing effect under high-level badges */}
+        {badge.id.endsWith("_high") && (
+          <div className="absolute inset-0.5 -z-10 bg-amber-400/20 blur-[12px] rounded-full animate-pulse" />
+        )}
       </div>
 
       {/* Tooltip / Label */}
       <div
         className={cn(
-          "absolute top-full mt-1.5 flex flex-col items-center bg-white rounded-lg px-2.5 py-1.5 text-center shadow-lg pointer-events-none transition-all duration-200 z-50 min-w-[140px] max-w-[180px]",
+          "absolute flex flex-col items-center bg-white rounded-lg px-2.5 py-1.5 text-center shadow-lg pointer-events-none transition-all duration-200 z-50 min-w-[140px] max-w-[180px]",
+          pos.y > 50 ? "bottom-full mb-1.5" : "top-full mt-1.5",
           isDragging
             ? "hidden"
-            : "opacity-0 scale-95 translate-y-1 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0",
+            : cn(
+                "opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0",
+                pos.y > 50 ? "-translate-y-1" : "translate-y-1",
+              ),
         )}
       >
         <span className="text-[10px] font-bold text-primary tracking-wide">

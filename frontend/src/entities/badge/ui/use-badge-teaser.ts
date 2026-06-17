@@ -171,6 +171,7 @@ export function useBadgeTeaser(
     resetPositions()
   }, [resetPositions])
 
+  console.log(allUnlockedBadges)
   return {
     allUnlockedBadges,
     positions: isLoaded ? positions : {},

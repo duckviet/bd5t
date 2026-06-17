@@ -8,7 +8,7 @@ import type {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/api/v1";
 
-const DEFAULT_REVALIDATE = 300;
+const DEFAULT_REVALIDATE = 0;
 
 type ApiResponse<T> = {
   data?: T;

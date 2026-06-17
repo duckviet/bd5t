@@ -5,7 +5,7 @@ import { ActivitiesClientView } from "./components/ActivitiesClientView";
 import { getAllActivities } from "@/lib/server-public-api";
 import { absoluteUrl, createMetadata } from "@/lib/seo";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = createMetadata({
   title: "Khám phá hoạt động",

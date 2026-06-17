@@ -30,7 +30,7 @@ import {
   truncateDescription,
 } from "@/lib/seo";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 interface ActivityDetailPageProps {
   params: Promise<{ slug: string }>;

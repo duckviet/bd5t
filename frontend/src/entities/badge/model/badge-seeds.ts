@@ -106,7 +106,7 @@ function criterionBadge(
     isUnlocked: (summary: ScoreSummary) => {
       const score = summary.scores.get(criteria) ?? 0
 
-      return score > 0 && isInScoreBand(score, scoreBand)
+      return scoreBand === "low" ? score > 0 : score >= 100
     },
     isActive: (summary: ScoreSummary) =>
       summary.maxScore > 0 &&
@@ -137,20 +137,22 @@ function groupBadge(
     gradientClass,
     borderClass,
     textColor,
-    isUnlocked: (summary: ScoreSummary) =>
-      summary.maxScore > 0 &&
-      isInScoreBand(summary.maxScore, scoreBand) &&
-      (group === "all"
+    isUnlocked: (summary: ScoreSummary) => {
+      const satisfiesScore = id === "spec_multi_low"
+        ? summary.maxScore > 0 && summary.maxScore < 100
+        : (scoreBand === "low" ? summary.maxScore > 0 : summary.maxScore >= 100)
+      const satisfiesGroup = group === "all"
         ? summary.matchingKeys.length === profileCriteriaKeys.length
-        : summary.matchingKeys.length >= 2 &&
-          summary.matchingKeys.length < profileCriteriaKeys.length),
+        : summary.matchingKeys.length >= 2
+      return satisfiesScore && satisfiesGroup
+    },
     isActive: (summary: ScoreSummary) =>
       summary.maxScore > 0 &&
       isInScoreBand(summary.maxScore, scoreBand) &&
       (group === "all"
         ? summary.matchingKeys.length === profileCriteriaKeys.length
         : summary.matchingKeys.length >= 2 &&
-          summary.matchingKeys.length < profileCriteriaKeys.length),
+        summary.matchingKeys.length < profileCriteriaKeys.length),
   }
 }
 
