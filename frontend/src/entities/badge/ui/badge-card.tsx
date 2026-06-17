@@ -3,6 +3,7 @@ import { Check, HelpCircle, Lock, Trophy } from "lucide-react"
 import type { BadgeDefinition } from "@/entities/badge"
 import { cn } from "@/lib/utils"
 import { badgeImages } from "./badge-assets"
+import { badgeIcons } from "./badge-icons"
 
 interface BadgeCardProps {
   readonly badge: BadgeDefinition
@@ -41,6 +42,8 @@ function BadgeCardImage({
   readonly imageUrl?: string
   readonly isGeneral: boolean
 }) {
+  const Icon = badgeIcons[badge.iconKey] ?? Trophy
+
   return (
     <div className="relative flex w-full flex-1 items-center justify-center overflow-hidden bg-slate-50">
       {imageUrl ? (
@@ -59,7 +62,7 @@ function BadgeCardImage({
         </>
       ) : (
         <div className="absolute inset-0 flex select-none items-center justify-center bg-slate-100/60">
-          <Trophy className="h-10 w-10 text-slate-300" />
+          <Icon className="h-10 w-10 text-slate-300" />
         </div>
       )}
 
