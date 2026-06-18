@@ -11,6 +11,14 @@ import {
 import { REVIEW_LEVELS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { EvidenceItem } from "@/services/generated/api"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface ProfileAwardsSummaryProps {
   readonly evidences: readonly EvidenceItem[]
@@ -38,9 +46,29 @@ export function ProfileAwardsSummary({ evidences }: ProfileAwardsSummaryProps) {
           ))}
         </div>
         {awards.length > 3 && (
-          <div className="mt-4 text-center text-xs italic text-muted-foreground">
-            Và {awards.length - 3} giải thưởng khác
-          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <button className="mt-4 w-full text-center text-xs italic text-muted-foreground hover:text-primary hover:underline cursor-pointer transition-colors pb-1">
+                Và {awards.length - 3} giải thưởng khác
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-6">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-amber-500 animate-bounce" />
+                  Danh sách giải thưởng ({awards.length})
+                </DialogTitle>
+                <DialogDescription>
+                  Tất cả các giải thưởng đã đạt được ghi nhận từ minh chứng của bạn.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto pr-1 py-2 space-y-3 mt-4">
+                {awards.map((award) => (
+                  <AwardSummaryRow key={award.id} award={award} />
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
         )}
       </CardContent>
     </Card>

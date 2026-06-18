@@ -30,14 +30,14 @@ export const BadgeCollection = memo(function BadgeCollection({
                   src={imgUrl}
                   alt={badge.name}
                   loading="lazy"
-                  className="w-11 h-11 object-contain select-none pointer-events-none badge-outline transition-transform duration-200 group-hover:-translate-y-1.5 group-hover:scale-110"
+                  className="w-11 h-11 object-contain select-none pointer-events-none badge-outline transition duration-200 ease-out group-hover:-translate-y-1.5 group-hover:scale-110"
                 />
               ) : (
-                <Trophy className="h-6 w-6 text-slate-300 transition-transform duration-200 group-hover:-translate-y-1.5 group-hover:scale-110" />
+                <Trophy className="h-6 w-6 text-slate-300 transition duration-200 ease-out group-hover:-translate-y-1.5 group-hover:scale-110" />
               )}
 
               {/* Tooltip with transition to prevent reflow */}
-              <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 flex flex-col items-center bg-white rounded-lg px-2.5 py-1.5 text-center shadow-lg pointer-events-none opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-200 ease-out z-50 min-w-[140px] max-w-[180px]">
+              <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 flex flex-col items-center bg-white rounded-lg px-2.5 py-1.5 text-center shadow-lg pointer-events-none opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition duration-200 ease-out will-change-transform z-50 min-w-[140px] max-w-[180px]">
                 <span className="text-[10px] font-bold text-primary tracking-wide">
                   {badge.name}
                 </span>

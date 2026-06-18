@@ -162,4 +162,5 @@ input[type="password"]::-webkit-textfield-decoration-container {
 .badge-outline {
   filter:
     drop-shadow(0 2px 0 white) drop-shadow(0 -2px 0 white) drop-shadow(2px 0 0 white) drop-shadow(-2px 0 0 white) drop-shadow(2px 2px 0 white) drop-shadow(-2px -2px 0 white) drop-shadow(2px -2px 0 white) drop-shadow(-2px 2px 0 white);
+  will-change: transform;
 }

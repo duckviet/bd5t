@@ -31,7 +31,7 @@ export function ActivityCard({ activity, onViewDetails }: ActivityCardProps) {
             className="object-cover w-full h-full"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center group-hover:scale-105 transition duration-500">
             <Calendar className="h-12 w-12 text-slate-300" />
           </div>
         )}
